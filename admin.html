@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharma.Duck 系統管理後台</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #1f2937; color: white; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: #374151; padding: 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        
+        h1 { border-bottom: 2px solid #F39800; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .reset-btn { background: #d0021b; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #4b5563; }
+        th { color: #F39800; }
+        
+        input { background: #1f2937; border: 1px solid #6b7280; color: white; padding: 8px; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        input:focus { border-color: #F39800; outline: none; }
+        
+        .preview-img { width: 40px; height: 40px; object-fit: contain; background: white; border-radius: 50%; }
+
+        .action-bar { margin-top: 30px; text-align: right; }
+        .save-btn { background: #009944; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .save-btn:hover { transform: scale(1.05); background: #00b350; }
+
+        .status-msg { color: #10b981; margin-right: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>
+        🦆 鴨鴨養成系統 - 等級配置後台
+        <button class="reset-btn" onclick="resetToDefault()">⚠ 重置為預設值</button>
+    </h1>
+    <p style="color:#9ca3af;">在此調整每個等級的稱號、所需經驗值 (EXP) 以及對應的圖片。修改後點擊保存，前台將即時生效。</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="80">等級</th>
+                <th width="200">稱號名稱</th>
+                <th width="150">所需 EXP</th>
+                <th>對應圖片路徑 (images/...)</th>
+                <th width="60">預覽</th>
+            </tr>
+        </thead>
+        <tbody id="configTable">
+            </tbody>
+    </table>
+
+    <div class="action-bar">
+        <span class="status-msg" id="msg">✅ 設定已更新！請重新整理前台網頁</span>
+        <button class="save-btn" onclick="saveConfig()">💾 保存設定</button>
+    </div>
+</div>
+
+<script>
+    // 預設設定 (備份用)
+    const defaultConfig = [
+        { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
+        { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
+        { lv: 3, name: "健康小幫手", minExp: 3000, img: "images/duck_lv3.png" },
+        { lv: 4, name: "初階披袍鴨", minExp: 10000, img: "images/duck_lv4.png" },
+        { lv: 5, name: "調劑熟手鴨", minExp: 25000, img: "images/duck_lv5.png" },
+        { lv: 6, name: "衛教領航員", minExp: 50000, img: "images/duck_lv6.png" },
+        { lv: 7, name: "資深藥師鴨", minExp: 100000, img: "images/duck_lv7.png" },
+        { lv: 8, name: "大樹店長鴨", minExp: 250000, img: "images/duck_lv8.png" },
+        { lv: 9, name: "榮譽長老鴨", minExp: 500000, img: "images/duck_lv9.png" },
+        { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
+    ];
+
+    let currentConfig = [];
+
+    // 初始化
+    function init() {
+        // 先看有沒有自訂過，沒有就用預設
+        const saved = localStorage.getItem('customLevelConfig');
+        currentConfig = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultConfig));
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('configTable');
+        tbody.innerHTML = '';
+
+        currentConfig.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight:bold; font-size:18px;">Lv.${item.lv}</td>
+                <td><input type="text" value="${item.name}" onchange="updateItem(${index}, 'name', this.value)"></td>
+                <td><input type="number" value="${item.minExp}" onchange="updateItem(${index}, 'minExp', this.value)"></td>
+                <td><input type="text" value="${item.img}" onchange="updateItem(${index}, 'img', this.value)"></td>
+                <td><img src="${item.img}" class="preview-img" onerror="this.src='images/my_duck.png'"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateItem(index, field, value) {
+        if (field === 'minExp') value = parseInt(value);
+        currentConfig[index][field] = value;
+    }
+
+    function saveConfig() {
+        localStorage.setItem('customLevelConfig', JSON.stringify(currentConfig));
+        
+        // 顯示成功訊息
+        const msg = document.getElementById('msg');
+        msg.style.display = 'inline-block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+    }
+
+    function resetToDefault() {
+        if(confirm("確定要恢復原廠設定嗎？所有自訂修改將消失。")) {
+            localStorage.removeItem('customLevelConfig');
+            init(); // 重新讀取預設
+            alert("已恢復預設值！");
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
