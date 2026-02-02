@@ -110,10 +110,12 @@
 </header>
 
 <div class="dashboard">
-    <div class="season-card">
-        <div class="season-badge">
-            ⏳ 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天 (每半年重置等級)
-        </div>
+    <div class="season-badge">
+    ⏳ 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天 
+    <span style="font-size:12px; margin-left:8px; color:#fff; opacity:0.8;">
+        (至 <span id="seasonEndDate">計算中...</span> 止)
+    </span>
+    </div>
         
         <div class="avatar-area">
             <img src="images/my_duck.png" class="avatar-img" id="duckAvatar">
@@ -412,13 +414,29 @@
         });
     }
     // === 7. 功能函數 ===
+    // === 7. 功能函數 (已更新：加入到期日顯示) ===
     function updateSeasonDays() {
         const now = new Date();
         const year = now.getFullYear();
         const isFirstHalf = now.getMonth() + 1 <= 6;
+        
+        // 設定結束日：6/30 或 12/31
         const endDate = isFirstHalf ? new Date(year, 5, 30) : new Date(year, 11, 31);
+        
+        // 計算倒數天數
         const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
         document.getElementById('daysLeft').innerText = diffDays;
+        
+        // ▼▼▼ 新增：格式化日期並顯示 (YYYY/MM/DD) ▼▼▼
+        const endYear = endDate.getFullYear();
+        const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+        const endDay = endDate.getDate().toString().padStart(2, '0');
+        document.getElementById('seasonEndDate').innerText = `${endYear}/${endMonth}/${endDay}`;
+        
+        // 更新下方的區間文字
+        const startStr = isFirstHalf ? `${year}/01/01` : `${year}/07/01`;
+        const endStr = `${endYear}/${endMonth}/${endDay}`;
+        document.getElementById('seasonDateRange').innerText = `${startStr} - ${endStr}`;
     }
 
     function doTask(btn, exp, coins) {
