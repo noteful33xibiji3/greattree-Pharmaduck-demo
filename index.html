@@ -253,7 +253,6 @@
     // 🦆 Pharma.Duck RPG 核心系統 (首頁同步版)
     // ==============================================
 
-    // === 1. 精選 10 種商品資料 ===
     const products = [
         { id: 1, name: "普拿疼 止痛錠", price: 150, type: "drug", target: "大人", form: "錠劑", image: "images/p_panadol.jpg" },
         { id: 2, name: "安佳熱 退燒糖漿", price: 120, type: "drug", target: "小孩", form: "藥水", image: "images/p_kids_syrup.jpg" },
@@ -282,72 +281,71 @@
             </div>`;
     });
 
-    // === 2. 會員等級設定 (已修正：包含 img 屬性，與後台格式統一) ===
+    // === 2. 會員等級設定 ===
     const defaultLevels = [
-        { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
-        { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
-        { lv: 3, name: "健康小幫手", minExp: 3000, img: "images/duck_lv3.png" },
-        { lv: 4, name: "初階披袍鴨", minExp: 10000, img: "images/duck_lv4.png" },
-        { lv: 5, name: "調劑熟手鴨", minExp: 25000, img: "images/duck_lv5.png" },
-        { lv: 6, name: "衛教領航員", minExp: 50000, img: "images/duck_lv6.png" },
-        { lv: 7, name: "資深藥師鴨", minExp: 100000, img: "images/duck_lv7.png" },
-        { lv: 8, name: "大樹店長鴨", minExp: 250000, img: "images/duck_lv8.png" },
-        { lv: 9, name: "榮譽長老鴨", minExp: 500000, img: "images/duck_lv9.png" },
-        { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
+        { lv: 1, name: "破殼見習生", minExp: 0 },
+        { lv: 2, name: "好奇探險鴨", minExp: 500 },
+        { lv: 3, name: "健康小幫手", minExp: 3000 },
+        { lv: 4, name: "初階披袍鴨", minExp: 10000 },
+        { lv: 5, name: "調劑熟手鴨", minExp: 25000 },
+        { lv: 6, name: "衛教領航員", minExp: 50000 },
+        { lv: 7, name: "資深藥師鴨", minExp: 100000 },
+        { lv: 8, name: "大樹店長鴨", minExp: 250000 },
+        { lv: 9, name: "榮譽長老鴨", minExp: 500000 },
+        { lv: 10, name: "醫藥守護神", minExp: 1000000 }
     ];
 
-    // 嘗試讀取後台設定，沒有則用預設
-    let customConfig = JSON.parse(localStorage.getItem('customLevelConfig'));
-    let levelConfig = customConfig || defaultLevels;
+    let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
 
     // === 3. 同步會員外觀與數據 ===
     function syncDuckLook() {
         let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: "images/my_duck.png" };
         let userState = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
         
-        // 確保等級名稱與設定檔同步 (從 levelConfig 找符合 EXP 的等級)
-        // 邏輯：反轉陣列，找到第一個 EXP 達成條件的等級
-        let currentConfig = levelConfig.slice().reverse().find(l => userState.exp >= l.minExp) || levelConfig[0];
-        
-        // 更新 UI 數據
+        // ★★★ 關鍵：重新計算等級 (確保後台改 EXP，這裡也會跟著變) ★★★
+        let sortedConfig = [...levelConfig].sort((a, b) => b.minExp - a.minExp);
+        let currentConfig = sortedConfig.find(l => userState.exp >= l.minExp) || levelConfig[0];
+        userState.level = currentConfig.lv; // 更新等級
+
+        // 更新 UI
         document.getElementById('navCoin').innerText = userState.coins.toLocaleString();
         document.getElementById('lvText').innerText = `Lv.${userState.level}`;
         
-        // 找下一級的經驗值 (為了顯示進度條)
-        let nextConfig = levelConfig.find(l => l.lv === userState.level + 1) || { minExp: 1000000 };
-        document.getElementById('expText').innerText = `${userState.exp.toLocaleString()}/${nextConfig.minExp.toLocaleString()}`;
+        // 找下一級
+        let nextConfig = levelConfig.find(l => l.lv === userState.level + 1) || { minExp: "MAX" };
         
-        // 計算百分比
-        let expInLevel = userState.exp - currentConfig.minExp;
-        let expNeededForNext = nextConfig.minExp - currentConfig.minExp;
-        // 如果是最高級(Lv10)，分母會變成 0 或負數，所以要做個判斷
-        let percent = (userState.level === 10) ? 100 : Math.min(100, (expInLevel / expNeededForNext) * 100);
-        document.getElementById('expBar').style.width = `${percent}%`;
+        // 進度條
+        let progressPercent = 0;
+        if (nextConfig.minExp === "MAX") {
+            progressPercent = 100;
+            document.getElementById('expText').innerText = `${userState.exp.toLocaleString()}/MAX`;
+        } else {
+            let expInLevel = userState.exp - currentConfig.minExp;
+            let expNeededForNext = nextConfig.minExp - currentConfig.minExp;
+            progressPercent = Math.min(100, (expInLevel / expNeededForNext) * 100);
+            document.getElementById('expText').innerText = `${userState.exp.toLocaleString()}/${nextConfig.minExp.toLocaleString()}`;
+        }
+        document.getElementById('expBar').style.width = `${progressPercent}%`;
 
-        // === 圖片同步邏輯 ===
-        // 首頁讀取的是使用者「currentSkin (目前穿著)」。
-        // 在會員中心換裝時，已經把新的圖片路徑存入 userState.currentSkin 了。
-        // 所以這裡直接讀取 currentSkin 即可。
+        // 圖片 (直接用存檔的，因為 admin 已經強制寫入 currentSkin 了)
         const newSkin = userState.currentSkin || "images/my_duck.png";
-        
         document.querySelectorAll('#mainDuckImg, #chatDuckImg').forEach(img => {
             img.src = newSkin;
             img.onerror = function() { this.src = "images/my_duck.png"; };
         });
     }
     
-    // 初始化與監聽
     syncDuckLook();
-    window.addEventListener('storage', syncDuckLook);
+    window.addEventListener('storage', syncDuckLook); // 監聽後台變化
 
-    // === 新增：鴨子表情控制 (保留頭痛功能) ===
+    // === 4. 表情控制 ===
     function setDuckEmotion(imgUrl) {
         document.querySelectorAll('#mainDuckImg, #chatDuckImg').forEach(img => {
             img.src = imgUrl;
         });
     }
 
-    // === 4. 聊天邏輯 ===
+    // === 5. 聊天邏輯 ===
     let chatStep = 0; 
 
     function toggleChat() {
@@ -363,11 +361,11 @@
             document.getElementById('userInput').focus();
         } else if (action === 'new') {
             chatStep = 0;
-            syncDuckLook(); // 恢復正常表情/時裝
+            syncDuckLook(); 
             addMsg("好的，還有什麼其他問題想問鴨鴨嗎？(請輸入症狀)", 'duck');
         } else {
             toggleChat();
-            syncDuckLook(); // 恢復正常表情/時裝
+            syncDuckLook(); 
         }
     }
 
@@ -383,32 +381,26 @@
         setTimeout(() => { duckResponse(text); }, 800);
     }
 
-    // 共用加分與升級 (依照企劃：問診 +50 EXP / +5 Coins)
     function addPoints(exp, coins) {
         let userState = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, exp: 0, coins: 50 };
         userState.exp += exp;
         userState.coins += coins;
         
-        // 判斷升級 (根據新的 config)
-        let newLvConfig = levelConfig.slice().reverse().find(l => userState.exp >= l.minExp);
-        if (newLvConfig && newLvConfig.lv > userState.level) {
-            userState.level = newLvConfig.lv;
-            const modal = document.getElementById('levelUpModal');
-            document.getElementById('newLvName').innerText = `Lv.${userState.level} ${newLvConfig.name}`;
-            modal.style.display = 'block';
-            setTimeout(() => modal.style.display = 'none', 3000);
-        }
-        
         localStorage.setItem('duckUser', JSON.stringify(userState));
-        syncDuckLook();
+        syncDuckLook(); // 存完馬上更新 UI
+        
+        // 彈窗
+        const modal = document.getElementById('levelUpModal');
+        document.getElementById('newLvName').innerText = `獲得 ${exp} EXP / ${coins} Coins`;
+        modal.style.display = 'block';
+        setTimeout(() => modal.style.display = 'none', 2500);
     }
 
     function duckResponse(text) {
         let showButtons = true; 
 
-        // 劇本 A：頭痛
         if (chatStep === 0 && (text.includes("頭痛") || text.includes("痛"))) {
-            setDuckEmotion('images/duck_headache.png'); // 觸發頭痛表情
+            setDuckEmotion('images/duck_headache.png'); 
             addMsg("收到。為了安全，請告訴我：<br>1. <b>使用者的年齡</b><br>2. <b>體重</b>", 'duck');
             chatStep = 1; 
             showButtons = false; 
@@ -422,8 +414,6 @@
             chatStep = 0; 
             addPoints(50, 5); 
         }
-
-        // 劇本 B：維他命 C
         else if (chatStep === 0 && (text.includes("C") || text.includes("維他命c"))) {
             addMsg("想找維他命C嗎？請問是<b>給誰吃的</b>？<br>(例如：小孩、老人、大人)", 'duck');
             chatStep = 3; 
@@ -448,8 +438,6 @@
             chatStep = 0;
             addPoints(50, 5); 
         }
-
-        // 劇本 C：B群
         else if (text.includes("B群")) {
             addMsg("很多人搞混 B群 跟 綜合維他命！看這張圖：", 'duck');
             setTimeout(() => {
@@ -458,8 +446,6 @@
             }, 500);
             chatStep = 0;
         }
-
-        // 預設
         else {
             addMsg("鴨鴨正在學習中... 請輸入「頭痛」、「B群」或「維他命C」試試！", 'duck');
             chatStep = 0;
@@ -480,3 +466,4 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
