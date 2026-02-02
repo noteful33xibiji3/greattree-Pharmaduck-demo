@@ -323,10 +323,10 @@
 </div>
 <script>
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (回溯解鎖修復版)
+    // 🦆 Pharma.Duck RPG 核心系統 (最終整合修復版)
     // ==============================================
 
-    // === 1. 10級等級設定 (預設值) ===
+    // === 1. 等級設定 ===
     const defaultLevels = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
         { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
@@ -339,11 +339,9 @@
         { lv: 9, name: "榮譽長老鴨", minExp: 500000, img: "images/duck_lv9.png" },
         { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
     ];
-
-    // 嘗試讀取後台設定，沒有則用預設
     let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
 
-    // === 2. 時裝商城資料 (含付費購買) ===
+    // === 2. 時裝商城 (初心版排第一) ===
     const skinShop = [
         { name: "一鴨tree吃 初心版", img: "images/duck_origin.png", type: "buy", unlockVal: 0, cost: 0 },
         { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
@@ -352,416 +350,18 @@
         { name: "偶像鴨歌手", img: "images/duck_singer.png", type: "buy", unlockVal: 0, cost: 800 }
     ];
 
+    // === 3. 福利社商品設定 ===
     const shopItemsConfig = [
-        { 
-            id: 'coupon_50', type: 'normal', tag: '熱門', 
-            name: '$50 門市折價券', img: 'images/item_coupon.jpg', 
-            price: 500, stock: 100 
-        },
-        { 
-            id: 'vit_c', type: 'normal', tag: '推薦', 
-            name: '大樹鴨鴨補給站 - 每日C 活力組', img: 'images/p_vit_c.jpg', 
-            price: 2000, stock: 30, 
-            note: '市價$399 (省$399)<br>加價購: 100幣 + $299' 
-        },
-        { 
-            id: 'toy_duck', type: 'limit', tag: '限量', 
-            name: '大樹限定公仔', img: 'images/duck_lv10.png', 
-            price: 3000, stock: 5 
-        }
+        { id: 'coupon_50', type: 'normal', tag: '熱門', name: '$100 門市折價券', img: 'images/item_coupon.jpg', price: 500, stock: 100 },
+        { id: 'vit_c', type: 'normal', tag: '推薦', name: '大樹鴨鴨補給站 - 每日C 活力組', img: 'images/p_vit_c.jpg', price: 2000, stock: 30, note: '市價$399 (省$399)<br>加價購: 100幣 + $299' },
+        { id: 'toy_duck', type: 'limit', tag: '限量', name: '大樹限定公仔', img: 'images/duck_lv10.png', price: 3000, stock: 5 }
     ];
 
     // 初始化庫存
     let shopStock = JSON.parse(localStorage.getItem('duckShopStock')) || {};
-    shopItemsConfig.forEach(item => {
-        if (shopStock[item.id] === undefined) shopStock[item.id] = item.stock;
-    });
+    shopItemsConfig.forEach(item => { if (shopStock[item.id] === undefined) shopStock[item.id] = item.stock; });
 
-    // === 資料讀取 (加入 coupons 初始化) ===
-    function loadUserData() {
-        let defaultData = { 
-            level: 1, exp: 0, coins: 50, 
-            currentSkin: levelConfig[0].img, 
-            unlockedSkins: [levelConfig[0].img], 
-            lastSeason: "",
-            coupons: [] // 初始化票券夾
-        };
-        let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
-        return checkSeasonReset(data);
-    }
-    let userState = loadUserData();
-
-    // === 3. 賽季重置邏輯 ===
-    function checkSeasonReset(userData) {
-        const now = new Date();
-        const year = now.getFullYear();
-        const currentSeason = (now.getMonth() + 1 <= 6) ? 1 : 2; 
-        const seasonId = `${year}-S${currentSeason}`;
-
-        if (userData.lastSeason && userData.lastSeason !== seasonId) {
-            console.log(`賽季切換！重置 EXP...`);
-            userData.exp = 0; 
-            userData.level = 1;
-            userData.lastSeason = seasonId;
-            userData.currentSkin = levelConfig[0].img; 
-            // 重置時也要清空解鎖清單，只留 Lv1
-            userData.unlockedSkins = [levelConfig[0].img];
-            alert(`📅 新賽季 (${seasonId}) 開始！\n等級已重置，請重新開始冒險！`);
-        } else if (!userData.lastSeason) {
-            userData.lastSeason = seasonId;
-        }
-        return userData;
-    }
-
-    // === 4. 數據讀取與初始化 ===
-    function loadUserData() {
-        let defaultData = { 
-            level: 1, 
-            exp: 0, 
-            coins: 50, 
-            currentSkin: levelConfig[0].img, // 預設穿 Lv1
-            unlockedSkins: [levelConfig[0].img], 
-            lastSeason: "" 
-        };
-
-        let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
-        data = checkSeasonReset(data);
-        return data;
-    }
-
-
-
-    // === 5. UI 更新核心 (回溯解鎖修復) ===
-    function updateUI() {
-        // A. 計算當前正確等級
-        let currentConfig = levelConfig[0];
-        let nextConfig = levelConfig[1];
-
-        for (let i = 0; i < levelConfig.length; i++) {
-            if (userState.exp >= levelConfig[i].minExp) {
-                currentConfig = levelConfig[i];
-                nextConfig = levelConfig[i+1] || { minExp: "MAX", name: "已達巔峰" };
-            }
-        }
-
-        // B. 同步等級變數
-        const oldLevel = userState.level;
-        userState.level = currentConfig.lv;
-
-        // ★★★ 關鍵修復：回溯解鎖 (Retroactive Unlock) ★★★
-        // 檢查所有小於等於當前等級的時裝，如果沒解鎖，全部補發！
-        levelConfig.forEach(cfg => {
-            if (userState.level >= cfg.lv) {
-                if (!userState.unlockedSkins.includes(cfg.img)) {
-                    userState.unlockedSkins.push(cfg.img);
-                    console.log(`補發解鎖：Lv.${cfg.lv} 時裝`);
-                }
-            }
-        });
-
-        // C. 如果等級剛剛提升了，顯示彈窗並換裝
-        // (這裡加一個判斷：如果是後台直接拉滿的，通常 oldLevel 會跟 currentConfig.lv 不同)
-        // 但為了避免每次重新整理都跳彈窗，我們只在 currentSkin 不等於最新等級圖時才強制換裝
-        if (oldLevel < currentConfig.lv) {
-             showLevelUp(currentConfig.name, currentConfig.lv);
-             // 強制換上最新等級的衣服
-             userState.currentSkin = currentConfig.img;
-        } 
-        // 防呆：如果當前穿的是「等級裝」但不是「最新等級裝」，強制換成最新的
-        // (這樣後台拉滿後，前台一刷新就會穿上 Lv.10)
-        else if (levelConfig.some(l => l.img === userState.currentSkin) && userState.currentSkin !== currentConfig.img) {
-             userState.currentSkin = currentConfig.img;
-        }
-
-        // D. 更新文字與進度條
-        document.getElementById('lvTitle').innerText = `Lv.${currentConfig.lv} ${currentConfig.name}`;
-        document.getElementById('lvBadge').innerText = `Lv.${currentConfig.lv}`;
-        document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString();
-        
-        let progressPercent = 0;
-        if (currentConfig.lv === 10) {
-            progressPercent = 100;
-            document.getElementById('maxExpText').innerText = "MAX";
-        } else {
-            let expInLevel = userState.exp - currentConfig.minExp;
-            let expNeededForNext = nextConfig.minExp - currentConfig.minExp;
-            progressPercent = Math.min(100, (expInLevel / expNeededForNext) * 100);
-            document.getElementById('maxExpText').innerText = nextConfig.minExp.toLocaleString();
-        }
-
-        document.getElementById('expBar').style.width = `${progressPercent}%`;
-        document.getElementById('expText').innerText = userState.exp.toLocaleString(); 
-
-        // E. 圖片
-        const avatar = document.getElementById('duckAvatar');
-        avatar.src = userState.currentSkin;
-        avatar.onerror = function() { this.src = "images/my_duck.png"; };
-
-        // F. 存檔
-        localStorage.setItem('duckUser', JSON.stringify(userState));
-        
-        renderWardrobe();
-        updateSeasonDays();
-        renderShop();
-        renderCoupons();
-    }
-function renderShop() {
-        const normalGrid = document.getElementById('normalShopGrid');
-        const limitGrid = document.getElementById('limitShopGrid');
-        if(!normalGrid || !limitGrid) return;
-        
-        normalGrid.innerHTML = '';
-        limitGrid.innerHTML = '';
-
-        shopItemsConfig.forEach(item => {
-            const currentStock = shopStock[item.id];
-            const isSoldOut = currentStock <= 0;
-            
-            const cardHtml = `
-                <div class="item-card" style="${isSoldOut ? 'opacity:0.6; filter:grayscale(1);' : ''}">
-                    <div class="item-tag" style="background:${isSoldOut ? '#666' : (item.type==='limit'?'var(--red)':'var(--gt-orange)')}">
-                        ${isSoldOut ? '售完' : item.tag}
-                    </div>
-                    <img src="${item.img}" class="item-img" onerror="this.src='https://placehold.co/100x100/eee/999?text=Item'">
-                    <div class="item-title">${item.name}</div>
-                    <div class="item-price-block">
-                        <div class="price-coins">${item.price.toLocaleString()} Coins</div>
-                        ${item.note ? `<div class="price-addon">${item.note}</div>` : ''}
-                        <div class="item-stock">剩餘: ${currentStock} 組</div>
-                    </div>
-                    <button class="btn-redeem" ${isSoldOut ? 'disabled' : ''} onclick="redeemShopItem('${item.id}')">
-                        ${isSoldOut ? '已售完' : '立即兌換'}
-                    </button>
-                </div>
-            `;
-            if(item.type === 'limit') limitGrid.innerHTML += cardHtml;
-            else normalGrid.innerHTML += cardHtml;
-        });
-    }
-
-    // === 新增函式 2：兌換邏輯 ===
-    function redeemShopItem(itemId) {
-        const item = shopItemsConfig.find(i => i.id === itemId);
-        if (!item) return;
-        if (shopStock[itemId] <= 0) { alert("抱歉，已售完！"); return; }
-        if (userState.coins < item.price) { alert(`大樹幣不足！還差 ${item.price - userState.coins} Coins`); return; }
-
-        if (confirm(`確定要兌換「${item.name}」嗎？`)) {
-            userState.coins -= item.price;
-            shopStock[itemId]--;
-            localStorage.setItem('duckShopStock', JSON.stringify(shopStock));
-
-            // 計算效期 (當下+120天)
-            const now = new Date();
-            now.setDate(now.getDate() + 120);
-            const expiryStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')}`;
-
-            if (!userState.coupons) userState.coupons = [];
-            userState.coupons.push({ id: Date.now(), name: item.name, expiry: expiryStr, used: false });
-
-            updateUI(); // 這會觸發儲存與重新渲染
-            alert(`兌換成功！\n請至「我的票券夾」查看，效期至 ${expiryStr}`);
-        }
-    }
-
-    // === 新增函式 3：渲染票券夾 ===
-    function renderCoupons() {
-        const list = document.getElementById('couponList');
-        if(!list) return;
-        list.innerHTML = '';
-
-        if (!userState.coupons || userState.coupons.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
-            return;
-        }
-        const activeCoupons = userState.coupons.filter(c => !c.used);
-        activeCoupons.forEach(coupon => {
-            list.innerHTML += `
-                <div class="coupon-ticket">
-                    <div class="coupon-detail">
-                        <b>${coupon.name}</b>
-                        <span>有效期限：${coupon.expiry}</span>
-                    </div>
-                    <button class="coupon-btn" onclick="useCoupon(${coupon.id})">使用</button>
-                </div>
-            `;
-        });
-    }
-
-    function useCoupon(id) {
-        if(confirm("請出示給店員核銷，確定使用嗎？")) {
-            userState.coupons = userState.coupons.filter(c => c.id !== id);
-            updateUI();
-            alert("已核銷！");
-        }
-    }
-
-    // === 新增函式 4：倒數計時 ===
-    setInterval(() => {
-        const now = new Date();
-        const end = new Date();
-        end.setHours(24,0,0,0);
-        let diff = end - now;
-        const h = Math.floor((diff/(1000*60*60))%24).toString().padStart(2,'0');
-        const m = Math.floor((diff/(1000*60))%60).toString().padStart(2,'0');
-        const s = Math.floor((diff/1000)%60).toString().padStart(2,'0');
-        const timer = document.getElementById('countdownTimer');
-        if(timer) timer.innerText = `${h}:${m}:${s}`;
-    }, 1000);
-    // === 6. 渲染衣櫃 (自動合併) ===
- // === 6. 渲染衣櫃 (修復括號錯誤版) ===
-    function renderWardrobe() {
-        const container = document.getElementById('wardrobeList');
-        container.innerHTML = ""; 
-
-        // 1. 建立顯示清單
-        let displaySkins = [...skinShop]; 
-        
-        // 2. 自動補齊等級獎勵
-        levelConfig.forEach(lvItem => {
-            const exists = displaySkins.some(s => s.img === lvItem.img);
-            if (!exists) {
-                displaySkins.push({
-                    name: lvItem.name,
-                    img: lvItem.img,
-                    type: 'level',
-                    unlockVal: lvItem.lv,
-                    cost: 0
-                });
-            }
-        });
-
-        // 3. 排序
-      displaySkins.sort((a, b) => {
-            // A. 如果是初心版，優先級最高 (回歸初心)
-            if (a.name.includes("初心版")) return -1;
-            if (b.name.includes("初心版")) return 1;
-
-            // B. 剩下的部分：等級裝排在一般購買裝前面
-            if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
-            if (a.type === 'level') return -1; 
-            return 1;
-        });
-
-        // 4. 生成 HTML
-        displaySkins.forEach(skin => {
-            const isOwned = userState.unlockedSkins.includes(skin.img);
-            const isActive = userState.currentSkin === skin.img;
-            let lockMsg = "";
-            let clickAction = null;
-
-            if (isOwned) {
-                // 如果已經擁有，點擊就是換裝
-                clickAction = () => changeSkin(skin.img);
-            } else {
-                // 如果未擁有，判斷類型
-                if (skin.type === 'level') {
-                    // 等級解鎖型
-                    if (userState.level >= skin.unlockVal) {
-                        clickAction = () => changeSkin(skin.img);
-                    } else {
-                        lockMsg = `Lv.${skin.unlockVal} 解鎖`;
-                    }
-                } else if (skin.type === 'buy') {
-                    // 購買型 (這裡修正了括號，並加入免費判斷)
-                    if (skin.cost === 0) {
-                        lockMsg = "🎁 團隊限定 (免費)";
-                    } else {
-                        lockMsg = `${skin.cost} Coins`;
-                    }
-                    clickAction = () => buySkin(skin);
-                }
-            }
-
-            const card = document.createElement('div');
-            card.className = `skin-card ${isActive ? 'active' : ''} ${!isOwned ? 'skin-lock' : ''}`;
-            if (clickAction) card.onclick = clickAction;
-            
-            card.innerHTML = `
-                <img src="${skin.img}" onerror="this.src='images/my_duck.png'">
-                <div class="skin-name">${skin.name}</div>
-                <div class="lock-msg" style="${isOwned ? 'display:none' : ''}">${lockMsg}</div>
-            `;
-            container.appendChild(card);
-        });
-    }
-    // === 7. 功能函數 ===
-    function updateSeasonDays() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const isFirstHalf = now.getMonth() + 1 <= 6;
-        const endDate = isFirstHalf ? new Date(year, 5, 30) : new Date(year, 11, 31);
-        const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-        document.getElementById('daysLeft').innerText = diffDays;
-        const endYear = endDate.getFullYear();
-        const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
-        const endDay = endDate.getDate().toString().padStart(2, '0');
-        document.getElementById('seasonEndDate').innerText = `${endYear}/${endMonth}/${endDay}`;
-    }
-
-    function doTask(btn, exp, coins) {
-        btn.disabled = true;
-        btn.innerText = "已領取";
-        btn.style.background = "#ccc";
-        userState.exp += exp;
-        userState.coins += coins;
-        alert(`任務完成！\n獲得 ${exp} EXP\n獲得 ${coins} Coins`);
-        updateUI();
-    }
-
-    function buyItem(cost, name) {
-        if (userState.coins >= cost) {
-            if(confirm(`確定花費 ${cost} Coins 兌換 ${name} 嗎？`)) {
-                userState.coins -= cost;
-                updateUI();
-                alert(`兌換成功！${name} 已發送至您的帳戶。`);
-            }
-        } else {
-            alert("大樹幣不足！");
-        }
-    }
-
-    function buySkin(skin) {
-        if (userState.coins >= skin.cost) {
-            if(confirm(`確定花費 ${skin.cost} Coins 購買「${skin.name}」嗎？`)) {
-                userState.coins -= skin.cost;
-                userState.unlockedSkins.push(skin.img);
-                userState.currentSkin = skin.img;
-                updateUI();
-                alert("購買成功！快去換上新衣服吧！");
-            }
-        } else {
-            alert("大樹幣不足！快去解任務賺錢吧！");
-        }
-    }
-
-    function changeSkin(imgUrl) {
-        userState.currentSkin = imgUrl;
-        updateUI();
-        alert("換裝成功！首頁鴨鴨已同步更新！");
-    }
-
-    function showLevelUp(name, lv) {
-        document.getElementById('newLvName').innerText = `Lv.${lv} ${name}`;
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-    }
-    
-    // 初始化
-    updateUI();
-
-    // 監聽 storage 變化 (如果 index.html 更新了數據，這裡也要即時更新)
-    window.addEventListener('storage', () => {
-        // 重新讀取 config
-        levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
-        // 重新讀取 user state
-        userState = JSON.parse(localStorage.getItem('duckUser'));
-        updateUI();
-    });
-// === 8. 等級與權益資料庫 (Data) ===
+    // === 4. 規則與權益資料 (Data) ===
     const earningRules = [
         { action: "新會員註冊", exp: "+1,000", coin: "+50", note: "首日直升 Lv.2，獲贈基礎飾品" },
         { action: "每日登入", exp: "+50", coin: "+2", note: "連續登入 7 天，加贈 20 幣" },
@@ -784,51 +384,200 @@ function renderShop() {
         { lv: 10, name: "醫藥守護神", exp: "1,000,000", perk: "🔴 終極特權：點數永不過期+全部保健品 7 折  (金光特效)" }
     ];
 
-    // === 9. 彈窗控制邏輯 ===
+    // === 5. 數據讀取與初始化 ===
+    function checkSeasonReset(userData) {
+        const now = new Date();
+        const seasonId = `${now.getFullYear()}-S${(now.getMonth() + 1 <= 6) ? 1 : 2}`;
+        if (userData.lastSeason && userData.lastSeason !== seasonId) {
+            userData.exp = 0; userData.level = 1; userData.lastSeason = seasonId;
+            userData.unlockedSkins = [levelConfig[0].img];
+            userData.currentSkin = levelConfig[0].img;
+            alert(`📅 新賽季開始！EXP 已重置。`);
+        } else if (!userData.lastSeason) { userData.lastSeason = seasonId; }
+        return userData;
+    }
+
+    function loadUserData() {
+        let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "", coupons: [] };
+        let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
+        if (!data.coupons) data.coupons = []; // 防呆補回
+        return checkSeasonReset(data);
+    }
+    let userState = loadUserData();
+
+    // === 6. UI 更新核心 ===
+    function updateUI() {
+        let sortedConfig = [...levelConfig].sort((a, b) => b.minExp - a.minExp);
+        let currentConfig = sortedConfig.find(l => userState.exp >= l.minExp) || levelConfig[0];
+        
+        const oldLevel = userState.level;
+        userState.level = currentConfig.lv;
+
+        // 回溯解鎖等級服裝
+        levelConfig.forEach(cfg => {
+            if (userState.level >= cfg.lv && !userState.unlockedSkins.includes(cfg.img)) {
+                userState.unlockedSkins.push(cfg.img);
+            }
+        });
+
+        if (oldLevel < currentConfig.lv) {
+            showLevelUp(currentConfig.name, currentConfig.lv);
+            userState.currentSkin = currentConfig.img;
+        } else if (levelConfig.some(l => l.img === userState.currentSkin) && userState.currentSkin !== currentConfig.img) {
+            // 如果後台降級，強制換回對應等級
+            userState.currentSkin = currentConfig.img;
+        }
+
+        document.getElementById('lvTitle').innerText = `Lv.${userState.level} ${currentConfig.name}`;
+        document.getElementById('lvBadge').innerText = `Lv.${userState.level}`;
+        document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString();
+        
+        let nextConfig = levelConfig.find(l => l.lv === userState.level + 1) || { minExp: "MAX" };
+        let progressPercent = (currentConfig.lv === 10) ? 100 : Math.min(100, (userState.exp - currentConfig.minExp) / (nextConfig.minExp - currentConfig.minExp) * 100);
+        
+        document.getElementById('maxExpText').innerText = (currentConfig.lv === 10) ? "MAX" : nextConfig.minExp.toLocaleString();
+        document.getElementById('expBar').style.width = `${progressPercent}%`;
+        document.getElementById('expText').innerText = userState.exp.toLocaleString(); 
+        document.getElementById('duckAvatar').src = userState.currentSkin;
+
+        localStorage.setItem('duckUser', JSON.stringify(userState));
+        renderWardrobe();
+        renderShop();
+        renderCoupons();
+        updateSeasonDays();
+    }
+
+    // === 7. 福利社與票券功能 ===
+    function renderShop() {
+        const normalGrid = document.getElementById('normalShopGrid');
+        const limitGrid = document.getElementById('limitShopGrid');
+        if(!normalGrid || !limitGrid) return;
+        normalGrid.innerHTML = ''; limitGrid.innerHTML = '';
+
+        shopItemsConfig.forEach(item => {
+            const stock = shopStock[item.id];
+            const isSoldOut = stock <= 0;
+            const cardHtml = `
+                <div class="item-card" style="${isSoldOut ? 'opacity:0.6; filter:grayscale(1);' : ''}">
+                    <div class="item-tag" style="background:${isSoldOut ? '#666' : (item.type==='limit'?'#d0021b':'var(--gt-orange)')}">${isSoldOut ? '售完' : item.tag}</div>
+                    <img src="${item.img}" class="item-img" onerror="this.src='https://placehold.co/100x100/eee/999?text=Item'">
+                    <div class="item-title">${item.name}</div>
+                    <div class="item-price-block">
+                        <div class="price-coins">${item.price.toLocaleString()} Coins</div>
+                        ${item.note ? `<div class="price-addon">${item.note}</div>` : ''}
+                        <div class="item-stock">剩餘: ${stock} 組</div>
+                    </div>
+                    <button class="btn-redeem" ${isSoldOut ? 'disabled' : ''} onclick="redeemShopItem('${item.id}')">${isSoldOut ? '已售完' : '立即兌換'}</button>
+                </div>`;
+            if(item.type === 'limit') limitGrid.innerHTML += cardHtml; else normalGrid.innerHTML += cardHtml;
+        });
+    }
+
+    function redeemShopItem(itemId) {
+        const item = shopItemsConfig.find(i => i.id === itemId);
+        if (shopStock[itemId] <= 0 || userState.coins < item.price) return alert("無法兌換：幣不足或已售完");
+        if (confirm(`確定兌換「${item.name}」？`)) {
+            userState.coins -= item.price; shopStock[itemId]--;
+            localStorage.setItem('duckShopStock', JSON.stringify(shopStock));
+            const now = new Date(); now.setDate(now.getDate() + 120);
+            userState.coupons.push({ id: Date.now(), name: item.name, expiry: now.toLocaleDateString(), used: false });
+            updateUI();
+            alert("兌換成功！已存入票券夾。");
+        }
+    }
+
+    function renderCoupons() {
+        const list = document.getElementById('couponList');
+        list.innerHTML = (userState.coupons && userState.coupons.length > 0) ? userState.coupons.filter(c => !c.used).map(c => `
+            <div class="coupon-ticket">
+                <div class="coupon-detail"><b>${c.name}</b><span>效期：${c.expiry}</span></div>
+                <button class="coupon-btn" onclick="useCoupon(${c.id})">使用</button>
+            </div>`).join('') : '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
+    }
+
+    function useCoupon(id) {
+        if(confirm("確定核銷？")) { userState.coupons = userState.coupons.filter(c => c.id !== id); updateUI(); }
+    }
+
+    // === 8. 衣櫃功能 ===
+    function renderWardrobe() {
+        const container = document.getElementById('wardrobeList');
+        container.innerHTML = ""; 
+        let displaySkins = [...skinShop];
+        levelConfig.forEach(lvItem => {
+            if (!displaySkins.some(s => s.img === lvItem.img)) 
+                displaySkins.push({ name: lvItem.name, img: lvItem.img, type: 'level', unlockVal: lvItem.lv, cost: 0 });
+        });
+        displaySkins.sort((a, b) => {
+            if (a.name.includes("初心版")) return -1; if (b.name.includes("初心版")) return 1;
+            if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
+            return a.type === 'level' ? -1 : 1;
+        });
+        displaySkins.forEach(skin => {
+            const isOwned = userState.unlockedSkins.includes(skin.img);
+            const isActive = userState.currentSkin === skin.img;
+            const card = document.createElement('div');
+            card.className = `skin-card ${isActive ? 'active' : ''} ${!isOwned ? 'skin-lock' : ''}`;
+            card.onclick = isOwned ? () => changeSkin(skin.img) : (skin.type === 'buy' ? () => buySkin(skin) : null);
+            card.innerHTML = `<img src="${skin.img}" onerror="this.src='images/my_duck.png'"><div class="skin-name">${skin.name}</div><div class="lock-msg" style="${isOwned ? 'display:none' : ''}">${skin.type==='buy'?(skin.cost===0?'🎁 免費':skin.cost+' Coins'):'Lv.'+skin.unlockVal+' 解鎖'}</div>`;
+            container.appendChild(card);
+        });
+    }
+
+    // === 9. 輔助功能 ===
+    function doTask(btn, exp, coins) {
+        btn.disabled = true; userState.exp += exp; userState.coins += coins; 
+        alert(`獲得 ${exp} EXP / ${coins} Coins`); updateUI();
+    }
+
+    function buySkin(skin) {
+        if (userState.coins >= skin.cost) {
+            if(confirm(`購買 ${skin.name}?`)) {
+                userState.coins -= skin.cost; userState.unlockedSkins.push(skin.img); userState.currentSkin = skin.img; updateUI();
+            }
+        } else { alert("大樹幣不足"); }
+    }
+
+    function changeSkin(img) { userState.currentSkin = img; updateUI(); }
+
+    function showLevelUp(name, lv) {
+        document.getElementById('newLvName').innerText = `Lv.${lv} ${name}`;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
     function openRules() {
-        const modal = document.getElementById('rulesModal');
-        const rulesBody = document.getElementById('rulesBody');
-        const levelBody = document.getElementById('levelBody');
-        
-        // 1. 渲染賺分規則
-        rulesBody.innerHTML = earningRules.map(r => `
-            <tr>
-                <td><b>${r.action}</b></td>
-                <td style="color:var(--gt-green); font-weight:bold;">${r.exp}</td>
-                <td style="color:#b7791f; font-weight:bold;">${r.coin}</td>
-                <td style="font-size:12px;">${r.note}</td>
-            </tr>
-        `).join('');
-
-        // 2. 渲染等級表 (並加入當前等級特效)
-        levelBody.innerHTML = levelDetails.map(l => {
-            const isCurrent = l.lv === userState.level; // 判斷是不是當前等級
-            const rowClass = isCurrent ? 'current-level-row' : '';
-            const tag = isCurrent ? '<span class="current-tag">YOU</span>' : '';
-            
-            return `
-                <tr class="${rowClass}">
-                    <td>Lv.${l.lv}</td>
-                    <td>${l.name} ${tag}</td>
-                    <td>${l.exp}</td>
-                    <td>${l.perk}</td>
-                </tr>
-            `;
-        }).join('');
-
-        // 3. 顯示彈窗
-        modal.style.display = 'flex';
-        
-        // 4. 自動捲動到當前等級 (提升體驗)
+        document.getElementById('rulesModal').style.display = 'flex';
+        document.getElementById('rulesBody').innerHTML = earningRules.map(r => `<tr><td><b>${r.action}</b></td><td style="color:var(--gt-green); font-weight:bold;">${r.exp}</td><td style="color:#b7791f; font-weight:bold;">${r.coin}</td><td style="font-size:12px;">${r.note}</td></tr>`).join('');
+        document.getElementById('levelBody').innerHTML = levelDetails.map(l => `<tr class="${l.lv === userState.level ? 'current-level-row' : ''}"><td>Lv.${l.lv}</td><td>${l.name} ${l.lv === userState.level ? '⭐' : ''}</td><td>${l.exp}</td><td>${l.perk}</td></tr>`).join('');
+        // 自動捲動
         setTimeout(() => {
             const current = document.querySelector('.current-level-row');
             if(current) current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 300);
     }
 
-    function closeRules() {
-        document.getElementById('rulesModal').style.display = 'none';
+    function closeRules() { document.getElementById('rulesModal').style.display = 'none'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    
+    function updateSeasonDays() {
+        const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth() + 1 <= 6 ? 5 : 11, 30);
+        document.getElementById('daysLeft').innerText = Math.ceil((end - now) / 86400000);
+        document.getElementById('seasonEndDate').innerText = end.toLocaleDateString();
     }
+
+    // 倒數計時
+    setInterval(() => {
+        const diff = (new Date().setHours(24,0,0,0) - new Date());
+        const t = new Date(diff);
+        document.getElementById('countdownTimer').innerText = t.toISOString().substr(11, 8);
+    }, 1000);
+
+    // 啟動
+    updateUI();
+    window.addEventListener('storage', () => {
+        levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
+        userState = loadUserData(); updateUI();
+    });
 </script>
 </body>
 </html>
