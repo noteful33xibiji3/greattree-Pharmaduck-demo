@@ -189,6 +189,47 @@
     .coupon-detail b { display: block; font-size: 14px; color: #333; }
     .coupon-detail span { font-size: 12px; color: #666; }
     .coupon-btn { background: white; border: 1px solid var(--gt-green); color: var(--gt-green); padding: 4px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+
+        /* =========================================
+       📱 手機版適配樣式 (Media Query)
+       ========================================= */
+    @media (max-width: 768px) {
+        
+        /* 1. 導航列調整：Logo 和按鈕變垂直排列 */
+        .nav-container {flex-direction: column; gap: 15px; padding: 10px; }
+        
+        /* 2. 儀表板 (綠色卡片) 調整 */
+        .season-card {  flex-direction: column; /* 改為垂直堆疊 */ text-align: center;     /* 內容置中 */ padding: 20px;   }
+        
+        /* 修正倒數計時的位置，不要讓它擋住鴨子 */
+        .season-badge {  position: relative; /* 取消絕對定位 */  top: auto;  right: auto;  margin-bottom: 15px; display: inline-block; /* 讓它置中 */ }
+
+        .avatar-area {  margin: 0 auto 20px auto; /* 上下留白 */  }
+
+        .stats-area { width: 100%; /* 寬度佔滿 */  min-width: auto; /* 取消最小寬度限制 */ }
+
+        .level-title {  font-size: 22px; /* 字體稍微縮小 */  }
+
+        /* 3. 調整區塊間距 */
+        .content-grid { grid-template-columns: 1fr; /* 強制變單欄 */   gap: 15px; margin-top: 20px; }
+
+        .panel {  padding: 15px; /* 內距縮小，爭取空間 */ }
+
+        /* 4. 福利社商品卡片 */
+        .shop-grid {   gap: 10px; /* 間距縮小 */  }
+        .item-card { padding: 10px 5px; /* 卡片內距縮小 */ }
+        .item-title { font-size: 13px; /* 商品標題縮小 */ }
+        .price-coins { font-size: 13px; /* 價格縮小 */   }
+
+        /* 5. 規則彈窗優化 */
+        .rules-content {  width: 95%; padding: 15px;   }
+        .rules-table th, .rules-table td {   padding: 8px 4px; /* 表格擠一點沒關係 */ font-size: 12px;  /* 字體縮小以免爆版 */ }
+        
+        /* 6. 票券夾調整 */
+        .coupon-ticket {   flex-direction: column; /* 直向排列 */   align-items: flex-start;    gap: 10px; }
+        .coupon-ticket img {   width: 100%; /* 圖片滿版 */   height: 80px;    object-fit: cover;   margin-right: 0;   margin-bottom: 5px; }
+        .coupon-btn { width: 100%; /* 按鈕變大比較好按 */   padding: 8px;   margin-top: 5px; }
+    }
     </style>
 </head>
 <body>
