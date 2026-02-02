@@ -64,6 +64,67 @@
         .btn-reset { background: #ef4444; color: white; }
 
         .preview-img { width: 30px; height: 30px; object-fit: contain; }
+
+        /* =========================================
+       📱 後台手機版適配 (Media Query)
+       ========================================= */
+    @media (max-width: 900px) { /* 設定 900px 以下就切換，因為左右排版需要較寬空間 */
+        
+        body {
+            height: auto;     /* 取消固定高度，允許整頁捲動 */
+            overflow-y: auto; /* 恢復垂直捲軸 */
+        }
+
+        /* 1. 主版面改為垂直堆疊 (上編輯、下預覽) */
+        .main-layout {
+            flex-direction: column;
+            overflow: visible; /* 允許內容撐開 */
+        }
+
+        /* 2. 上方：編輯區調整 */
+        .editor-panel {
+            width: 100%;
+            border-right: none;             /* 移除右邊界線 */
+            border-bottom: 5px solid #374151; /* 改為下邊界線區隔 */
+            padding-bottom: 40px;
+            box-sizing: border-box;         /* 確保寬度包含內距 */
+        }
+
+        /* 3. 下方：預覽區調整 */
+        .preview-panel {
+            width: 100%;
+            height: auto;          /* 高度改為自適應 */
+            min-height: 850px;     /* 確保有足夠空間放手機框 */
+            border-left: none;     /* 移除左邊界線 */
+            border-top: 5px solid #F39800; /* 加強分隔線 */
+            padding: 40px 0;
+            background-size: 10px 10px; /* 背景網格縮小一點比較精緻 */
+        }
+
+        /* 4. 手機模擬器縮放優化 */
+        /* 因為手機螢幕寬度通常小於 400px，模擬器寬 360px 容易切邊，所以稍微縮小 */
+        .phone-mockup {
+            transform: scale(0.9);       /* 稍微縮小 90% 以適應窄螢幕 */
+            transform-origin: top center; /* 從上方置中縮放 */
+            margin-top: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* 加強陰影讓它浮起來 */
+        }
+        
+        /* 5. 導航列調整 */
+        .navbar {
+            flex-direction: column; /* 標題和按鈕換行 */
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .navbar h1 {
+            justify-content: center; /* 標題置中 */
+        }
+        
+        .btn-reset {
+            width: 100%; /* 重置按鈕變滿版比較好按 */
+        }
+    }
     </style>
 </head>
 <body>
