@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的鴨鴨養成中心 - Pharma.Duck</title>
+    <title>我的鴨鴨養成中心 - Pharma.Duck RPG</title>
     <style>
         /* === 1. 大樹與遊戲風格 === */
         :root { --gt-green: #009944; --gt-orange: #F39800; --bg-gray: #f0f2f5; --gold: #FFD700; --dark: #1f2937; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: var(--bg-gray); margin: 0; padding-bottom: 50px; }
         
         /* 導航列 */
-        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); }
+        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); position: sticky; top: 0; z-index: 100; }
         .nav-container { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
         .nav-btn { text-decoration: none; color: #555; font-weight: bold; padding: 8px 15px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
         .nav-btn:hover { background: #e6f4ea; color: var(--gt-green); }
@@ -57,8 +57,12 @@
         .skin-card.active { border-color: var(--gt-orange); background: #fffbe6; }
         .skin-card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
         .skin-name { font-size: 12px; font-weight: bold; color: #555; }
-        .skin-lock { filter: grayscale(1); opacity: 0.6; pointer-events: none; }
-        .lock-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 4px; font-size: 10px; white-space: nowrap; }
+        .skin-lock { filter: grayscale(1); opacity: 0.6; }
+        .lock-msg { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; 
+            font-size: 10px; white-space: nowrap; font-weight: bold;
+        }
 
         /* 任務列表 */
         .task-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
@@ -81,10 +85,10 @@
         /* 升級特效 */
         .levelup-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 9999;
         }
         .modal-content {
-            background: white; width: 280px; padding: 30px; border-radius: 20px; text-align: center;
+            background: white; width: 300px; padding: 30px; border-radius: 20px; text-align: center;
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;
         }
         @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -108,7 +112,7 @@
 <div class="dashboard">
     <div class="season-card">
         <div class="season-badge">
-            ⏳ S1 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天
+            ⏳ 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天 (每半年重置等級)
         </div>
         
         <div class="avatar-area">
@@ -120,24 +124,21 @@
             <div style="font-size: 14px; opacity: 0.8; font-weight: bold;">目前會員等級</div>
             <h1 class="level-title" id="lvTitle">Lv.1 破殼見習生</h1>
             <div style="font-size: 13px; opacity: 0.9; margin-top: 5px;">
-                下一級特權：開啟時裝商店功能
+                本季累積 EXP：<span id="expText">0</span> / <span id="maxExpText">500</span>
             </div>
 
-            <div class="points-row">
-                <div style="font-size: 14px;">本季累積 EXP</div>
-                <div style="font-size: 14px; font-weight: bold;"><span id="expText">0</span> / <span id="maxExpText">500</span></div>
-            </div>
             <div class="progress-container"><div class="progress-fill" id="expBar"></div></div>
             
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 14px;">持有大樹幣 (Coins)：</span>
+                <span style="font-size: 14px;">大樹幣 (Coins)：</span>
                 <span style="font-size: 24px; font-weight: bold; color: var(--gold);" id="coinDisplay">0</span>
+                <span style="font-size: 12px; opacity: 0.7;">(永不歸零)</span>
             </div>
         </div>
     </div>
 
     <div class="panel">
-        <h2>👕 我的衣櫃 <span class="panel-subtitle">點擊換裝，首頁同步更新</span></h2>
+        <h2>👕 鴨鴨時裝店 <span class="panel-subtitle">可用 Coins 購買或等級解鎖</span></h2>
         <div class="wardrobe-grid" id="wardrobeList">
             </div>
     </div>
@@ -159,7 +160,7 @@
                     <b>填寫衛教問卷</b>
                     <span class="task-reward">+200 EXP | +10 Coins</span>
                 </div>
-                <button class="btn-action" onclick="doTask(this, 200, 10)">前往</button>
+                <button class="btn-action" onclick="window.location.href='health_quiz.html'">前往</button>
             </div>
 
             <div class="task-row">
@@ -172,10 +173,10 @@
         </div>
 
         <div class="panel">
-            <h2>🎁 大樹福利社 <span class="panel-subtitle">Coins 換好禮</span></h2>
+            <h2>🎁 大樹福利社 <span class="panel-subtitle">Coins 換實體好禮</span></h2>
             <div class="shop-grid">
                 <div class="item-card">
-                    <div class="item-tag">熱門兌換</div>
+                    <div class="item-tag">熱門</div>
                     <img src="images/item_coupon.jpg" class="item-img" onerror="this.src='https://placehold.co/100x100/d0021b/fff?text=$50'">
                     <div><b>$50 門市折價券</b></div>
                     <div class="item-price">500 Coins</div>
@@ -185,7 +186,7 @@
                 <div class="item-card">
                     <div class="item-tag">限量</div>
                     <img src="images/duck_lv10.png" class="item-img" onerror="this.src='https://placehold.co/100x100/333/fff?text=Toy'">
-                    <div><b>鴨鴨限定公仔</b></div>
+                    <div><b>大樹限定公仔</b></div>
                     <div class="item-price">3000 Coins</div>
                     <button class="btn-action" style="background:var(--gt-orange); width:100%; margin-top:5px;" onclick="buyItem(3000, '限定公仔')">兌換</button>
                 </div>
@@ -197,19 +198,19 @@
 <div class="levelup-modal" id="modal">
     <div class="modal-content">
         <div style="font-size: 50px;">🎉</div>
-        <h2 style="color:var(--gt-orange); margin:10px 0;">等級提升！</h2>
+        <h2 style="color:var(--gt-orange); margin:10px 0;">恭喜升級！</h2>
         <p style="font-size:18px; font-weight:bold; margin:5px 0;" id="newLvName">Lv.2 好奇探險鴨</p>
-        <p style="color:#666; font-size:14px;">解鎖新時裝與優惠權益！</p>
+        <p style="color:#666; font-size:14px;">解鎖新權益與經驗加成！</p>
         <button class="btn-close" onclick="closeModal()">太棒了</button>
     </div>
 </div>
 
 <script>
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (旗艦修正版)
+    // 🦆 Pharma.Duck RPG 核心系統 (終極版)
     // ==============================================
 
-    // === 1. 10級等級與 EXP 設定 (依照您的企劃書) ===
+    // === 1. 10級等級設定 (0 ~ 1,000,000 EXP) ===
     const levelConfig = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
         { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
@@ -223,83 +224,88 @@
         { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
     ];
 
-    // === 2. 賽季系統 (Season Logic) - 檢查是否需要歸零 ===
+    // === 2. 時裝商城資料 (含付費購買) ===
+    const skinShop = [
+        // 預設與等級解鎖
+        { name: "初生小鴨", img: "images/duck_lv1.png", type: "level", unlockVal: 1, cost: 0 },
+        { name: "好奇探險鴨", img: "images/duck_lv2.png", type: "level", unlockVal: 2, cost: 0 },
+        { name: "大樹探員", img: "images/duck_lv3.png", type: "level", unlockVal: 3, cost: 0 },
+        { name: "健康夥伴", img: "images/duck_lv4.png", type: "level", unlockVal: 4, cost: 0 },
+        // 付費購買 (Coins)
+        { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
+        { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
+        { name: "博士鴨傳說", img: "images/duck_lv10.png", type: "buy", unlockVal: 0, cost: 800 }
+    ];
+
+    // === 3. 賽季重置邏輯 ===
     function checkSeasonReset(userData) {
         const now = new Date();
         const currentYear = now.getFullYear();
-        // 判斷目前是 S1 (1-6月) 還是 S2 (7-12月)
+        // S1: 1-6月, S2: 7-12月
         const currentSeason = (now.getMonth() + 1 <= 6) ? 1 : 2; 
-        const seasonId = `${currentYear}-S${currentSeason}`; // 例如 "2026-S1"
+        const seasonId = `${currentYear}-S${currentSeason}`;
 
-        // 如果記錄中的賽季與現在不同，執行「賽季重置」
         if (userData.lastSeason !== seasonId) {
-            console.log(`賽季切換！從 ${userData.lastSeason} -> ${seasonId}`);
-            alert(`📅 新賽季 (${seasonId}) 開始！\n依照規則，您的 EXP 與 等級 已重置。\n但別擔心，您的 大樹幣 (Coins) 與 時裝 都在喔！`);
-            
-            // === 歸零核心 ===
+            console.log(`賽季切換！重置 EXP...`);
+            // 只重置 EXP 與 Level，保留 Coins 與解鎖物品
             userData.exp = 0; 
             userData.level = 1;
-            userData.lastSeason = seasonId; // 更新賽季標記
-            
-            // 賽季獎勵判定 (模擬：如果上季大於 Lv.7，送加成)
-            // userData.buff = true; 
+            userData.lastSeason = seasonId;
+            // 如果上季大於 Lv.7，可以在這裡給獎勵
+            // if(userData.level >= 7) userData.exp += 500; // 範例：起始加成
         }
         return userData;
     }
 
-    // === 3. 數據讀取與初始化 ===
+    // === 4. 數據讀取與初始化 ===
     function loadUserData() {
         let defaultData = { 
             level: 1, 
             exp: 0, 
             coins: 50, // 新手禮包
-            currentSkin: "images/my_duck.png", 
-            unlockedSkins: ["images/my_duck.png"],
-            lastSeason: "" // 用來記錄上次登入的賽季
+            currentSkin: "images/duck_lv1.png", 
+            unlockedSkins: ["images/duck_lv1.png"], // 已擁有的皮膚ID
+            lastSeason: "" 
         };
 
         let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
-        
-        // 執行賽季檢查
         data = checkSeasonReset(data);
-        
-        // 存回去 (確保有最新的 seasonId)
         localStorage.setItem('duckUser', JSON.stringify(data));
         return data;
     }
 
     let userState = loadUserData();
 
-    // === 4. UI 更新核心 (Update UI) ===
+    // === 5. UI 更新核心 ===
     function updateUI() {
-        // A. 計算目前等級 (遍歷表單，找到滿足 EXP 的最高等級)
+        // A. 計算等級
         let currentConfig = levelConfig[0];
         let nextConfig = levelConfig[1];
 
         for (let i = 0; i < levelConfig.length; i++) {
             if (userState.exp >= levelConfig[i].minExp) {
                 currentConfig = levelConfig[i];
-                // 設定下一級 (如果是 Lv10 就沒有下一級)
                 nextConfig = levelConfig[i+1] || { minExp: "MAX", name: "已達巔峰" };
             }
         }
 
-        // 如果等級發生變化 (升級了)，更新狀態
-        if (userState.level !== currentConfig.lv) {
+        // 升級檢查
+        if (userState.level < currentConfig.lv) {
             userState.level = currentConfig.lv;
-            // 自動解鎖該等級的圖 (如果有的話)
-            if(!userState.unlockedSkins.includes(currentConfig.img)) {
-                userState.unlockedSkins.push(currentConfig.img);
+            // 升級自動解鎖對應等級的皮膚
+            let skinImg = currentConfig.img;
+            if(!userState.unlockedSkins.includes(skinImg)) {
+                userState.unlockedSkins.push(skinImg);
             }
             showLevelUp(currentConfig.name, currentConfig.lv);
         }
 
-        // B. 更新畫面文字
+        // B. 更新畫面
         document.getElementById('lvTitle').innerText = `Lv.${currentConfig.lv} ${currentConfig.name}`;
         document.getElementById('lvBadge').innerText = `Lv.${currentConfig.lv}`;
-        document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString(); // 加逗號
+        document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString();
         
-        // C. 更新進度條
+        // 進度條
         let progressPercent = 0;
         let progressText = "";
         
@@ -307,7 +313,6 @@
             progressPercent = 100;
             progressText = "MAX / MAX";
         } else {
-            // 計算區間進度： (目前EXP - 本級底限) / (下級底限 - 本級底限)
             let expInLevel = userState.exp - currentConfig.minExp;
             let expNeededForNext = nextConfig.minExp - currentConfig.minExp;
             progressPercent = Math.min(100, (expInLevel / expNeededForNext) * 100);
@@ -315,100 +320,143 @@
         }
 
         document.getElementById('expBar').style.width = `${progressPercent}%`;
-        document.getElementById('expText').innerText = progressText; // 這裡要對應 HTML 的 ID
-        // HTML 如果是用 maxExpText，請確保 ID 一致，這裡我統一用 expText 顯示 "目前 / 目標"
+        document.getElementById('expText').innerText = userState.exp.toLocaleString(); // 顯示當前總經驗
+        document.getElementById('maxExpText').innerText = (currentConfig.lv === 10) ? "MAX" : nextConfig.minExp.toLocaleString();
 
-        // D. 更新圖片
+        // 圖片
         const avatar = document.getElementById('duckAvatar');
         avatar.src = userState.currentSkin;
         avatar.onerror = function() { this.src = "images/my_duck.png"; };
 
-        // E. 渲染衣櫃
+        // 渲染衣櫃
         renderWardrobe();
 
-        // F. 存檔
+        // 存檔
         localStorage.setItem('duckUser', JSON.stringify(userState));
         
-        // G. 更新賽季倒數天數
+        // 更新賽季倒數
         updateSeasonDays();
     }
 
-    // === 5. 賽季倒數計算 ===
-    function updateSeasonDays() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const isFirstHalf = now.getMonth() + 1 <= 6;
-        
-        // 設定結束日：6/30 或 12/31
-        const endDate = isFirstHalf ? new Date(year, 5, 30) : new Date(year, 11, 31);
-        const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-        
-        document.getElementById('daysLeft').innerText = diffDays;
-        
-        const startStr = isFirstHalf ? `${year}/01/01` : `${year}/07/01`;
-        const endStr = isFirstHalf ? `${year}/06/30` : `${year}/12/31`;
-        document.getElementById('seasonDateRange').innerText = `${startStr} - ${endStr}`;
-    }
-
-    // === 6. 衣櫃渲染 (Wardrobe) ===
+  // === 6. 渲染衣櫃 (自動合併完整版) ===
     function renderWardrobe() {
         const container = document.getElementById('wardrobeList');
         container.innerHTML = ""; 
 
-        levelConfig.forEach(cfg => {
-            // 判斷解鎖：等級達到 OR 已經在解鎖清單中
-            const isUnlocked = userState.level >= cfg.lv || userState.unlockedSkins.includes(cfg.img);
-            const isActive = userState.currentSkin === cfg.img;
-            
+        // 1. 建立顯示清單：先放商店定義的
+        let displaySkins = [...skinShop]; 
+
+        // 2. 自動補齊等級獎勵 (從 levelConfig 抓漏)
+        levelConfig.forEach(lvItem => {
+            // 檢查圖片路徑是否已存在，避免重複
+            const exists = displaySkins.some(s => s.img === lvItem.img);
+            if (!exists) {
+                displaySkins.push({
+                    name: lvItem.name,
+                    img: lvItem.img,
+                    type: 'level',
+                    unlockVal: lvItem.lv,
+                    cost: 0
+                });
+            }
+        });
+
+        // 3. 排序：等級鴨在前，付費鴨在後
+        displaySkins.sort((a, b) => {
+            // 如果都是等級鴨，按等級排
+            if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
+            // 等級鴨優先於付費鴨
+            if (a.type === 'level') return -1; 
+            return 1;
+        });
+
+        // 4. 生成卡片 HTML
+        displaySkins.forEach(skin => {
+            const isOwned = userState.unlockedSkins.includes(skin.img);
+            const isActive = userState.currentSkin === skin.img;
+            let lockMsg = "";
+            let clickAction = null;
+
+            if (isOwned) {
+                clickAction = () => changeSkin(skin.img);
+            } else {
+                if (skin.type === 'level') {
+                    if (userState.level >= skin.unlockVal) {
+                        // 雖然是等級鴨，但如果資料沒同步好，這裡做個防呆補發
+                        userState.unlockedSkins.push(skin.img);
+                        clickAction = () => changeSkin(skin.img);
+                    } else {
+                        lockMsg = `Lv.${skin.unlockVal} 解鎖`;
+                    }
+                } else if (skin.type === 'buy') {
+                    lockMsg = `${skin.cost} Coins`;
+                    clickAction = () => buySkin(skin);
+                }
+            }
+
             const card = document.createElement('div');
-            card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked ? 'skin-lock' : ''}`;
-            card.onclick = () => { if(isUnlocked) changeSkin(cfg.img); };
+            card.className = `skin-card ${isActive ? 'active' : ''} ${!isOwned ? 'skin-lock' : ''}`;
+            if (clickAction) card.onclick = clickAction;
             
             card.innerHTML = `
-                <img src="${cfg.img}" onerror="this.src='images/my_duck.png'">
-                <div class="skin-name">${cfg.name}</div>
-                ${!isUnlocked ? `<div class="lock-msg">Lv.${cfg.lv} 解鎖</div>` : ''}
+                <img src="${skin.img}" onerror="this.src='images/my_duck.png'">
+                <div class="skin-name">${skin.name}</div>
+                <div class="lock-msg" style="${isOwned ? 'display:none' : ''}">${lockMsg}</div>
             `;
             container.appendChild(card);
         });
     }
+    // === 7. 功能函數 ===
+    function updateSeasonDays() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const isFirstHalf = now.getMonth() + 1 <= 6;
+        const endDate = isFirstHalf ? new Date(year, 5, 30) : new Date(year, 11, 31);
+        const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+        document.getElementById('daysLeft').innerText = diffDays;
+    }
 
-    // === 7. 互動功能 (任務 & 購買) ===
-    
-    // 執行任務 (賺 EXP + Coins)
-    function doTask(btn, expReward, coinReward) {
+    function doTask(btn, exp, coins) {
         btn.disabled = true;
         btn.innerText = "已領取";
         btn.style.background = "#ccc";
-        
-        userState.exp += expReward;
-        userState.coins += coinReward;
-        
-        alert(`任務完成！\n獲得 ${expReward} 經驗值\n獲得 ${coinReward} 大樹幣`);
+        userState.exp += exp;
+        userState.coins += coins;
+        alert(`任務完成！\n獲得 ${exp} EXP\n獲得 ${coins} Coins`);
         updateUI();
     }
 
-    // 購買/兌換 (扣 Coins)
-    function buyItem(cost, itemName) {
+    function buyItem(cost, name) {
         if (userState.coins >= cost) {
-            if (confirm(`確定要花費 ${cost} 大樹幣兌換「${itemName}」嗎？`)) {
+            if(confirm(`確定花費 ${cost} Coins 兌換 ${name} 嗎？`)) {
                 userState.coins -= cost;
                 updateUI();
-                alert(`🎉 兌換成功！\n您已獲得：${itemName}\n(請至我的票券夾查看)`);
+                alert(`兌換成功！${name} 已發送至您的帳戶。`);
             }
         } else {
-            alert(`⚠️ 大樹幣不足！\n您還差 ${cost - userState.coins} 幣。\n快去完成每日任務或找鴨鴨諮詢吧！`);
+            alert("大樹幣不足！");
         }
     }
 
-    // 換裝
+    function buySkin(skin) {
+        if (userState.coins >= skin.cost) {
+            if(confirm(`確定花費 ${skin.cost} Coins 購買「${skin.name}」嗎？`)) {
+                userState.coins -= skin.cost;
+                userState.unlockedSkins.push(skin.img);
+                updateUI();
+                alert("購買成功！快去換上新衣服吧！");
+            }
+        } else {
+            alert("大樹幣不足！快去解任務賺錢吧！");
+        }
+    }
+
     function changeSkin(imgUrl) {
         userState.currentSkin = imgUrl;
         updateUI();
-        alert("✨ 換裝成功！首頁的鴨鴨也同步更新囉！");
+        alert("換裝成功！首頁鴨鴨已同步更新！");
     }
 
-    // 顯示升級動畫
     function showLevelUp(name, lv) {
         document.getElementById('newLvName').innerText = `Lv.${lv} ${name}`;
         document.getElementById('modal').style.display = 'flex';
@@ -418,7 +466,7 @@
         document.getElementById('modal').style.display = 'none';
     }
     
-    // === 8. 啟動 ===
+    // 初始化
     updateUI();
 
 </script>
