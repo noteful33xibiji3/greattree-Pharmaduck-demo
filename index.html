@@ -296,7 +296,13 @@
     ];
 
     let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
-
+// === 2.5 時裝商城資料 (為了資料統一，補上這段) ===
+    const skinShop = [
+        { name: "一鴨tree吃 初心版", img: "images/duck_origin.png", type: "buy", unlockVal: 0, cost: 0 },
+        { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
+        { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
+        { name: "博士鴨傳說", img: "images/duck_lv10.png", type: "buy", unlockVal: 0, cost: 800 }
+    ];
     // === 3. 同步會員外觀與數據 ===
     function syncDuckLook() {
         let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: "images/my_duck.png" };
@@ -466,4 +472,5 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
