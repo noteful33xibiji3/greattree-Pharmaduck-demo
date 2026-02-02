@@ -131,20 +131,83 @@
         .store-btn:hover { background: var(--gt-green); color: white; }
 
         /* RWD */
-        @media (max-width: 768px) {
-            .nav-container { padding: 0 10px; }
-            .nav-group { gap: 5px; }
-            .nav-btn span { display: none; } /* 手機版隱藏按鈕文字 */
-            .nav-btn { padding: 8px; border-radius: 50%; } 
-            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .section-title { font-size: 18px; }
-            .duck-fab { width: 120px; height: 120px; bottom: 15px; right: 10px; }
-            .chat-window { width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; border-radius: 0; z-index: 9999; }
-            .chat-header { padding-top: 15px; }
-            .store-banner { margin: 20px; flex-direction: column; text-align: center; }
-            .store-info { width: 100%; }
-            .store-btn { width: 100%; }
+        /* =========================================
+       📱 手機版深度適配 (Media Query)
+       ========================================= */
+    @media (max-width: 768px) {
+        /* 1. 導航列：Logo 文字縮小並置中 */
+        .nav-container { 
+            flex-direction: column; 
+            padding: 10px; 
+            gap: 12px;
         }
+        .logo span {
+            font-size: 16px !important; /* 手機版標題稍微縮小防止斷行 */
+            letter-spacing: 0.5px;
+        }
+        .nav-group { 
+            width: 100%; 
+            justify-content: center; 
+            gap: 15px; 
+        }
+        .nav-btn { 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 13px;
+        }
+        .nav-btn span { display: inline; } /* 在手機版也顯示文字，但按鈕變小 */
+
+        /* 2. 商品網格：2欄排版優化 */
+        .product-grid { 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+        }
+        .product-card { padding: 8px; }
+        .p-img { height: 110px; }
+        .p-name { font-size: 13px; height: 36px; }
+        .p-price { font-size: 16px; }
+
+        /* 3. 鴨子助理：縮小尺寸並避開按鈕 */
+        .duck-fab { 
+            width: 110px; 
+            height: 110px; 
+            bottom: 20px; 
+            right: 10px; 
+        }
+
+        /* 4. 聊天視窗：全螢幕化與安全區域 */
+        .chat-window { 
+            width: 100%; 
+            height: 100%; 
+            bottom: 0; 
+            right: 0; 
+            border-radius: 0; 
+            z-index: 9999; 
+            position: fixed;
+        }
+        /* 增加上方預留空間給手機狀態列 */
+        .chat-header { 
+            padding-top: env(safe-area-inset-top, 20px); 
+            height: auto;
+        }
+        .chat-body { padding: 10px; }
+
+        /* 5. 店家橫幅：改為垂直堆疊 */
+        .store-banner { 
+            margin: 15px; 
+            flex-direction: column; 
+            text-align: center; 
+            padding: 15px;
+        }
+        .store-map-img { width: 100%; height: 150px; }
+        .store-info { width: 100%; }
+        .store-btn { width: 100%; margin-top: 10px; }
+
+        /* 6. 特殊字體加粗優化 */
+        .logo-text {
+            font-weight: 900 !important;
+        }
+    }
     </style>
 </head>
 <body>
@@ -478,6 +541,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
