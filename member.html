@@ -195,9 +195,13 @@
 
 <header>
     <div class="nav-container">
-        <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
-            <img src="images/logo.png" alt="Logo" style="height:40px;" onerror="this.parentNode.innerText='🌳 大樹一鴨tree吃網'">
-        </a>
+       <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
+    <img src="images/logo.png" alt="Logo" style="height:40px;" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <span style="display:none; font-family: 'Microsoft JhengHei', sans-serif; font-weight: 900; font-size: 20px; color: #009944;">
+        🌳 大樹一鴨tree吃購物網
+    </span>
+</a>
         <div style="display: flex; gap: 10px;">
             <a href="index.html" class="nav-btn">🏠 購物首頁</a>
             <a href="member.html" class="nav-btn active">🦆 養成中心</a>
@@ -352,7 +356,7 @@
 
     // === 3. 福利社商品設定 ===
     const shopItemsConfig = [
-        { id: 'coupon_50', type: 'normal', tag: '熱門', name: '$100 門市折價券', img: 'images/item_coupon.jpg', price: 500, stock: 100 },
+       { id: 'coupon_50', type: 'normal',  tag: '熱門',  name: '$100 門市折價券',  img: 'https://placehold.co/400x250/F39800/ffffff?text=$100',  price: 500,  stock: 10 },
         { id: 'vit_c', type: 'normal', tag: '推薦', name: '大樹鴨鴨補給站 - 每日C 活力組', img: 'images/p_vit_c.jpg', price: 2000, stock: 30, note: '市價$399 (省$399)<br>加價購: 100幣 + $299' },
         { id: 'toy_duck', type: 'limit', tag: '限量', name: '大樹限定公仔', img: 'images/duck_lv10.png', price: 3000, stock: 5 }
     ];
@@ -486,14 +490,19 @@
         }
     }
 
-    function renderCoupons() {
-        const list = document.getElementById('couponList');
-        list.innerHTML = (userState.coupons && userState.coupons.length > 0) ? userState.coupons.filter(c => !c.used).map(c => `
-            <div class="coupon-ticket">
-                <div class="coupon-detail"><b>${c.name}</b><span>效期：${c.expiry}</span></div>
-                <button class="coupon-btn" onclick="useCoupon(${c.id})">使用</button>
-            </div>`).join('') : '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
-    }
+   function renderCoupons() {
+    const list = document.getElementById('couponList');
+    list.innerHTML = userState.coupons.length ? userState.coupons.map(c => `
+        <div class="coupon-ticket">
+            <img src="https://placehold.co/80x50/F39800/ffffff?text=${encodeURIComponent(c.name.split(' ')[0])}" 
+                 style="border-radius:4px; margin-right:10px;">
+            <div class="coupon-detail">
+                <b>${c.name}</b>
+                <span>效期：${c.expiry}</span>
+            </div>
+            <button class="coupon-btn" onclick="useCoupon(${c.id})">使用</button>
+        </div>`).join('') : '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
+}
 
     function useCoupon(id) {
         if(confirm("確定核銷？")) { userState.coupons = userState.coupons.filter(c => c.id !== id); updateUI(); }
