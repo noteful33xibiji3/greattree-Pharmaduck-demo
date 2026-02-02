@@ -359,12 +359,15 @@
     }
 
     // === 6. 渲染衣櫃 (自動合併) ===
+ // === 6. 渲染衣櫃 (修復括號錯誤版) ===
     function renderWardrobe() {
         const container = document.getElementById('wardrobeList');
         container.innerHTML = ""; 
 
-        // 建立顯示清單
+        // 1. 建立顯示清單
         let displaySkins = [...skinShop]; 
+        
+        // 2. 自動補齊等級獎勵
         levelConfig.forEach(lvItem => {
             const exists = displaySkins.some(s => s.img === lvItem.img);
             if (!exists) {
@@ -378,12 +381,14 @@
             }
         });
 
+        // 3. 排序
         displaySkins.sort((a, b) => {
             if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
             if (a.type === 'level') return -1; 
             return 1;
         });
 
+        // 4. 生成 HTML
         displaySkins.forEach(skin => {
             const isOwned = userState.unlockedSkins.includes(skin.img);
             const isActive = userState.currentSkin === skin.img;
@@ -391,25 +396,26 @@
             let clickAction = null;
 
             if (isOwned) {
+                // 如果已經擁有，點擊就是換裝
                 clickAction = () => changeSkin(skin.img);
             } else {
+                // 如果未擁有，判斷類型
                 if (skin.type === 'level') {
-                    // 這裡的判斷其實是多餘的，因為 updateUI 已經補發了
-                    // 但為了顯示「未解鎖」狀態，還是保留判斷
+                    // 等級解鎖型
                     if (userState.level >= skin.unlockVal) {
                         clickAction = () => changeSkin(skin.img);
                     } else {
                         lockMsg = `Lv.${skin.unlockVal} 解鎖`;
                     }
-                }} else if (skin.type === 'buy') {
-    // 如果價格是 0，顯示特別文字
-    if (skin.cost === 0) {
-        lockMsg = "🎁 團隊限定 (免費)";
-    } else {
-        lockMsg = `${skin.cost} Coins`;
-    }
-    clickAction = () => buySkin(skin);
-}
+                } else if (skin.type === 'buy') {
+                    // 購買型 (這裡修正了括號，並加入免費判斷)
+                    if (skin.cost === 0) {
+                        lockMsg = "🎁 團隊限定 (免費)";
+                    } else {
+                        lockMsg = `${skin.cost} Coins`;
+                    }
+                    clickAction = () => buySkin(skin);
+                }
             }
 
             const card = document.createElement('div');
@@ -424,7 +430,6 @@
             container.appendChild(card);
         });
     }
-
     // === 7. 功能函數 ===
     function updateSeasonDays() {
         const now = new Date();
