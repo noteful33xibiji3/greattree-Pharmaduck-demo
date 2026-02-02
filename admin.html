@@ -15,7 +15,7 @@
         .main-layout { display: flex; flex: 1; overflow: hidden; }
         
         /* 左側：編輯區 */
-        .editor-panel { flex: 1; padding: 20px; overflow-y: auto; border-right: 1px solid #374151; }
+        .editor-panel { flex: 1; padding: 20px; overflow-y: auto; border-right: 1px solid #374151; display: flex; flex-direction: column; gap: 20px; }
         
         /* 右側：預覽區 */
         .preview-panel { width: 400px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border-left: 5px solid #F39800; background-image: radial-gradient(#333 1px, transparent 1px); background-size: 20px 20px; }
@@ -29,69 +29,98 @@
         .phone-mockup iframe { width: 100%; height: 100%; border: none; }
         
         /* 表格樣式 */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #1f2937; border-radius: 8px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; background: #1f2937; border-radius: 8px; overflow: hidden; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #374151; font-size: 14px; }
         th { background: #374151; color: #F39800; }
         tr:hover { background: #2d3748; }
         
-        input { 
+        /* 輸入框樣式 */
+        input[type="text"], input[type="number"] { 
             background: #111827; border: 1px solid #4b5563; color: white; 
             padding: 6px; border-radius: 4px; width: 100%; box-sizing: border-box; 
         }
         input:focus { border-color: #F39800; outline: none; }
         
+        /* 模擬器控制區塊 (新功能) */
+        .simulation-box {
+            background: #374151; padding: 20px; border-radius: 10px; border: 1px solid #4b5563;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .sim-title { margin: 0 0 15px 0; color: #10b981; font-size: 18px; border-bottom: 1px solid #4b5563; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #d1d5db; }
+        .range-wrapper { display: flex; align-items: center; gap: 10px; }
+        input[type="range"] { flex: 1; cursor: pointer; }
+        .range-val { width: 100px !important; text-align: center; color: #F39800; font-weight: bold; }
+
         /* 按鈕樣式 */
-        .btn { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
-        .btn-preview { background: #3b82f6; color: white; }
-        .btn-preview:hover { background: #2563eb; }
-        .btn-save { background: #009944; color: white; padding: 10px 25px; font-size: 16px; border-radius: 20px; }
+        .btn { border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.2s; }
+        .btn-save { background: #009944; color: white; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; margin-top: 10px; }
+        .btn-apply { background: #3b82f6; color: white; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; }
+        .btn-apply:hover { background: #2563eb; transform: translateY(-2px); }
         .btn-reset { background: #ef4444; color: white; }
 
-        .action-bar { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .status-msg { color: #10b981; opacity: 0; transition: opacity 0.5s; font-weight: bold; }
+        .section-header { font-size: 16px; color: #ccc; margin-bottom: 10px; font-weight: bold; }
+        .preview-img { width: 30px; height: 30px; object-fit: contain; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <h1>🦆 後台管理系統 <span style="font-size:12px; color:#9ca3af; margin-left:10px;">(所有更動即時生效)</span></h1>
+    <h1>🦆 後台管理系統</h1>
     <button class="btn btn-reset" onclick="resetToDefault()">↺ 恢復原廠設定</button>
 </div>
 
 <div class="main-layout">
     
     <div class="editor-panel">
-        <h3 style="margin-top:0;">等級數值配置</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th width="50">Lv</th>
-                    <th>稱號 (Name)</th>
-                    <th width="100">EXP 門檻</th>
-                    <th>圖片路徑</th>
-                    <th width="60">操作</th>
-                </tr>
-            </thead>
-            <tbody id="configTable">
-                </tbody>
-        </table>
-
-        <div class="action-bar">
-            <span class="status-msg" id="msg">✅ 設定已保存！</span>
-            <button class="btn btn-save" onclick="saveConfig()">💾 保存並套用設定</button>
-        </div>
         
-        <div style="margin-top:30px; padding:15px; background:#374151; border-radius:8px; font-size:13px; color:#ccc;">
-            <strong>💡 使用說明：</strong><br>
-            1. 修改數值後，請先按 <b>[保存]</b>。<br>
-            2. 點擊列表右側的 <b>[👁️ 預覽]</b> 按鈕。<br>
-            3. 右側手機畫面會直接模擬該等級的會員介面。<br>
-            (注意：預覽功能會暫時修改您的瀏覽器紀錄，將您的身份切換為該等級)
+        <div class="simulation-box">
+            <h3 class="sim-title">🕵️‍♂️ 玩家狀態模擬器 (直接修改)</h3>
+            
+            <div class="control-group">
+                <label>經驗值 (EXP) - 拉動預覽升級效果</label>
+                <div class="range-wrapper">
+                    <span style="font-size:12px;">0</span>
+                    <input type="range" id="simExpSlider" min="0" max="1000000" step="100" value="0" oninput="syncExpInput(this.value)">
+                    <span style="font-size:12px;">1M</span>
+                    <input type="number" id="simExpInput" class="range-val" value="0" onchange="syncExpSlider(this.value)">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>大樹幣 (Coins) - 測試商城購買</label>
+                <div class="range-wrapper">
+                    <input type="range" id="simCoinSlider" min="0" max="10000" step="10" value="50" oninput="syncCoinInput(this.value)">
+                    <input type="number" id="simCoinInput" class="range-val" value="50" onchange="syncCoinSlider(this.value)">
+                </div>
+            </div>
+
+            <button class="btn btn-apply" onclick="applySimulation()">🚀 套用數值並刷新預覽</button>
         </div>
+
+        <div class="simulation-box" style="border-color:#F39800;">
+            <h3 class="sim-title" style="color:#F39800;">⚙️ 系統參數配置</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40">Lv</th>
+                        <th>稱號</th>
+                        <th width="80">EXP 門檻</th>
+                        <th>圖片</th>
+                    </tr>
+                </thead>
+                <tbody id="configTable">
+                    </tbody>
+            </table>
+            <button class="btn btn-save" onclick="saveConfig()">💾 保存參數設定</button>
+        </div>
+
     </div>
 
     <div class="preview-panel">
-        <div style="color:white; margin-bottom:10px; font-weight:bold;">📱 會員中心即時預覽</div>
+        <div style="color:white; margin-bottom:10px; font-weight:bold;">📱 手機畫面預覽</div>
         <div class="phone-mockup">
             <iframe id="previewFrame" src="member.html"></iframe>
         </div>
@@ -118,9 +147,22 @@
 
     // 2. 初始化
     function init() {
+        // A. 載入 Config
         const saved = localStorage.getItem('customLevelConfig');
         currentConfig = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultConfig));
         renderTable();
+
+        // B. 載入 User 狀態 (給模擬器用)
+        const user = JSON.parse(localStorage.getItem('duckUser')) || { exp: 0, coins: 50 };
+        updateSimUI(user.exp, user.coins);
+    }
+
+    // 更新模擬器輸入框 UI
+    function updateSimUI(exp, coins) {
+        document.getElementById('simExpSlider').value = exp;
+        document.getElementById('simExpInput').value = exp;
+        document.getElementById('simCoinSlider').value = coins;
+        document.getElementById('simCoinInput').value = coins;
     }
 
     // 3. 渲染表格
@@ -134,9 +176,9 @@
                 <td style="font-weight:bold; color:#F39800;">${item.lv}</td>
                 <td><input type="text" value="${item.name}" onchange="updateItem(${index}, 'name', this.value)"></td>
                 <td><input type="number" value="${item.minExp}" onchange="updateItem(${index}, 'minExp', this.value)"></td>
-                <td><input type="text" value="${item.img}" onchange="updateItem(${index}, 'img', this.value)"></td>
-                <td>
-                    <button class="btn btn-preview" onclick="previewLevel(${index})">👁️ 預覽</button>
+                <td style="display:flex; align-items:center; gap:5px;">
+                    <input type="text" value="${item.img}" onchange="updateItem(${index}, 'img', this.value)" style="width:80px;">
+                    <img src="${item.img}" class="preview-img" onerror="this.src='images/my_duck.png'">
                 </td>
             `;
             tbody.appendChild(tr);
@@ -151,42 +193,39 @@
     // 4. 保存設定
     function saveConfig() {
         localStorage.setItem('customLevelConfig', JSON.stringify(currentConfig));
-        
-        // 顯示成功訊息
-        const msg = document.getElementById('msg');
-        msg.style.opacity = '1';
-        setTimeout(() => msg.style.opacity = '0', 3000);
-        
-        // 重新整理 iframe 讓設定生效
+        alert("✅ 系統參數已保存！");
         document.getElementById('previewFrame').contentWindow.location.reload();
     }
 
-    // 5. 核心功能：預覽指定等級
-    function previewLevel(index) {
-        const targetLevel = currentConfig[index];
-        
-        // 我們要「偽造」一個使用者數據，存入 localStorage
-        // 這樣右邊的 iframe (member.html) 讀取時，就會以為使用者是這個等級
-        const mockUser = {
-            level: targetLevel.lv,
-            exp: targetLevel.minExp, // 把經驗值設為該等級剛好的門檻
-            coins: 9999, // 給多一點錢方便測試
-            currentSkin: targetLevel.img, // 穿上該等級的衣服
-            unlockedSkins: [targetLevel.img],
-            lastSeason: "2026-S1" // 避免被賽季重置歸零
+    // 5. 連動輸入框 (Sync Functions)
+    function syncExpInput(val) { document.getElementById('simExpInput').value = val; }
+    function syncExpSlider(val) { document.getElementById('simExpSlider').value = val; }
+    function syncCoinInput(val) { document.getElementById('simCoinInput').value = val; }
+    function syncCoinSlider(val) { document.getElementById('simCoinSlider').value = val; }
+
+    // 6. 套用模擬 (Apply Simulation)
+    function applySimulation() {
+        const newExp = parseInt(document.getElementById('simExpInput').value);
+        const newCoins = parseInt(document.getElementById('simCoinInput').value);
+
+        // 讀取當前 User，只修改數值，保留其他屬性 (如解鎖清單)
+        let user = JSON.parse(localStorage.getItem('duckUser')) || { 
+            level: 1, currentSkin: "images/duck_lv1.png", unlockedSkins: ["images/duck_lv1.png"] 
         };
 
-        // 存入瀏覽器
-        localStorage.setItem('duckUser', JSON.stringify(mockUser));
+        user.exp = newExp;
+        user.coins = newCoins;
         
-        // 強制重新整理 iframe
+        // 為了讓會員中心重新計算等級，我們把等級設為 0 或不設，讓 member.html 的 updateUI 自己算
+        // 但最安全的方式是只存 EXP，剩下的交給 member.html
+        
+        localStorage.setItem('duckUser', JSON.stringify(user));
+        
+        // 重新整理 Iframe
         document.getElementById('previewFrame').contentWindow.location.reload();
-        
-        // 提示使用者
-        // alert(`已切換預覽視角為：Lv.${targetLevel.lv} ${targetLevel.name}`);
     }
 
-    // 6. 重置功能
+    // 7. 重置
     function resetToDefault() {
         if(confirm("確定要恢復原廠設定嗎？")) {
             localStorage.removeItem('customLevelConfig');
