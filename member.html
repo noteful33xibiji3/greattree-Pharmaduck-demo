@@ -210,8 +210,9 @@
     // 🦆 Pharma.Duck RPG 核心系統 (終極版)
     // ==============================================
 
-    // === 1. 10級等級設定 (0 ~ 1,000,000 EXP) ===
-    const levelConfig = [
+  // === 1. 10級等級設定 (優先讀取後台設定) ===
+    // 預設值 (Hardcoded backup)
+    const defaultLevels = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
         { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
         { lv: 3, name: "健康小幫手", minExp: 3000, img: "images/duck_lv3.png" },
@@ -222,6 +223,10 @@
         { lv: 8, name: "大樹店長鴨", minExp: 250000, img: "images/duck_lv8.png" },
         { lv: 9, name: "榮譽長老鴨", minExp: 500000, img: "images/duck_lv9.png" },
         { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
+    ];
+
+    // 嘗試從 localStorage 讀取後台設定，如果沒有則使用預設值
+    let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
     ];
 
     // === 2. 時裝商城資料 (含付費購買) ===
