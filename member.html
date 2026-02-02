@@ -239,6 +239,7 @@
 
     // === 2. 時裝商城資料 (含付費購買) ===
     const skinShop = [
+        { name: "一鴨tree吃 初心版", img: "images/duck_origin.png", type: "buy", unlockVal: 0, cost: 0 },
         { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
         { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
         { name: "博士鴨傳說", img: "images/duck_lv10.png", type: "buy", unlockVal: 0, cost: 800 }
@@ -400,10 +401,15 @@
                     } else {
                         lockMsg = `Lv.${skin.unlockVal} 解鎖`;
                     }
-                } else if (skin.type === 'buy') {
-                    lockMsg = `${skin.cost} Coins`;
-                    clickAction = () => buySkin(skin);
-                }
+                }} else if (skin.type === 'buy') {
+    // 如果價格是 0，顯示特別文字
+    if (skin.cost === 0) {
+        lockMsg = "🎁 團隊限定 (免費)";
+    } else {
+        lockMsg = `${skin.cost} Coins`;
+    }
+    clickAction = () => buySkin(skin);
+}
             }
 
             const card = document.createElement('div');
