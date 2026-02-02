@@ -272,9 +272,9 @@
                 <div class="item-card">
                     <div class="item-tag">熱門</div>
                     <img src="images/item_coupon.jpg" class="item-img" onerror="this.src='https://placehold.co/100x100/d0021b/fff?text=$50'">
-                    <div><b>$150 門市折價券</b></div>
+                    <div><b>$100 門市折價券</b></div>
                     <div class="item-price">500 Coins</div>
-                    <button class="btn-action" style="background:var(--gt-orange); width:100%; margin-top:5px;" onclick="buyItem(500, '$150 折價券')">兌換</button>
+                    <button class="btn-action" style="background:var(--gt-orange); width:100%; margin-top:5px;" onclick="buyItem(500, '$100 折價券')">兌換</button>
                 </div>
                 
                 <div class="item-card">
@@ -627,7 +627,7 @@
     const earningRules = [
         { action: "新會員註冊", exp: "+1,000", coin: "+50", note: "首日直升 Lv.2，獲贈基礎飾品" },
         { action: "每日登入", exp: "+50", coin: "+2", note: "連續登入 7 天，加贈 20 幣" },
-        { action: "實體門市消費", exp: "1元=10點", coin: "10元=1幣", note: "滿 5,000 元兌換 150 元折價券" },
+        { action: "實體門市消費", exp: "1元=10點", coin: "10元=1幣", note: "滿 5,000 元兌換 100 元折價券" },
         { action: "填寫衛教單", exp: "+200", coin: "+10", note: "每周限一次，鼓勵學習" },
         { action: "看地圖/問診", exp: "+50", coin: "+5", note: "提升與門市互動深度" },
         { action: "新會員優惠", exp: "+5,000", coin: "+100", note: "首筆消費滿 500 元額外加贈" }
@@ -637,13 +637,13 @@
         { lv: 1, name: "破殼見習生", exp: "0", perk: "新手大禮包 (蛋殼帽、小綠葉)" },
         { lv: 2, name: "好奇探險鴨", exp: "500", perk: "開啟時裝商店 (黃色側背包)" },
         { lv: 3, name: "健康小幫手", exp: "3,000", perk: "每日簽到金幣加成 (鴨舌帽)" },
-        { lv: 4, name: "初階披袍鴨", exp: "10,000", perk: "指定保健品 98 折 (短版白袍)" },
+        { lv: 4, name: "初階披袍鴨", exp: "10,000", perk: "指定保健品 96 折 (短版白袍)" },
         { lv: 5, name: "調劑熟手鴨", exp: "25,000", perk: "開放實體禮物兌換 (專業研杵)" },
-        { lv: 6, name: "衛教領航員", exp: "50,000", perk: "填寫衛教單金幣 2 倍 (黑框眼鏡)" },
-        { lv: 7, name: "資深藥師鴨", exp: "100,000", perk: "[加成] 消費 EXP 1.5 倍 (長版白袍)" },
-        { lv: 8, name: "大樹店長鴨", exp: "250,000", perk: "新品優先預購權 (西裝背心)" },
-        { lv: 9, name: "榮譽長老鴨", exp: "500,000", perk: "限量演唱會抽獎 (發光法杖)" },
-        { lv: 10, name: "醫藥守護神", exp: "1,000,000", perk: "🔴 終極特權：點數永不過期 (金光特效)" }
+        { lv: 6, name: "衛教領航員", exp: "50,000", perk: " 填寫衛教單金幣 2 倍 (黑框眼鏡)" },
+        { lv: 7, name: "資深藥師鴨", exp: "100,000", perk: "[加成] 消費 EXP 1.5 倍 +指定保健品 85 折(長版白袍)" },
+        { lv: 8, name: "大樹店長鴨", exp: "250,000", perk: "新品優先預購權+指定保健品 8 折 (西裝背心)" },
+        { lv: 9, name: "榮譽長老鴨", exp: "500,000", perk: "限量演唱會抽獎+限定保健品 75 折+全部保健品9折 (發光法杖)" },
+        { lv: 10, name: "醫藥守護神", exp: "1,000,000", perk: "🔴 終極特權：點數永不過期+全部保健品 7 折  (金光特效)" }
     ];
 
     // === 9. 彈窗控制邏輯 ===
