@@ -147,17 +147,15 @@
 
     // 2. 初始化
     function init() {
-        // A. 載入 Config
         const saved = localStorage.getItem('customLevelConfig');
         currentConfig = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultConfig));
         renderTable();
 
-        // B. 載入 User 狀態 (給模擬器用)
+        // 載入 User 狀態同步到拉桿
         const user = JSON.parse(localStorage.getItem('duckUser')) || { exp: 0, coins: 50 };
         updateSimUI(user.exp, user.coins);
     }
 
-    // 更新模擬器輸入框 UI
     function updateSimUI(exp, coins) {
         document.getElementById('simExpSlider').value = exp;
         document.getElementById('simExpInput').value = exp;
@@ -190,25 +188,34 @@
         currentConfig[index][field] = value;
     }
 
-    // 4. 保存設定
+    // 4. 保存參數設定
     function saveConfig() {
         localStorage.setItem('customLevelConfig', JSON.stringify(currentConfig));
         alert("✅ 系統參數已保存！");
         document.getElementById('previewFrame').contentWindow.location.reload();
     }
 
-    // 5. 連動輸入框 (Sync Functions)
+    // 5. 拉桿連動
     function syncExpInput(val) { document.getElementById('simExpInput').value = val; }
     function syncExpSlider(val) { document.getElementById('simExpSlider').value = val; }
     function syncCoinInput(val) { document.getElementById('simCoinInput').value = val; }
     function syncCoinSlider(val) { document.getElementById('simCoinSlider').value = val; }
 
-    // 6. 套用模擬 (Apply Simulation)
+    // 6. 套用模擬 (★關鍵修復★：這裡會強制計算等級並換裝)
     function applySimulation() {
         const newExp = parseInt(document.getElementById('simExpInput').value);
         const newCoins = parseInt(document.getElementById('simCoinInput').value);
 
-        // 讀取當前 User，只修改數值，保留其他屬性 (如解鎖清單)
+        // A. 找出這個 EXP 對應的等級設定
+        // (不管是升級還是降級，我們都直接找出「現在該穿什麼」)
+        let targetLevelObj = currentConfig[0];
+        for (let i = 0; i < currentConfig.length; i++) {
+            if (newExp >= currentConfig[i].minExp) {
+                targetLevelObj = currentConfig[i];
+            }
+        }
+
+        // B. 讀取並修改 User 資料
         let user = JSON.parse(localStorage.getItem('duckUser')) || { 
             level: 1, currentSkin: "images/duck_lv1.png", unlockedSkins: ["images/duck_lv1.png"] 
         };
@@ -216,12 +223,18 @@
         user.exp = newExp;
         user.coins = newCoins;
         
-        // 為了讓會員中心重新計算等級，我們把等級設為 0 或不設，讓 member.html 的 updateUI 自己算
-        // 但最安全的方式是只存 EXP，剩下的交給 member.html
+        // ★ 強制覆蓋等級與皮膚 (這就是預覽會成功的關鍵)
+        user.level = targetLevelObj.lv;
+        user.currentSkin = targetLevelObj.img;
+
+        // ★ 確保這個皮膚已解鎖 (不然可能會顯示鎖頭)
+        if (!user.unlockedSkins) user.unlockedSkins = [];
+        if (!user.unlockedSkins.includes(targetLevelObj.img)) {
+            user.unlockedSkins.push(targetLevelObj.img);
+        }
         
+        // C. 寫入並刷新
         localStorage.setItem('duckUser', JSON.stringify(user));
-        
-        // 重新整理 Iframe
         document.getElementById('previewFrame').contentWindow.location.reload();
     }
 
