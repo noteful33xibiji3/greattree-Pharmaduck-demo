@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每週衛教挑戰 - Pharma.Duck</title>
+    <style>
+        /* === 繼承大樹風格 === */
+        :root { --gt-green: #009944; --gt-orange: #F39800; --bg-gray: #f0f2f5; --gold: #FFD700; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: var(--bg-gray); margin: 0; padding-bottom: 50px; }
+        
+        /* Header */
+        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 800px; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; }
+        .back-btn { text-decoration: none; color: #555; font-weight: bold; display: flex; align-items: center; gap: 5px; font-size: 16px; }
+        .page-title { flex: 1; text-align: center; font-size: 18px; font-weight: bold; color: var(--gt-green); margin-right: 30px; } /* margin-right 平衡左邊按鈕寬度 */
+
+        /* 主要容器 */
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+
+        /* 卡片樣式 */
+        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; }
+        .duck-img { width: 120px; margin-bottom: 15px; }
+        
+        /* 狀態文字 */
+        h1 { margin: 10px 0; color: #333; }
+        .subtitle { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .reward-badge { background: #fffbe6; border: 1px solid var(--gold); color: #b7791f; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 20px; }
+
+        /* 問卷區域 */
+        .quiz-container { text-align: left; display: none; } /* 預設隱藏，由 JS 控制顯示 */
+        .question-block { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .q-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; color: var(--gt-green); }
+        .options label { display: block; padding: 10px; border: 2px solid #eee; border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .options input { margin-right: 10px; }
+        .options label:hover { background: #f9f9f9; border-color: #ddd; }
+        /* 選中樣式 */
+        .options input:checked + span { font-weight: bold; color: var(--gt-green); }
+        .options input:checked + span::after { content: " ✔"; }
+
+        /* 按鈕 */
+        .btn-main { background: var(--gt-green); color: white; border: none; padding: 12px 40px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; transition: 0.2s; }
+        .btn-main:hover { background: #007a36; transform: translateY(-2px); }
+        .btn-disabled { background: #ccc; cursor: not-allowed; }
+
+        /* 結果畫面 */
+        .result-screen { display: none; }
+        .success-icon { font-size: 60px; color: var(--gt-green); margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <a href="member.html" class="back-btn">
+            <span>‹</span> 返回會員中心
+        </a>
+        <div class="page-title">📝 每週衛教挑戰</div>
+    </div>
+</header>
+
+<div class="container">
+    
+    <div class="card" id="welcomeScreen">
+        <img src="images/my_duck.png" class="duck-avatar" style="width:100px; border-radius:50%; border:3px solid var(--gt-orange);">
+        <h1>Pharma.Duck 知識小學堂</h1>
+        <div class="reward-badge">本週獎勵：+200 EXP | +10 Coins</div>
+        <p class="subtitle">
+            每週一次，回答 5 題簡單的藥學小知識，<br>
+            不僅能照顧自己與家人的健康，還能獲得豐富獎勵喔！
+        </p>
+        <button class="btn-main" onclick="startQuiz()">開始挑戰</button>
+    </div>
+
+    <div class="card" id="cooldownScreen" style="display:none;">
+        <div style="font-size: 50px;">⏳</div>
+        <h2 style="color: #666;">本週挑戰已完成</h2>
+        <p class="subtitle">
+            您已經領取過本週的獎勵囉！<br>
+            請下週再來挑戰新的衛教知識。
+        </p>
+        <div style="background:#eee; padding:10px; border-radius:10px; margin:20px 0; color:#555;">
+            下次重置時間：<br><b>下週一 00:00</b>
+        </div>
+        <a href="member.html"><button class="btn-main">返回首頁</button></a>
+    </div>
+
+    <div class="card quiz-container" id="quizForm">
+        
+        <div class="question-block">
+            <div class="q-title">Q1. 醫生開的「抗生素」，症狀好轉後可以自行停藥嗎？</div>
+            <div class="options">
+                <label><input type="radio" name="q1" value="wrong"> <span>覺得好了就可以停，不想吃太多藥</span></label>
+                <label><input type="radio" name="q1" value="correct"> <span>不行，必須把整個療程吃完，以免產生抗藥性</span></label>
+                <label><input type="radio" name="q1" value="wrong"> <span>留著下次感冒再吃</span></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <div class="q-title">Q2. 一般藥品最好的保存環境是？</div>
+            <div class="options">
+                <label><input type="radio" name="q2" value="wrong"> <span>全部放冰箱最保鮮</span></label>
+                <label><input type="radio" name="q2" value="correct"> <span>避光、避熱、避濕的室內陰涼處</span></label>
+                <label><input type="radio" name="q2" value="wrong"> <span>放在窗戶旁曬太陽殺菌</span></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <div class="q-title">Q3. B群主要的功能是什麼？</div>
+            <div class="options">
+                <label><input type="radio" name="q3" value="correct"> <span>幫助營養代謝轉換成能量 (輔助酵素)</span></label>
+                <label><input type="radio" name="q3" value="wrong"> <span>像是咖啡因一樣直接提神</span></label>
+                <label><input type="radio" name="q3" value="wrong"> <span>治百病的神藥</span></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <div class="q-title">Q4. 如果忘記吃藥，想起來的時候該補吃嗎？</div>
+            <div class="options">
+                <label><input type="radio" name="q4" value="correct"> <span>若時間接近下一次吃藥時間，就跳過一次 (不可吃兩倍量)</span></label>
+                <label><input type="radio" name="q4" value="wrong"> <span>趕快補吃，然後下次時間到再吃一次</span></label>
+                <label><input type="radio" name="q4" value="wrong"> <span>一次吃兩包補回來</span></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <div class="q-title">Q5. 購買保健食品前，最好的諮詢對象是？</div>
+            <div class="options">
+                <label><input type="radio" name="q5" value="wrong"> <span>隔壁鄰居阿姨</span></label>
+                <label><input type="radio" name="q5" value="wrong"> <span>網路上的不知名廣告</span></label>
+                <label><input type="radio" name="q5" value="correct"> <span>專業醫師或藥師 (找鴨鴨藥師也可以！)</span></label>
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="submitQuiz()">提交答案 & 領獎</button>
+    </div>
+
+    <div class="card result-screen" id="resultScreen">
+        <div class="success-icon">🎉</div>
+        <h2 style="color:var(--gt-green);">挑戰成功！</h2>
+        <p class="subtitle">
+            恭喜您完成本週衛教宣導！<br>
+            您的健康知識又增加了，獎勵已發送。
+        </p>
+        <div style="margin: 20px 0;">
+            <div class="reward-badge" style="background:#e6f4ea; border:none; font-size:18px;">EXP +200</div>
+            <div class="reward-badge" style="background:#fffbe6; border:none; font-size:18px;">Coins +10</div>
+        </div>
+        <a href="member.html"><button class="btn-main">回會員中心查看</button></a>
+    </div>
+
+</div>
+
+<script>
+    // === 1. 初始化檢查 (每週限制邏輯) ===
+    const QUIZ_COOLDOWN_DAYS = 7;
+    const REWARD_EXP = 200;
+    const REWARD_COINS = 10;
+
+    function checkAvailability() {
+        const lastDateStr = localStorage.getItem('duckQuizLastDate');
+        
+        if (lastDateStr) {
+            const lastDate = new Date(parseInt(lastDateStr));
+            const now = new Date();
+            const diffTime = Math.abs(now - lastDate);
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+            if (diffDays < QUIZ_COOLDOWN_DAYS) {
+                // 還在冷卻中
+                document.getElementById('welcomeScreen').style.display = 'none';
+                document.getElementById('cooldownScreen').style.display = 'block';
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 頁面載入時執行檢查
+    checkAvailability();
+
+    // === 2. 開始測驗 ===
+    function startQuiz() {
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('quizForm').style.display = 'block';
+        window.scrollTo(0, 0); // 捲動到頂部
+    }
+
+    // === 3. 提交與領獎 ===
+    function submitQuiz() {
+        // 簡單檢查是否都有填寫 (這裡簡化，假設都填了)
+        // 實際可以加 Loop 檢查 checked
+        
+        // 1. 發放獎勵
+        let userState = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, exp: 0, coins: 0 };
+        
+        userState.exp += REWARD_EXP;
+        userState.coins += REWARD_COINS;
+        
+        // 2. 存檔會員數據
+        localStorage.setItem('duckUser', JSON.stringify(userState));
+
+        // 3. 記錄本次測驗時間 (開始冷卻)
+        localStorage.setItem('duckQuizLastDate', Date.now().toString());
+
+        // 4. 顯示結果
+        document.getElementById('quizForm').style.display = 'none';
+        document.getElementById('resultScreen').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
