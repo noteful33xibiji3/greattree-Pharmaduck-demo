@@ -217,9 +217,10 @@
 </footer>
 <script>
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (同步修復版)
+    // 🦆 Pharma.Duck RPG 核心系統 (回溯解鎖修復版)
     // ==============================================
 
+    // === 1. 10級等級設定 (預設值) ===
     const defaultLevels = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
         { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
@@ -233,34 +234,49 @@
         { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
     ];
 
+    // 嘗試讀取後台設定，沒有則用預設
     let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
 
+    // === 2. 時裝商城資料 (含付費購買) ===
     const skinShop = [
         { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
         { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
         { name: "博士鴨傳說", img: "images/duck_lv10.png", type: "buy", unlockVal: 0, cost: 800 }
     ];
 
+    // === 3. 賽季重置邏輯 ===
     function checkSeasonReset(userData) {
         const now = new Date();
-        const currentYear = now.getFullYear();
+        const year = now.getFullYear();
         const currentSeason = (now.getMonth() + 1 <= 6) ? 1 : 2; 
-        const seasonId = `${currentYear}-S${currentSeason}`;
+        const seasonId = `${year}-S${currentSeason}`;
 
         if (userData.lastSeason && userData.lastSeason !== seasonId) {
+            console.log(`賽季切換！重置 EXP...`);
             userData.exp = 0; 
             userData.level = 1;
             userData.lastSeason = seasonId;
-            userData.currentSkin = levelConfig[0].img;
-            alert(`📅 新賽季 (${seasonId}) 開始！\n等級與 EXP 已重置。`);
+            userData.currentSkin = levelConfig[0].img; 
+            // 重置時也要清空解鎖清單，只留 Lv1
+            userData.unlockedSkins = [levelConfig[0].img];
+            alert(`📅 新賽季 (${seasonId}) 開始！\n等級已重置，請重新開始冒險！`);
         } else if (!userData.lastSeason) {
             userData.lastSeason = seasonId;
         }
         return userData;
     }
 
+    // === 4. 數據讀取與初始化 ===
     function loadUserData() {
-        let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "" };
+        let defaultData = { 
+            level: 1, 
+            exp: 0, 
+            coins: 50, 
+            currentSkin: levelConfig[0].img, // 預設穿 Lv1
+            unlockedSkins: [levelConfig[0].img], 
+            lastSeason: "" 
+        };
+
         let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
         data = checkSeasonReset(data);
         return data;
@@ -268,40 +284,55 @@
 
     let userState = loadUserData();
 
+    // === 5. UI 更新核心 (回溯解鎖修復) ===
     function updateUI() {
-        // A. 計算正確等級 (由高到低找)
-        let sortedConfig = [...levelConfig].sort((a, b) => b.minExp - a.minExp);
-        let currentConfig = sortedConfig.find(l => userState.exp >= l.minExp) || levelConfig[0];
-        
-        // B. 同步狀態
+        // A. 計算當前正確等級
+        let currentConfig = levelConfig[0];
+        let nextConfig = levelConfig[1];
+
+        for (let i = 0; i < levelConfig.length; i++) {
+            if (userState.exp >= levelConfig[i].minExp) {
+                currentConfig = levelConfig[i];
+                nextConfig = levelConfig[i+1] || { minExp: "MAX", name: "已達巔峰" };
+            }
+        }
+
+        // B. 同步等級變數
+        const oldLevel = userState.level;
         userState.level = currentConfig.lv;
-        
-        // ★ 自動解鎖當前等級圖
-        if(!userState.unlockedSkins.includes(currentConfig.img)) {
-            userState.unlockedSkins.push(currentConfig.img);
-            showLevelUp(currentConfig.name, currentConfig.lv);
+
+        // ★★★ 關鍵修復：回溯解鎖 (Retroactive Unlock) ★★★
+        // 檢查所有小於等於當前等級的時裝，如果沒解鎖，全部補發！
+        levelConfig.forEach(cfg => {
+            if (userState.level >= cfg.lv) {
+                if (!userState.unlockedSkins.includes(cfg.img)) {
+                    userState.unlockedSkins.push(cfg.img);
+                    console.log(`補發解鎖：Lv.${cfg.lv} 時裝`);
+                }
+            }
+        });
+
+        // C. 如果等級剛剛提升了，顯示彈窗並換裝
+        // (這裡加一個判斷：如果是後台直接拉滿的，通常 oldLevel 會跟 currentConfig.lv 不同)
+        // 但為了避免每次重新整理都跳彈窗，我們只在 currentSkin 不等於最新等級圖時才強制換裝
+        if (oldLevel < currentConfig.lv) {
+             showLevelUp(currentConfig.name, currentConfig.lv);
+             // 強制換上最新等級的衣服
+             userState.currentSkin = currentConfig.img;
+        } 
+        // 防呆：如果當前穿的是「等級裝」但不是「最新等級裝」，強制換成最新的
+        // (這樣後台拉滿後，前台一刷新就會穿上 Lv.10)
+        else if (levelConfig.some(l => l.img === userState.currentSkin) && userState.currentSkin !== currentConfig.img) {
+             userState.currentSkin = currentConfig.img;
         }
 
-        // ★ (重要修正) 如果目前的皮膚是「上一級的」或「預設的」，強制換成新的
-        // 這樣就能保證等級變了，圖就會變。
-        // 但為了保留玩家「手動換裝」的自由度，我們只在「升級」或「降級」發生瞬間做切換
-        // 這裡為了後台預覽方便，我們採用「如果現在穿的是等級裝，就強制同步成當前等級」
-        const isWearingLevelSkin = levelConfig.some(l => l.img === userState.currentSkin);
-        if (isWearingLevelSkin && userState.currentSkin !== currentConfig.img) {
-            userState.currentSkin = currentConfig.img;
-        }
-
-        // C. 找下一級 (進度條用)
-        let nextConfig = levelConfig.find(l => l.lv === userState.level + 1) || { minExp: "MAX" };
-
-        // D. 更新文字
-        document.getElementById('lvTitle').innerText = `Lv.${userState.level} ${currentConfig.name}`;
-        document.getElementById('lvBadge').innerText = `Lv.${userState.level}`;
+        // D. 更新文字與進度條
+        document.getElementById('lvTitle').innerText = `Lv.${currentConfig.lv} ${currentConfig.name}`;
+        document.getElementById('lvBadge').innerText = `Lv.${currentConfig.lv}`;
         document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString();
         
-        // E. 進度條
         let progressPercent = 0;
-        if (nextConfig.minExp === "MAX") {
+        if (currentConfig.lv === 10) {
             progressPercent = 100;
             document.getElementById('maxExpText').innerText = "MAX";
         } else {
@@ -310,28 +341,42 @@
             progressPercent = Math.min(100, (expInLevel / expNeededForNext) * 100);
             document.getElementById('maxExpText').innerText = nextConfig.minExp.toLocaleString();
         }
+
         document.getElementById('expBar').style.width = `${progressPercent}%`;
         document.getElementById('expText').innerText = userState.exp.toLocaleString(); 
 
-        // F. 圖片
+        // E. 圖片
         const avatar = document.getElementById('duckAvatar');
         avatar.src = userState.currentSkin;
         avatar.onerror = function() { this.src = "images/my_duck.png"; };
 
-        renderWardrobe();
+        // F. 存檔
         localStorage.setItem('duckUser', JSON.stringify(userState));
+        
+        renderWardrobe();
         updateSeasonDays();
     }
 
+    // === 6. 渲染衣櫃 (自動合併) ===
     function renderWardrobe() {
         const container = document.getElementById('wardrobeList');
         container.innerHTML = ""; 
+
+        // 建立顯示清單
         let displaySkins = [...skinShop]; 
         levelConfig.forEach(lvItem => {
-            if (!displaySkins.some(s => s.img === lvItem.img)) {
-                displaySkins.push({ name: lvItem.name, img: lvItem.img, type: 'level', unlockVal: lvItem.lv, cost: 0 });
+            const exists = displaySkins.some(s => s.img === lvItem.img);
+            if (!exists) {
+                displaySkins.push({
+                    name: lvItem.name,
+                    img: lvItem.img,
+                    type: 'level',
+                    unlockVal: lvItem.lv,
+                    cost: 0
+                });
             }
         });
+
         displaySkins.sort((a, b) => {
             if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
             if (a.type === 'level') return -1; 
@@ -348,8 +393,14 @@
                 clickAction = () => changeSkin(skin.img);
             } else {
                 if (skin.type === 'level') {
-                    lockMsg = `Lv.${skin.unlockVal} 解鎖`;
-                } else {
+                    // 這裡的判斷其實是多餘的，因為 updateUI 已經補發了
+                    // 但為了顯示「未解鎖」狀態，還是保留判斷
+                    if (userState.level >= skin.unlockVal) {
+                        clickAction = () => changeSkin(skin.img);
+                    } else {
+                        lockMsg = `Lv.${skin.unlockVal} 解鎖`;
+                    }
+                } else if (skin.type === 'buy') {
                     lockMsg = `${skin.cost} Coins`;
                     clickAction = () => buySkin(skin);
                 }
@@ -368,6 +419,7 @@
         });
     }
 
+    // === 7. 功能函數 ===
     function updateSeasonDays() {
         const now = new Date();
         const year = now.getFullYear();
@@ -375,7 +427,6 @@
         const endDate = isFirstHalf ? new Date(year, 5, 30) : new Date(year, 11, 31);
         const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
         document.getElementById('daysLeft').innerText = diffDays;
-        
         const endYear = endDate.getFullYear();
         const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
         const endDay = endDate.getDate().toString().padStart(2, '0');
@@ -414,14 +465,14 @@
                 alert("購買成功！快去換上新衣服吧！");
             }
         } else {
-            alert("大樹幣不足！");
+            alert("大樹幣不足！快去解任務賺錢吧！");
         }
     }
 
     function changeSkin(imgUrl) {
         userState.currentSkin = imgUrl;
         updateUI();
-        alert("換裝成功！");
+        alert("換裝成功！首頁鴨鴨已同步更新！");
     }
 
     function showLevelUp(name, lv) {
@@ -433,7 +484,18 @@
         document.getElementById('modal').style.display = 'none';
     }
     
+    // 初始化
     updateUI();
+
+    // 監聽 storage 變化 (如果 index.html 更新了數據，這裡也要即時更新)
+    window.addEventListener('storage', () => {
+        // 重新讀取 config
+        levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
+        // 重新讀取 user state
+        userState = JSON.parse(localStorage.getItem('duckUser'));
+        updateUI();
+    });
+
 </script>
 </body>
 </html>
