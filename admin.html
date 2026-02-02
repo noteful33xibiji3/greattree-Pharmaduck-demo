@@ -5,59 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pharma.Duck 系統管理後台</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #1f2937; color: white; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: #374151; padding: 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #111827; color: white; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
         
-        h1 { border-bottom: 2px solid #F39800; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .reset-btn { background: #d0021b; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #4b5563; }
-        th { color: #F39800; }
+        /* 頂部導航 */
+        .navbar { background: #1f2937; padding: 15px 30px; border-bottom: 2px solid #F39800; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        h1 { margin: 0; font-size: 20px; color: #F39800; display: flex; align-items: center; gap: 10px; }
         
-        input { background: #1f2937; border: 1px solid #6b7280; color: white; padding: 8px; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        /* 主版面配置 (左右分割) */
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        
+        /* 左側：編輯區 */
+        .editor-panel { flex: 1; padding: 20px; overflow-y: auto; border-right: 1px solid #374151; }
+        
+        /* 右側：預覽區 */
+        .preview-panel { width: 400px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border-left: 5px solid #F39800; background-image: radial-gradient(#333 1px, transparent 1px); background-size: 20px 20px; }
+        
+        /* 手機模擬器外框 */
+        .phone-mockup {
+            width: 360px; height: 720px; background: white; border-radius: 30px; 
+            border: 8px solid #333; overflow: hidden; position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .phone-mockup iframe { width: 100%; height: 100%; border: none; }
+        
+        /* 表格樣式 */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #1f2937; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #374151; font-size: 14px; }
+        th { background: #374151; color: #F39800; }
+        tr:hover { background: #2d3748; }
+        
+        input { 
+            background: #111827; border: 1px solid #4b5563; color: white; 
+            padding: 6px; border-radius: 4px; width: 100%; box-sizing: border-box; 
+        }
         input:focus { border-color: #F39800; outline: none; }
         
-        .preview-img { width: 40px; height: 40px; object-fit: contain; background: white; border-radius: 50%; }
+        /* 按鈕樣式 */
+        .btn { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
+        .btn-preview { background: #3b82f6; color: white; }
+        .btn-preview:hover { background: #2563eb; }
+        .btn-save { background: #009944; color: white; padding: 10px 25px; font-size: 16px; border-radius: 20px; }
+        .btn-reset { background: #ef4444; color: white; }
 
-        .action-bar { margin-top: 30px; text-align: right; }
-        .save-btn { background: #009944; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .save-btn:hover { transform: scale(1.05); background: #00b350; }
-
-        .status-msg { color: #10b981; margin-right: 15px; display: none; }
+        .action-bar { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .status-msg { color: #10b981; opacity: 0; transition: opacity 0.5s; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>
-        🦆 鴨鴨養成系統 - 等級配置後台
-        <button class="reset-btn" onclick="resetToDefault()">⚠ 重置為預設值</button>
-    </h1>
-    <p style="color:#9ca3af;">在此調整每個等級的稱號、所需經驗值 (EXP) 以及對應的圖片。修改後點擊保存，前台將即時生效。</p>
+<div class="navbar">
+    <h1>🦆 後台管理系統 <span style="font-size:12px; color:#9ca3af; margin-left:10px;">(所有更動即時生效)</span></h1>
+    <button class="btn btn-reset" onclick="resetToDefault()">↺ 恢復原廠設定</button>
+</div>
 
-    <table>
-        <thead>
-            <tr>
-                <th width="80">等級</th>
-                <th width="200">稱號名稱</th>
-                <th width="150">所需 EXP</th>
-                <th>對應圖片路徑 (images/...)</th>
-                <th width="60">預覽</th>
-            </tr>
-        </thead>
-        <tbody id="configTable">
-            </tbody>
-    </table>
+<div class="main-layout">
+    
+    <div class="editor-panel">
+        <h3 style="margin-top:0;">等級數值配置</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th width="50">Lv</th>
+                    <th>稱號 (Name)</th>
+                    <th width="100">EXP 門檻</th>
+                    <th>圖片路徑</th>
+                    <th width="60">操作</th>
+                </tr>
+            </thead>
+            <tbody id="configTable">
+                </tbody>
+        </table>
 
-    <div class="action-bar">
-        <span class="status-msg" id="msg">✅ 設定已更新！請重新整理前台網頁</span>
-        <button class="save-btn" onclick="saveConfig()">💾 保存設定</button>
+        <div class="action-bar">
+            <span class="status-msg" id="msg">✅ 設定已保存！</span>
+            <button class="btn btn-save" onclick="saveConfig()">💾 保存並套用設定</button>
+        </div>
+        
+        <div style="margin-top:30px; padding:15px; background:#374151; border-radius:8px; font-size:13px; color:#ccc;">
+            <strong>💡 使用說明：</strong><br>
+            1. 修改數值後，請先按 <b>[保存]</b>。<br>
+            2. 點擊列表右側的 <b>[👁️ 預覽]</b> 按鈕。<br>
+            3. 右側手機畫面會直接模擬該等級的會員介面。<br>
+            (注意：預覽功能會暫時修改您的瀏覽器紀錄，將您的身份切換為該等級)
+        </div>
     </div>
+
+    <div class="preview-panel">
+        <div style="color:white; margin-bottom:10px; font-weight:bold;">📱 會員中心即時預覽</div>
+        <div class="phone-mockup">
+            <iframe id="previewFrame" src="member.html"></iframe>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // 預設設定 (備份用)
+    // 1. 原廠預設值
     const defaultConfig = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
         { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
@@ -73,14 +116,14 @@
 
     let currentConfig = [];
 
-    // 初始化
+    // 2. 初始化
     function init() {
-        // 先看有沒有自訂過，沒有就用預設
         const saved = localStorage.getItem('customLevelConfig');
         currentConfig = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultConfig));
         renderTable();
     }
 
+    // 3. 渲染表格
     function renderTable() {
         const tbody = document.getElementById('configTable');
         tbody.innerHTML = '';
@@ -88,11 +131,13 @@
         currentConfig.forEach((item, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="font-weight:bold; font-size:18px;">Lv.${item.lv}</td>
+                <td style="font-weight:bold; color:#F39800;">${item.lv}</td>
                 <td><input type="text" value="${item.name}" onchange="updateItem(${index}, 'name', this.value)"></td>
                 <td><input type="number" value="${item.minExp}" onchange="updateItem(${index}, 'minExp', this.value)"></td>
                 <td><input type="text" value="${item.img}" onchange="updateItem(${index}, 'img', this.value)"></td>
-                <td><img src="${item.img}" class="preview-img" onerror="this.src='images/my_duck.png'"></td>
+                <td>
+                    <button class="btn btn-preview" onclick="previewLevel(${index})">👁️ 預覽</button>
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -103,20 +148,50 @@
         currentConfig[index][field] = value;
     }
 
+    // 4. 保存設定
     function saveConfig() {
         localStorage.setItem('customLevelConfig', JSON.stringify(currentConfig));
         
         // 顯示成功訊息
         const msg = document.getElementById('msg');
-        msg.style.display = 'inline-block';
-        setTimeout(() => msg.style.display = 'none', 3000);
+        msg.style.opacity = '1';
+        setTimeout(() => msg.style.opacity = '0', 3000);
+        
+        // 重新整理 iframe 讓設定生效
+        document.getElementById('previewFrame').contentWindow.location.reload();
     }
 
+    // 5. 核心功能：預覽指定等級
+    function previewLevel(index) {
+        const targetLevel = currentConfig[index];
+        
+        // 我們要「偽造」一個使用者數據，存入 localStorage
+        // 這樣右邊的 iframe (member.html) 讀取時，就會以為使用者是這個等級
+        const mockUser = {
+            level: targetLevel.lv,
+            exp: targetLevel.minExp, // 把經驗值設為該等級剛好的門檻
+            coins: 9999, // 給多一點錢方便測試
+            currentSkin: targetLevel.img, // 穿上該等級的衣服
+            unlockedSkins: [targetLevel.img],
+            lastSeason: "2026-S1" // 避免被賽季重置歸零
+        };
+
+        // 存入瀏覽器
+        localStorage.setItem('duckUser', JSON.stringify(mockUser));
+        
+        // 強制重新整理 iframe
+        document.getElementById('previewFrame').contentWindow.location.reload();
+        
+        // 提示使用者
+        // alert(`已切換預覽視角為：Lv.${targetLevel.lv} ${targetLevel.name}`);
+    }
+
+    // 6. 重置功能
     function resetToDefault() {
-        if(confirm("確定要恢復原廠設定嗎？所有自訂修改將消失。")) {
+        if(confirm("確定要恢復原廠設定嗎？")) {
             localStorage.removeItem('customLevelConfig');
-            init(); // 重新讀取預設
-            alert("已恢復預設值！");
+            init(); 
+            document.getElementById('previewFrame').contentWindow.location.reload();
         }
     }
 
