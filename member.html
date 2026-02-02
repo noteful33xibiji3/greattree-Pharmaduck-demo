@@ -136,36 +136,17 @@
     @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
     /* 表格美化 */
-    .rules-table {
-        width: 100%; border-collapse: collapse; margin-bottom: 25px;
-        font-size: 14px;
-    }
-    .rules-table th {
-        background: var(--gt-green); color: white; padding: 12px;
-        text-align: left; position: sticky; top: 0;
-    }
-    .rules-table td {
-        padding: 10px; border-bottom: 1px solid #eee; color: #444;
-    }
+    .rules-table {width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;}
+    .rules-table th { background: var(--gt-green); color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
+    .rules-table td { padding: 10px; border-bottom: 1px solid #eee; color: #444;}
     .rules-table tr:nth-child(even) { background-color: #f9f9f9; }
     
     /* 分隔標題 */
-    .section-head {
-        border-left: 5px solid var(--gt-orange); padding-left: 10px;
-        margin: 20px 0 10px 0; color: #333; font-size: 18px; font-weight: bold;
-    }
+    .section-head { border-left: 5px solid var(--gt-orange); padding-left: 10px; margin: 20px 0 10px 0; color: #333; font-size: 18px; font-weight: bold; }
 
     /* ★ 當前等級特效：金光閃閃 ★ */
-    .current-level-row {
-        background-color: #fffbea !important;
-        border: 2px solid var(--gold);
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        font-weight: bold; color: #000;
-    }
-    .current-tag {
-        background: var(--gt-orange); color: white; font-size: 10px;
-        padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;
-    }
+    .current-level-row { background-color: #fffbea !important; border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: bold; color: #000; }
+    .current-tag { background: var(--gt-orange); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
 
     /* 關閉按鈕 */
     .close-rules {
@@ -177,12 +158,37 @@
     /* 點擊卡片的互動感 */
     .clickable-card { cursor: pointer; transition: transform 0.2s; }
     .clickable-card:active { transform: scale(0.98); }
-    .hint-icon {
-        position: absolute; top: 15px; right: 15px; 
-        background: rgba(255,255,255,0.2); border-radius: 50%; width: 24px; height: 24px;
-        text-align: center; line-height: 24px; font-size: 14px; color: white;
-        border: 1px solid rgba(255,255,255,0.5);
+    .hint-icon { position: absolute; top: 15px; right: 15px;  background: rgba(255,255,255,0.2); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 14px; color: white; border: 1px solid rgba(255,255,255,0.5); }
+        /* === 新增：福利社與票券夾樣式 (請加入這段) === */
+    .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    .item-card {  border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center;  position: relative; transition: 0.2s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+    .item-card:hover { border-color: var(--gt-orange); transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
+    .item-img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 5px auto; }
+    .item-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
+    .item-price-block { margin: 5px 0; }
+    .price-coins { color: #b7791f; font-weight: bold; font-size: 15px; }
+    .price-addon { font-size: 12px; color: #666; margin-top: 2px; }
+    .item-stock { font-size: 11px; color: #999; margin-bottom: 5px; }
+    .item-tag { position: absolute; top: 5px; right: 5px; background: var(--red); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+    
+    .btn-redeem { background: var(--gt-orange); color: white; border: none; padding: 8px; width: 100%; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    .btn-redeem:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* 倒數計時區 */
+    .countdown-zone {
+        background: linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%);
+        border: 2px solid #ff9a9e;}
+    .timer-box { font-size: 18px; font-weight: bold; color: var(--red); display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+    
+    /* 票券夾 */
+    .coupon-list { display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
+    .coupon-ticket {
+        background: #fff; border: 1px dashed var(--gt-green); border-left: 5px solid var(--gt-green);
+        padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
     }
+    .coupon-detail b { display: block; font-size: 14px; color: #333; }
+    .coupon-detail span { font-size: 12px; color: #666; }
+    .coupon-btn { background: white; border: 1px solid var(--gt-green); color: var(--gt-green); padding: 4px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -190,7 +196,7 @@
 <header>
     <div class="nav-container">
         <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
-            <img src="images/logo.png" alt="Logo" style="height:40px;" onerror="this.parentNode.innerText='🌳 大樹健康購物網'">
+            <img src="images/logo.png" alt="Logo" style="height:40px;" onerror="this.parentNode.innerText='🌳 大樹一鴨tree吃網'">
         </a>
         <div style="display: flex; gap: 10px;">
             <a href="index.html" class="nav-btn">🏠 購物首頁</a>
@@ -237,58 +243,46 @@
             </div>
     </div>
 
+   <div class="panel">
+        <h2>🎫 我的票券夾 <span class="panel-subtitle">已兌換的優惠與好禮 (效期120天)</span></h2>
+        <div class="coupon-list" id="couponList">
+            <div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>👕 鴨鴨時裝店 <span class="panel-subtitle">可用 Coins 購買或等級解鎖</span></h2>
+        <div class="wardrobe-grid" id="wardrobeList"></div>
+    </div>
+
     <div class="content-grid">
         <div class="panel">
             <h2>📝 每日任務 <span class="panel-subtitle">賺 EXP 衝等級</span></h2>
-            
             <div class="task-row">
-                <div class="task-info">
-                    <b>每日登入簽到</b>
-                    <span class="task-reward">+50 EXP | +2 Coins</span>
-                </div>
+                <div class="task-info"><b>每日登入簽到</b><span class="task-reward">+50 EXP | +2 Coins</span></div>
                 <button class="btn-action" onclick="doTask(this, 50, 2)">簽到</button>
             </div>
-
             <div class="task-row">
-                <div class="task-info">
-                    <b>填寫衛教問卷</b>
-                    <span class="task-reward">+200 EXP | +10 Coins</span>
-                </div>
+                <div class="task-info"><b>填寫衛教問卷</b><span class="task-reward">+200 EXP | +10 Coins</span></div>
                 <button class="btn-action" onclick="window.location.href='health_quiz.html'">前往</button>
             </div>
-
             <div class="task-row">
-                <div class="task-info">
-                    <b>查詢門市地圖</b>
-                    <span class="task-reward">+50 EXP | +5 Coins</span>
-                </div>
+                <div class="task-info"><b>查詢門市地圖</b><span class="task-reward">+50 EXP | +5 Coins</span></div>
                 <button class="btn-action" onclick="doTask(this, 50, 5)">查看</button>
             </div>
         </div>
 
         <div class="panel">
             <h2>🎁 大樹福利社 <span class="panel-subtitle">Coins 換實體好禮</span></h2>
-            <div class="shop-grid">
-                <div class="item-card">
-                    <div class="item-tag">熱門</div>
-                    <img src="images/item_coupon.jpg" class="item-img" onerror="this.src='https://placehold.co/100x100/d0021b/fff?text=$50'">
-                    <div><b>$100 門市折價券</b></div>
-                    <div class="item-price">500 Coins</div>
-                    <button class="btn-action" style="background:var(--gt-orange); width:100%; margin-top:5px;" onclick="buyItem(500, '$100 折價券')">兌換</button>
-                </div>
-                
-                <div class="item-card">
-                    <div class="item-tag">限量</div>
-                    <img src="images/duck_lv10.png" class="item-img" onerror="this.src='https://placehold.co/100x100/333/fff?text=Toy'">
-                    <div><b>大樹限定公仔</b></div>
-                    <div class="item-price">3000 Coins</div>
-                    <button class="btn-action" style="background:var(--gt-orange); width:100%; margin-top:5px;" onclick="buyItem(3000, '限定公仔')">兌換</button>
-                </div>
+            
+            <div class="panel countdown-zone" style="margin-bottom:15px; padding:15px; border-radius:15px;">
+                <div class="timer-box">🔥 限時搶購：<span id="countdownTimer">00:00:00</span></div>
+                <div class="shop-grid" id="limitShopGrid"></div>
             </div>
+
+            <div class="shop-grid" id="normalShopGrid"></div>
         </div>
     </div>
-</div>
-
 <div class="levelup-modal" id="modal">
     <div class="modal-content">
         <div style="font-size: 50px;">🎉</div>
@@ -361,6 +355,45 @@
         { name: "博士鴨傳說", img: "images/duck_docter.png", type: "buy", unlockVal: 0, cost: 800 },
         { name: "偶像鴨歌手", img: "images/duck_singer.png", type: "buy", unlockVal: 0, cost: 800 }
     ];
+
+    const shopItemsConfig = [
+        { 
+            id: 'coupon_50', type: 'normal', tag: '熱門', 
+            name: '$50 門市折價券', img: 'images/item_coupon.jpg', 
+            price: 500, stock: 100 
+        },
+        { 
+            id: 'vit_c', type: 'normal', tag: '推薦', 
+            name: '大樹鴨鴨補給站 - 每日C 活力組', img: 'images/p_vit_c.jpg', 
+            price: 2000, stock: 30, 
+            note: '市價$399 (省$399)<br>加價購: 100幣 + $299' 
+        },
+        { 
+            id: 'toy_duck', type: 'limit', tag: '限量', 
+            name: '大樹限定公仔', img: 'images/duck_lv10.png', 
+            price: 3000, stock: 5 
+        }
+    ];
+
+    // 初始化庫存
+    let shopStock = JSON.parse(localStorage.getItem('duckShopStock')) || {};
+    shopItemsConfig.forEach(item => {
+        if (shopStock[item.id] === undefined) shopStock[item.id] = item.stock;
+    });
+
+    // === 資料讀取 (加入 coupons 初始化) ===
+    function loadUserData() {
+        let defaultData = { 
+            level: 1, exp: 0, coins: 50, 
+            currentSkin: levelConfig[0].img, 
+            unlockedSkins: [levelConfig[0].img], 
+            lastSeason: "",
+            coupons: [] // 初始化票券夾
+        };
+        let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
+        return checkSeasonReset(data);
+    }
+    let userState = loadUserData();
 
     // === 3. 賽季重置邏輯 ===
     function checkSeasonReset(userData) {
@@ -473,8 +506,112 @@
         
         renderWardrobe();
         updateSeasonDays();
+        renderShop();
+        renderCoupons();
+    }
+function renderShop() {
+        const normalGrid = document.getElementById('normalShopGrid');
+        const limitGrid = document.getElementById('limitShopGrid');
+        if(!normalGrid || !limitGrid) return;
+        
+        normalGrid.innerHTML = '';
+        limitGrid.innerHTML = '';
+
+        shopItemsConfig.forEach(item => {
+            const currentStock = shopStock[item.id];
+            const isSoldOut = currentStock <= 0;
+            
+            const cardHtml = `
+                <div class="item-card" style="${isSoldOut ? 'opacity:0.6; filter:grayscale(1);' : ''}">
+                    <div class="item-tag" style="background:${isSoldOut ? '#666' : (item.type==='limit'?'var(--red)':'var(--gt-orange)')}">
+                        ${isSoldOut ? '售完' : item.tag}
+                    </div>
+                    <img src="${item.img}" class="item-img" onerror="this.src='https://placehold.co/100x100/eee/999?text=Item'">
+                    <div class="item-title">${item.name}</div>
+                    <div class="item-price-block">
+                        <div class="price-coins">${item.price.toLocaleString()} Coins</div>
+                        ${item.note ? `<div class="price-addon">${item.note}</div>` : ''}
+                        <div class="item-stock">剩餘: ${currentStock} 組</div>
+                    </div>
+                    <button class="btn-redeem" ${isSoldOut ? 'disabled' : ''} onclick="redeemShopItem('${item.id}')">
+                        ${isSoldOut ? '已售完' : '立即兌換'}
+                    </button>
+                </div>
+            `;
+            if(item.type === 'limit') limitGrid.innerHTML += cardHtml;
+            else normalGrid.innerHTML += cardHtml;
+        });
     }
 
+    // === 新增函式 2：兌換邏輯 ===
+    function redeemShopItem(itemId) {
+        const item = shopItemsConfig.find(i => i.id === itemId);
+        if (!item) return;
+        if (shopStock[itemId] <= 0) { alert("抱歉，已售完！"); return; }
+        if (userState.coins < item.price) { alert(`大樹幣不足！還差 ${item.price - userState.coins} Coins`); return; }
+
+        if (confirm(`確定要兌換「${item.name}」嗎？`)) {
+            userState.coins -= item.price;
+            shopStock[itemId]--;
+            localStorage.setItem('duckShopStock', JSON.stringify(shopStock));
+
+            // 計算效期 (當下+120天)
+            const now = new Date();
+            now.setDate(now.getDate() + 120);
+            const expiryStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')}`;
+
+            if (!userState.coupons) userState.coupons = [];
+            userState.coupons.push({ id: Date.now(), name: item.name, expiry: expiryStr, used: false });
+
+            updateUI(); // 這會觸發儲存與重新渲染
+            alert(`兌換成功！\n請至「我的票券夾」查看，效期至 ${expiryStr}`);
+        }
+    }
+
+    // === 新增函式 3：渲染票券夾 ===
+    function renderCoupons() {
+        const list = document.getElementById('couponList');
+        if(!list) return;
+        list.innerHTML = '';
+
+        if (!userState.coupons || userState.coupons.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
+            return;
+        }
+        const activeCoupons = userState.coupons.filter(c => !c.used);
+        activeCoupons.forEach(coupon => {
+            list.innerHTML += `
+                <div class="coupon-ticket">
+                    <div class="coupon-detail">
+                        <b>${coupon.name}</b>
+                        <span>有效期限：${coupon.expiry}</span>
+                    </div>
+                    <button class="coupon-btn" onclick="useCoupon(${coupon.id})">使用</button>
+                </div>
+            `;
+        });
+    }
+
+    function useCoupon(id) {
+        if(confirm("請出示給店員核銷，確定使用嗎？")) {
+            userState.coupons = userState.coupons.filter(c => c.id !== id);
+            updateUI();
+            alert("已核銷！");
+        }
+    }
+
+    // === 新增函式 4：倒數計時 ===
+    setInterval(() => {
+        const now = new Date();
+        const end = new Date();
+        end.setHours(24,0,0,0);
+        let diff = end - now;
+        const h = Math.floor((diff/(1000*60*60))%24).toString().padStart(2,'0');
+        const m = Math.floor((diff/(1000*60))%60).toString().padStart(2,'0');
+        const s = Math.floor((diff/1000)%60).toString().padStart(2,'0');
+        const timer = document.getElementById('countdownTimer');
+        if(timer) timer.innerText = `${h}:${m}:${s}`;
+    }, 1000);
     // === 6. 渲染衣櫃 (自動合併) ===
  // === 6. 渲染衣櫃 (修復括號錯誤版) ===
     function renderWardrobe() {
@@ -499,7 +636,12 @@
         });
 
         // 3. 排序
-        displaySkins.sort((a, b) => {
+      displaySkins.sort((a, b) => {
+            // A. 如果是初心版，優先級最高 (回歸初心)
+            if (a.name.includes("初心版")) return -1;
+            if (b.name.includes("初心版")) return 1;
+
+            // B. 剩下的部分：等級裝排在一般購買裝前面
             if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
             if (a.type === 'level') return -1; 
             return 1;
