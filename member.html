@@ -217,7 +217,7 @@
 </footer>
 <script>
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (修復版)
+    // 🦆 Pharma.Duck RPG 核心系統 (自動換裝修復版)
     // ==============================================
 
     // === 1. 10級等級設定 (預設值) ===
@@ -239,7 +239,6 @@
 
     // === 2. 時裝商城資料 (含付費購買) ===
     const skinShop = [
-        // 為了展示方便，這裡可以放付費購買的項目
         { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
         { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
         { name: "博士鴨傳說", img: "images/duck_lv10.png", type: "buy", unlockVal: 0, cost: 800 }
@@ -248,19 +247,20 @@
     // === 3. 賽季重置邏輯 ===
     function checkSeasonReset(userData) {
         const now = new Date();
-        const currentYear = now.getFullYear();
+        const year = now.getFullYear();
         const currentSeason = (now.getMonth() + 1 <= 6) ? 1 : 2; 
-        const seasonId = `${currentYear}-S${currentSeason}`;
+        const seasonId = `${year}-S${currentSeason}`;
 
-        // 如果是新賽季，重置 EXP 但保留 Coins
         if (userData.lastSeason && userData.lastSeason !== seasonId) {
             console.log(`賽季切換！重置 EXP...`);
             userData.exp = 0; 
             userData.level = 1;
             userData.lastSeason = seasonId;
-            alert(`📅 新賽季 (${seasonId}) 開始！\n依照規則，您的 EXP 與 等級 已重置。\n大樹幣 (Coins) 則永久保留。`);
+            // 重置時裝回 Lv1
+            userData.currentSkin = levelConfig[0].img;
+            alert(`📅 新賽季 (${seasonId}) 開始！\n等級已重置，請重新開始冒險！`);
         } else if (!userData.lastSeason) {
-            userData.lastSeason = seasonId; // 初始化
+            userData.lastSeason = seasonId;
         }
         return userData;
     }
@@ -270,7 +270,7 @@
         let defaultData = { 
             level: 1, 
             exp: 0, 
-            coins: 50, // 新手禮包
+            coins: 50, 
             currentSkin: "images/duck_lv1.png", 
             unlockedSkins: ["images/duck_lv1.png"], 
             lastSeason: "" 
@@ -278,19 +278,17 @@
 
         let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
         data = checkSeasonReset(data);
-        localStorage.setItem('duckUser', JSON.stringify(data));
         return data;
     }
 
     let userState = loadUserData();
 
-    // === 5. UI 更新核心 ===
+    // === 5. UI 更新核心 (修復重點在此) ===
     function updateUI() {
-        // A. 計算等級 (統一使用 minExp)
+        // A. 計算當前 EXP 對應的等級
         let currentConfig = levelConfig[0];
         let nextConfig = levelConfig[1];
 
-        // 找到當前 EXP 對應的最高等級
         for (let i = 0; i < levelConfig.length; i++) {
             if (userState.exp >= levelConfig[i].minExp) {
                 currentConfig = levelConfig[i];
@@ -298,57 +296,61 @@
             }
         }
 
-        // 升級檢查與解鎖
+        // B. 檢測是否升級
+        // 如果現在存的等級 < 計算出來的等級，代表升級了
         if (userState.level < currentConfig.lv) {
             userState.level = currentConfig.lv;
+            
+            // 1. 解鎖該等級皮膚
             if(!userState.unlockedSkins.includes(currentConfig.img)) {
                 userState.unlockedSkins.push(currentConfig.img);
             }
+
+            // 2. ★★★ 關鍵修復：強制換上新等級的衣服 ★★★
+            userState.currentSkin = currentConfig.img;
+
             showLevelUp(currentConfig.name, currentConfig.lv);
         }
 
-        // B. 更新畫面
+        // C. 更新畫面文字與進度條
         document.getElementById('lvTitle').innerText = `Lv.${currentConfig.lv} ${currentConfig.name}`;
         document.getElementById('lvBadge').innerText = `Lv.${currentConfig.lv}`;
         document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString();
         
-        // 進度條
         let progressPercent = 0;
-        let progressText = "";
-        
         if (currentConfig.lv === 10) {
             progressPercent = 100;
-            progressText = "MAX / MAX";
+            document.getElementById('maxExpText').innerText = "MAX";
         } else {
             let expInLevel = userState.exp - currentConfig.minExp;
             let expNeededForNext = nextConfig.minExp - currentConfig.minExp;
             progressPercent = Math.min(100, (expInLevel / expNeededForNext) * 100);
-            progressText = `${userState.exp.toLocaleString()} / ${nextConfig.minExp.toLocaleString()}`;
+            document.getElementById('maxExpText').innerText = nextConfig.minExp.toLocaleString();
         }
 
         document.getElementById('expBar').style.width = `${progressPercent}%`;
         document.getElementById('expText').innerText = userState.exp.toLocaleString(); 
-        document.getElementById('maxExpText').innerText = (currentConfig.lv === 10) ? "MAX" : nextConfig.minExp.toLocaleString();
 
-        // 圖片
+        // D. 更新圖片 (使用 currentSkin)
         const avatar = document.getElementById('duckAvatar');
         avatar.src = userState.currentSkin;
         avatar.onerror = function() { this.src = "images/my_duck.png"; };
 
+        // E. 渲染衣櫃 & 存檔
         renderWardrobe();
         localStorage.setItem('duckUser', JSON.stringify(userState));
         updateSeasonDays();
     }
 
-    // === 6. 渲染衣櫃 (自動合併等級 + 商店) ===
+    // === 6. 渲染衣櫃 (自動合併等級與商店) ===
     function renderWardrobe() {
         const container = document.getElementById('wardrobeList');
         container.innerHTML = ""; 
 
-        // 1. 建立顯示清單：先放商店定義的
+        // 建立顯示清單：先放商店定義的
         let displaySkins = [...skinShop]; 
 
-        // 2. 自動補齊等級獎勵 (從 levelConfig 抓漏)
+        // 自動補齊等級獎勵
         levelConfig.forEach(lvItem => {
             const exists = displaySkins.some(s => s.img === lvItem.img);
             if (!exists) {
@@ -362,14 +364,14 @@
             }
         });
 
-        // 3. 排序：等級鴨在前，付費鴨在後
+        // 排序：等級鴨在前，付費鴨在後
         displaySkins.sort((a, b) => {
             if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
             if (a.type === 'level') return -1; 
             return 1;
         });
 
-        // 4. 生成 HTML
+        // 生成卡片
         displaySkins.forEach(skin => {
             const isOwned = userState.unlockedSkins.includes(skin.img);
             const isActive = userState.currentSkin === skin.img;
@@ -381,7 +383,7 @@
             } else {
                 if (skin.type === 'level') {
                     if (userState.level >= skin.unlockVal) {
-                        userState.unlockedSkins.push(skin.img); // 防呆解鎖
+                        userState.unlockedSkins.push(skin.img); // 防呆
                         clickAction = () => changeSkin(skin.img);
                     } else {
                         lockMsg = `Lv.${skin.unlockVal} 解鎖`;
@@ -448,6 +450,7 @@
             if(confirm(`確定花費 ${skin.cost} Coins 購買「${skin.name}」嗎？`)) {
                 userState.coins -= skin.cost;
                 userState.unlockedSkins.push(skin.img);
+                userState.currentSkin = skin.img; // 購買後自動穿上
                 updateUI();
                 alert("購買成功！快去換上新衣服吧！");
             }
@@ -476,11 +479,11 @@
 
     // 監聽 storage 變化 (如果 index.html 更新了數據，這裡也要即時更新)
     window.addEventListener('storage', () => {
+        levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
         userState = JSON.parse(localStorage.getItem('duckUser'));
         updateUI();
     });
 
 </script>
-
 </body>
 </html>
