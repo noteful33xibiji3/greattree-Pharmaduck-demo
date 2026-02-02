@@ -93,6 +93,30 @@
         }
         @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .btn-close { margin-top: 20px; background: var(--gt-orange); color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        /* === 新增：頁尾樣式 (Footer) === */
+    footer {
+        text-align: center;         /* 文字置中 */
+        padding: 40px 20px;         /* 上下留白 */
+        margin-top: 50px;           /* 跟上面內容分開 */
+        border-top: 1px solid #ddd; /* 加一條淡淡的分隔線 */
+        color: #666;                /* 字體灰色 */
+        background-color: #fff;     /* 背景白色，比較乾淨 */
+    }
+    .footer-team {
+        color: var(--gt-orange);    /* 團隊名稱用大樹橘色 */
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .footer-info {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .footer-copyright {
+        font-size: 12px;
+        color: #999;
+        line-height: 1.5;
+    }
     </style>
 </head>
 <body>
@@ -208,9 +232,9 @@
     </div>
 </div>
 <footer>
-    <div style="font-size: 18px; font-weight: bold; color: var(--gt-orange); margin-bottom: 5px;">團隊：一鴨tree吃 🦆</div>
-    <div>嘉南藥理大學 藥學系 | 第三屆大樹藥局創意競賽</div>
-    <div style="font-size: 11px; color: #888; margin-top: 15px;">
+    <div class="footer-team">團隊：一鴨tree吃 🦆</div>
+    <div class="footer-info">嘉南藥理大學 藥學系 | 第三屆大樹藥局創意競賽</div>
+    <div class="footer-copyright">
         本網頁 IP 形象與內容僅供競賽展示使用，非真實營運網站。<br>
         Copyright © 2026 Pharma.Duck. All rights reserved.
     </div>
