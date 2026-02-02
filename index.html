@@ -223,7 +223,57 @@
         Copyright © 2026 Pharma.Duck. All rights reserved.
     </div>
 </footer>
+<style>
+    .store-banner {
+        max-width: 1200px; margin: 30px auto; padding: 20px;
+        background: linear-gradient(to right, #fff, #f9fff9);
+        border: 2px solid var(--gt-green); border-radius: 15px;
+        display: flex; align-items: center; gap: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .store-map-img {
+        width: 120px; height: 120px; object-fit: cover; border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+    .store-info { flex: 1; }
+    .store-name { font-size: 20px; font-weight: bold; color: var(--gt-green); margin-bottom: 5px; }
+    .store-status { 
+        display: inline-block; background: var(--gt-orange); color: white; 
+        padding: 3px 10px; border-radius: 10px; font-size: 12px; margin-bottom: 8px;
+    }
+    .store-btn {
+        background: white; border: 1px solid var(--gt-green); color: var(--gt-green);
+        padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .store-btn:hover { background: var(--gt-green); color: white; }
 
+    /* 手機版調整 */
+    @media (max-width: 768px) {
+        .store-banner { margin: 20px; flex-direction: column; text-align: center; }
+        .store-info { width: 100%; }
+        .store-btn { width: 100%; }
+    }
+</style>
+
+<div class="store-banner">
+    <img src="images/map_demo.jpg" class="store-map-img" onerror="this.src='https://placehold.co/150x150/a5d6a7/333?text=Map'">
+    
+    <div class="store-info">
+        <div style="font-size:13px; color:#666; margin-bottom:5px;">📍 根據您的定位推薦</div>
+        <div class="store-name">大樹藥局 仁德中正店</div>
+        <div class="store-status">營業中 • 距離 500 公尺</div>
+        <div style="font-size:14px; color:#555; line-height:1.5;">
+            台南市仁德區中正路二段 • 藥師駐店中<br>
+            <span style="color:#d0021b; font-size:12px;">(網購商品可在此取貨)</span>
+        </div>
+    </div>
+
+    <button class="store-btn" onclick="alert('已開啟 Google Maps 導航！')">
+        🚀 開啟導航
+    </button>
+</div>
+<footer>
+    ...
 <script>
     // === 1. 精選 10 種商品資料 (含維他命C分眾) ===
     const products = [
@@ -432,4 +482,5 @@
 
 </body>
 </html>
+
 
