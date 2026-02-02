@@ -80,13 +80,18 @@
         <div class="simulation-box">
             <h3 class="sim-title">🕵️‍♂️ 玩家狀態模擬器</h3>
             
-            <div class="control-group">
+          <div class="control-group">
                 <label>經驗值 (EXP) - 拉動預覽升級效果</label>
                 <div class="range-wrapper">
                     <span style="font-size:12px;">0</span>
-                    <input type="range" id="simExpSlider" min="0" max="1000000" step="100" value="0" oninput="syncExpInput(this.value)">
+                    <input type="range" id="simExpSlider" min="0" max="1000000" step="100" value="0" 
+                           oninput="syncExpInput(this.value); updateRangeText(this.value)">
                     <span style="font-size:12px;">1M</span>
-                    <input type="number" id="simExpInput" class="range-val" value="0" onchange="syncExpSlider(this.value)">
+                    <input type="number" id="simExpInput" class="range-val" value="0" 
+                           onchange="syncExpSlider(this.value); updateRangeText(this.value)">
+                </div>
+                <div id="expRangeInfo" style="color:#10b981; font-size:14px; margin-top:8px; font-weight:bold; text-align:center;">
+                    計算中...
                 </div>
             </div>
 
@@ -293,6 +298,41 @@
     }
 
     init();
+    // === 新增：即時顯示等級區間 ===
+    function updateRangeText(expVal) {
+        const exp = parseInt(expVal);
+        
+        // 1. 確保設定檔有排序 (由小到大)
+        let sorted = [...currentConfig].sort((a,b) => a.minExp - b.minExp);
+        
+        // 2. 找出目前落點
+        let current = sorted[0];
+        let next = null;
+
+        for (let i = 0; i < sorted.length; i++) {
+            if (exp >= sorted[i].minExp) {
+                current = sorted[i];
+                next = sorted[i+1] || null;
+            }
+        }
+
+        // 3. 組合文字
+        const minStr = current.minExp.toLocaleString();
+        const maxStr = next ? (next.minExp - 1).toLocaleString() : "∞"; // 如果沒有下一級就是無限
+        
+        const infoDiv = document.getElementById('expRangeInfo');
+        infoDiv.innerHTML = `📍 目前落點：Lv.${current.lv} ${current.name} <span style="color:#aaa; font-weight:normal;">(${minStr} ~ ${maxStr})</span>`;
+    }
+
+    // === 修改原本的 init 函式，讓它一進來就顯示 ===
+    const originalInit = init; // 保存舊的
+    init = function() {
+        originalInit(); // 執行原本的初始化
+        
+        // 額外執行一次文字更新
+        const user = JSON.parse(localStorage.getItem('duckUser')) || { exp: 0 };
+        updateRangeText(user.exp);
+    };
 </script>
 
 </body>
