@@ -201,11 +201,12 @@
 
     // 套用模擬 (強制計算並覆蓋狀態)
   // === 6. 套用模擬 (雙向同步：升級解鎖 / 降級上鎖) ===
+    // === 6. 套用模擬 (修正版：降級時會自動上鎖) ===
     function applySimulation() {
         const newExp = parseInt(document.getElementById('simExpInput').value);
         const newCoins = parseInt(document.getElementById('simCoinInput').value);
 
-        // 1. 找出正確的等級設定 (由高到低找)
+        // 1. 找出這個 EXP 對應的等級設定
         let sortedConfig = [...currentConfig].sort((a, b) => b.minExp - a.minExp);
         let targetLevelObj = sortedConfig.find(cfg => newExp >= cfg.minExp) || currentConfig[0];
 
@@ -214,40 +215,37 @@
             level: 1, currentSkin: "images/duck_lv1.png", unlockedSkins: ["images/duck_lv1.png"] 
         };
 
-        // 3. --- 核心修正開始：重新計算擁有的皮膚 ---
+        // 3. ★★★ 核心修正：重新計算擁有的皮膚 (大掃除) ★★★
         
-        // A. 找出所有「屬於等級獎勵」的圖片清單 (不管等級多少，只要是升級送的都算)
+        // A. 找出所有「等級獎勵」的圖片清單 (不管等級多少，只要是升級送的都算)
+        // 這樣我們才能分辨哪些是「送的」，哪些是「買的」
         const allLevelRewardSkins = currentConfig.map(cfg => cfg.img);
 
-        // B. 保留「非等級獎勵」的皮膚 (也就是花錢買的、或是活動送的初心鴨)
-        // 邏輯：原本擁有的皮膚中，不在「等級獎勵清單」裡的，就是買的，要保留。
+        // B. 先把「買來的衣服」救出來 (不在等級清單裡的，就是買的)
         let purchasedSkins = user.unlockedSkins.filter(skin => !allLevelRewardSkins.includes(skin));
 
-        // C. 根據「新等級」，重新抓取應得的等級皮膚
-        let newLevelSkins = [];
+        // C. 根據「新等級」，重新發放應得的等級皮膚
+        let validLevelSkins = [];
         currentConfig.forEach(cfg => {
+            // 只有等級達標的，才准放進去
             if (targetLevelObj.lv >= cfg.lv) {
-                newLevelSkins.push(cfg.img);
+                validLevelSkins.push(cfg.img);
             }
         });
 
-        // D. 合併清單 (買的 + 新等級應得的)
-        user.unlockedSkins = [...new Set([...purchasedSkins, ...newLevelSkins])];
+        // D. 合併清單 (買的 + 新等級應得的) = 新的合法清單
+        user.unlockedSkins = [...new Set([...purchasedSkins, ...validLevelSkins])];
 
-        // 4. --- 狀態更新 ---
+        // 4. 更新狀態
         user.exp = newExp;
         user.coins = newCoins;
         user.level = targetLevelObj.lv;
 
-        // 5. 換裝檢查
-        // 如果現在身上穿的衣服，不在新的解鎖清單內 (代表因為降級被鎖了)
-        // 就強制換回 Lv.1 的衣服
+        // 5. 換裝檢查 (如果身上穿的被沒收了，強制換回 Lv.1)
         if (!user.unlockedSkins.includes(user.currentSkin)) {
             user.currentSkin = currentConfig[0].img;
         } 
-        // 如果身上穿的是等級裝，但也許不是該等級最新的，為了預覽方便，我們強制換成當前等級最新的
-        // (這行看你想不想要：想要「拉到Lv10就穿Lv10」，還是「拉到Lv10只解鎖不換裝」？)
-        // 為了Demo效果，建議強制換成該等級最新的：
+        // 為了預覽方便：如果拉到高等級，強制換上該等級最新的衣服
         else if (allLevelRewardSkins.includes(user.currentSkin)) {
              user.currentSkin = targetLevelObj.img;
         }
