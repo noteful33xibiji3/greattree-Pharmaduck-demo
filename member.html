@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的鴨鴨養成中心 - Pharma.Duck RPG</title>
+    <title>我的鴨鴨養成中心 - Pharma.Duck</title>
     <style>
         /* === 1. 大樹與遊戲風格 === */
         :root { --gt-green: #009944; --gt-orange: #F39800; --bg-gray: #f0f2f5; --gold: #FFD700; --dark: #1f2937; }
@@ -110,12 +110,13 @@
 </header>
 
 <div class="dashboard">
-    <div class="season-badge">
-    ⏳ 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天 
-    <span style="font-size:12px; margin-left:8px; color:#fff; opacity:0.8;">
-        (至 <span id="seasonEndDate">計算中...</span> 止)
-    </span>
-    </div>
+    <div class="season-card">
+        <div class="season-badge">
+            ⏳ 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天 
+            <span style="font-size:12px; margin-left:8px; color:#fff; opacity:0.8;">
+                (至 <span id="seasonEndDate">計算中...</span> 止)
+            </span>
+        </div>
         
         <div class="avatar-area">
             <img src="images/my_duck.png" class="avatar-img" id="duckAvatar">
@@ -209,11 +210,10 @@
 
 <script>
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (終極版)
+    // 🦆 Pharma.Duck RPG 核心系統 (修復版)
     // ==============================================
 
-  // === 1. 10級等級設定 (優先讀取後台設定) ===
-    // 預設值 (Hardcoded backup)
+    // === 1. 10級等級設定 (預設值) ===
     const defaultLevels = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
         { lv: 2, name: "好奇探險鴨", minExp: 500, img: "images/duck_lv2.png" },
@@ -227,18 +227,12 @@
         { lv: 10, name: "醫藥守護神", minExp: 1000000, img: "images/duck_lv10.png" }
     ];
 
-    // 嘗試從 localStorage 讀取後台設定，如果沒有則使用預設值
+    // 嘗試讀取後台設定，沒有則用預設
     let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
-    ];
 
     // === 2. 時裝商城資料 (含付費購買) ===
     const skinShop = [
-        // 預設與等級解鎖
-        { name: "初生小鴨", img: "images/duck_lv1.png", type: "level", unlockVal: 1, cost: 0 },
-        { name: "好奇探險鴨", img: "images/duck_lv2.png", type: "level", unlockVal: 2, cost: 0 },
-        { name: "大樹探員", img: "images/duck_lv3.png", type: "level", unlockVal: 3, cost: 0 },
-        { name: "健康夥伴", img: "images/duck_lv4.png", type: "level", unlockVal: 4, cost: 0 },
-        // 付費購買 (Coins)
+        // 為了展示方便，這裡可以放付費購買的項目
         { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
         { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
         { name: "博士鴨傳說", img: "images/duck_lv10.png", type: "buy", unlockVal: 0, cost: 800 }
@@ -248,18 +242,18 @@
     function checkSeasonReset(userData) {
         const now = new Date();
         const currentYear = now.getFullYear();
-        // S1: 1-6月, S2: 7-12月
         const currentSeason = (now.getMonth() + 1 <= 6) ? 1 : 2; 
         const seasonId = `${currentYear}-S${currentSeason}`;
 
-        if (userData.lastSeason !== seasonId) {
+        // 如果是新賽季，重置 EXP 但保留 Coins
+        if (userData.lastSeason && userData.lastSeason !== seasonId) {
             console.log(`賽季切換！重置 EXP...`);
-            // 只重置 EXP 與 Level，保留 Coins 與解鎖物品
             userData.exp = 0; 
             userData.level = 1;
             userData.lastSeason = seasonId;
-            // 如果上季大於 Lv.7，可以在這裡給獎勵
-            // if(userData.level >= 7) userData.exp += 500; // 範例：起始加成
+            alert(`📅 新賽季 (${seasonId}) 開始！\n依照規則，您的 EXP 與 等級 已重置。\n大樹幣 (Coins) 則永久保留。`);
+        } else if (!userData.lastSeason) {
+            userData.lastSeason = seasonId; // 初始化
         }
         return userData;
     }
@@ -271,7 +265,7 @@
             exp: 0, 
             coins: 50, // 新手禮包
             currentSkin: "images/duck_lv1.png", 
-            unlockedSkins: ["images/duck_lv1.png"], // 已擁有的皮膚ID
+            unlockedSkins: ["images/duck_lv1.png"], 
             lastSeason: "" 
         };
 
@@ -285,10 +279,11 @@
 
     // === 5. UI 更新核心 ===
     function updateUI() {
-        // A. 計算等級
+        // A. 計算等級 (統一使用 minExp)
         let currentConfig = levelConfig[0];
         let nextConfig = levelConfig[1];
 
+        // 找到當前 EXP 對應的最高等級
         for (let i = 0; i < levelConfig.length; i++) {
             if (userState.exp >= levelConfig[i].minExp) {
                 currentConfig = levelConfig[i];
@@ -296,13 +291,11 @@
             }
         }
 
-        // 升級檢查
+        // 升級檢查與解鎖
         if (userState.level < currentConfig.lv) {
             userState.level = currentConfig.lv;
-            // 升級自動解鎖對應等級的皮膚
-            let skinImg = currentConfig.img;
-            if(!userState.unlockedSkins.includes(skinImg)) {
-                userState.unlockedSkins.push(skinImg);
+            if(!userState.unlockedSkins.includes(currentConfig.img)) {
+                userState.unlockedSkins.push(currentConfig.img);
             }
             showLevelUp(currentConfig.name, currentConfig.lv);
         }
@@ -327,7 +320,7 @@
         }
 
         document.getElementById('expBar').style.width = `${progressPercent}%`;
-        document.getElementById('expText').innerText = userState.exp.toLocaleString(); // 顯示當前總經驗
+        document.getElementById('expText').innerText = userState.exp.toLocaleString(); 
         document.getElementById('maxExpText').innerText = (currentConfig.lv === 10) ? "MAX" : nextConfig.minExp.toLocaleString();
 
         // 圖片
@@ -335,17 +328,12 @@
         avatar.src = userState.currentSkin;
         avatar.onerror = function() { this.src = "images/my_duck.png"; };
 
-        // 渲染衣櫃
         renderWardrobe();
-
-        // 存檔
         localStorage.setItem('duckUser', JSON.stringify(userState));
-        
-        // 更新賽季倒數
         updateSeasonDays();
     }
 
-  // === 6. 渲染衣櫃 (自動合併完整版) ===
+    // === 6. 渲染衣櫃 (自動合併等級 + 商店) ===
     function renderWardrobe() {
         const container = document.getElementById('wardrobeList');
         container.innerHTML = ""; 
@@ -355,7 +343,6 @@
 
         // 2. 自動補齊等級獎勵 (從 levelConfig 抓漏)
         levelConfig.forEach(lvItem => {
-            // 檢查圖片路徑是否已存在，避免重複
             const exists = displaySkins.some(s => s.img === lvItem.img);
             if (!exists) {
                 displaySkins.push({
@@ -370,14 +357,12 @@
 
         // 3. 排序：等級鴨在前，付費鴨在後
         displaySkins.sort((a, b) => {
-            // 如果都是等級鴨，按等級排
             if (a.type === 'level' && b.type === 'level') return a.unlockVal - b.unlockVal;
-            // 等級鴨優先於付費鴨
             if (a.type === 'level') return -1; 
             return 1;
         });
 
-        // 4. 生成卡片 HTML
+        // 4. 生成 HTML
         displaySkins.forEach(skin => {
             const isOwned = userState.unlockedSkins.includes(skin.img);
             const isActive = userState.currentSkin === skin.img;
@@ -389,8 +374,7 @@
             } else {
                 if (skin.type === 'level') {
                     if (userState.level >= skin.unlockVal) {
-                        // 雖然是等級鴨，但如果資料沒同步好，這裡做個防呆補發
-                        userState.unlockedSkins.push(skin.img);
+                        userState.unlockedSkins.push(skin.img); // 防呆解鎖
                         clickAction = () => changeSkin(skin.img);
                     } else {
                         lockMsg = `Lv.${skin.unlockVal} 解鎖`;
@@ -413,30 +397,21 @@
             container.appendChild(card);
         });
     }
+
     // === 7. 功能函數 ===
-    // === 7. 功能函數 (已更新：加入到期日顯示) ===
     function updateSeasonDays() {
         const now = new Date();
         const year = now.getFullYear();
         const isFirstHalf = now.getMonth() + 1 <= 6;
-        
-        // 設定結束日：6/30 或 12/31
         const endDate = isFirstHalf ? new Date(year, 5, 30) : new Date(year, 11, 31);
-        
-        // 計算倒數天數
         const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+        
         document.getElementById('daysLeft').innerText = diffDays;
         
-        // ▼▼▼ 新增：格式化日期並顯示 (YYYY/MM/DD) ▼▼▼
         const endYear = endDate.getFullYear();
         const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
         const endDay = endDate.getDate().toString().padStart(2, '0');
         document.getElementById('seasonEndDate').innerText = `${endYear}/${endMonth}/${endDay}`;
-        
-        // 更新下方的區間文字
-        const startStr = isFirstHalf ? `${year}/01/01` : `${year}/07/01`;
-        const endStr = `${endYear}/${endMonth}/${endDay}`;
-        document.getElementById('seasonDateRange').innerText = `${startStr} - ${endStr}`;
     }
 
     function doTask(btn, exp, coins) {
@@ -491,6 +466,12 @@
     
     // 初始化
     updateUI();
+
+    // 監聽 storage 變化 (如果 index.html 更新了數據，這裡也要即時更新)
+    window.addEventListener('storage', () => {
+        userState = JSON.parse(localStorage.getItem('duckUser'));
+        updateUI();
+    });
 
 </script>
 
