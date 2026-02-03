@@ -406,8 +406,8 @@
         { id: 'eye_mask', 
             type: 'normal', 
             tag: 'Lv.3專屬',  /* 這裡設定您想要的標籤 */
+            minLevel: 3,
             name: '頭痛鴨蒸汽眼罩 (5片/盒)', 
-            
             /* 建議直接沿用您之前設定的頭痛鴨圖片，非常搭！ */
             img: 'images/duck_eyemask.png', 
             
@@ -538,6 +538,9 @@
 
     function redeemShopItem(itemId) {
         const item = shopItemsConfig.find(i => i.id === itemId);
+        if (item.minLevel && userState.level < item.minLevel) {
+            alert(`🔒 等級不足！\n\n此商品需要達到「Lv.${item.minLevel}」才能兌換。\n(您目前是 Lv.${userState.level})`);
+            return; // 直接結束，不讓往下執行
         if (shopStock[itemId] <= 0 || userState.coins < item.price) return alert("無法兌換：幣不足或已售完");
         if (confirm(`確定兌換「${item.name}」？`)) {
             userState.coins -= item.price; shopStock[itemId]--;
