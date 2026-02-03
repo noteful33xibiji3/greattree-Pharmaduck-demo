@@ -573,7 +573,7 @@
             const card = document.createElement('div');
             card.className = `skin-card ${isActive ? 'active' : ''} ${!isOwned ? 'skin-lock' : ''}`;
             card.onclick = isOwned ? () => changeSkin(skin.img) : (skin.type === 'buy' ? () => buySkin(skin) : null);
-            card.innerHTML = `<img src="${skin.img}" onerror="this.src='images/my_duck.png'"><div class="skin-name">${skin.name}</div><div class="lock-msg" style="${isOwned ? 'display:none' : ''}">${skin.type==='buy'?(skin.cost===0?'🎁 免費':skin.cost+' Coins'):'Lv.'+skin.unlockVal+' 解鎖'}</div>`;
+            card.innerHTML = `<img src="${skin.img}" onerror="this.src='images/my_duck.png'"><div class="skin-name">${skin.name}</div><div class="lock-msg" style="${isOwned ? 'display:none' : ''}">${skin.type==='buy'?(skin.cost===0?'🎁 初心免費':skin.cost+' Coins'):'Lv.'+skin.unlockVal+' 解鎖'}</div>`;
             container.appendChild(card);
         });
     }
