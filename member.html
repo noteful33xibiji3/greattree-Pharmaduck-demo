@@ -536,21 +536,41 @@
         });
     }
 
-    function redeemShopItem(itemId) {
-        const item = shopItemsConfig.find(i => i.id === itemId);
-        if (item.minLevel && userState.level < item.minLevel) {
-            alert(`🔒 等級不足！\n\n此商品需要達到「Lv.${item.minLevel}」才能兌換。\n(您目前是 Lv.${userState.level})`);
-            return; // 直接結束，不讓往下執行
-        if (shopStock[itemId] <= 0 || userState.coins < item.price) return alert("無法兌換：幣不足或已售完");
-        if (confirm(`確定兌換「${item.name}」？`)) {
-            userState.coins -= item.price; shopStock[itemId]--;
-            localStorage.setItem('duckShopStock', JSON.stringify(shopStock));
-            const now = new Date(); now.setDate(now.getDate() + 120);
-            userState.coupons.push({ id: Date.now(), name: item.name, expiry: now.toLocaleDateString(), used: false });
-            updateUI();
-            alert("兌換成功！已存入票券夾。");
-        }
+function redeemShopItem(itemId) {
+    const item = shopItemsConfig.find(i => i.id === itemId);
+    if (!item) return; // 安全檢查：確保商品存在
+
+    // 1. 等級門檻檢查
+    if (item.minLevel && userState.level < item.minLevel) {
+        alert(`🔒 等級不足！\n\n此商品需要達到「Lv.${item.minLevel}」才能兌換。\n(您目前是 Lv.${userState.level})`);
+        return; // 成功阻斷執行
+    } // <--- 之前漏掉的這個括號，一定要補上！
+
+    // 2. 庫存與金幣檢查
+    if (shopStock[itemId] <= 0 || userState.coins < item.price) {
+        return alert("無法兌換：幣不足或已售完");
     }
+
+    // 3. 執行兌換邏輯
+    if (confirm(`確定兌換「${item.name}」？`)) {
+        userState.coins -= item.price; 
+        shopStock[itemId]--;
+        localStorage.setItem('duckShopStock', JSON.stringify(shopStock));
+
+        const now = new Date(); 
+        now.setDate(now.getDate() + 120); // 設定 120 天效期
+
+        userState.coupons.push({ 
+            id: Date.now(), 
+            name: item.name, 
+            expiry: now.toLocaleDateString(), 
+            used: false 
+        });
+
+        updateUI(); // 同步更新畫面
+        alert("兌換成功！已存入票券夾。");
+    }
+}
 
    function renderCoupons() {
     const list = document.getElementById('couponList');
