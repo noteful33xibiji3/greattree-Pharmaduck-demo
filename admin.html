@@ -169,6 +169,8 @@
             <button class="btn btn-clear" onclick="clearShopPurchases()">🛒 清除商城購買紀錄 (重置衣櫃)</button>
             <button class="btn" style="background:#10b981; color:white; width:100%; margin-top:10px; padding:10px;" onclick="resetStock()">
     🔄 商品一鍵補貨 (重置限量庫存)</button>
+            <button class="btn" style="background:#8b5cf6; color:white; width:100%; margin-top:10px; padding:10px;" onclick="clearCoupons()">
+    🎟️ 清空所有票券 (重置票券夾)</button>
         </div>
 
         <div class="simulation-box" style="border-color:#F39800;">
@@ -407,6 +409,20 @@
             
             alert("✅ 已補貨完成！限量公仔又回來了！");
         }
+    }
+    // === 新增：清空票券夾功能 ===
+    function clearCoupons() {
+        if(!confirm("確定要清空所有票券嗎？\n(玩家已兌換的優惠券將全部消失)")) return;
+
+        // 1. 讀取玩家資料
+        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        // 2. 清空票券陣列
+        user.coupons = []; 
+        // 3. 存回去
+        localStorage.setItem('duckUser', JSON.stringify(user));
+        // 4. 刷新右邊的手機預覽
+        document.getElementById('previewFrame').contentWindow.location.reload();
+        alert("✅ 票券夾已清空！");
     }
 </script>
 
