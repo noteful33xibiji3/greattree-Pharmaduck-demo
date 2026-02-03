@@ -167,6 +167,8 @@
             <button class="btn btn-apply" onclick="applySimulation()">🚀 套用數值並刷新預覽</button>
             
             <button class="btn btn-clear" onclick="clearShopPurchases()">🛒 清除商城購買紀錄 (重置衣櫃)</button>
+            <button class="btn" style="background:#10b981; color:white; width:100%; margin-top:10px; padding:10px;" onclick="resetStock()">
+    🔄 商品一鍵補貨 (重置限量庫存)</button>
         </div>
 
         <div class="simulation-box" style="border-color:#F39800;">
@@ -394,6 +396,18 @@
         const user = JSON.parse(localStorage.getItem('duckUser')) || { exp: 0 };
         updateRangeText(user.exp);
     };
+    // === 新增：重置庫存功能 ===
+    function resetStock() {
+        if(confirm("確定要把福利社的所有商品（含限量公仔）庫存補滿嗎？")) {
+            // 直接刪除庫存紀錄，系統下次讀取時就會自動變回預設值 (例如 5 個)
+            localStorage.removeItem('duckShopStock');
+            
+            // 強制刷新預覽畫面
+            document.getElementById('previewFrame').contentWindow.location.reload();
+            
+            alert("✅ 已補貨完成！限量公仔又回來了！");
+        }
+    }
 </script>
 
 </body>
