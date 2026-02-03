@@ -460,12 +460,27 @@
         return userData;
     }
 
-    function loadUserData() {
-        let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "", coupons: [] };
-        let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
-        if (!data.coupons) data.coupons = []; // 防呆補回
-        return checkSeasonReset(data);
+   function loadUserData() {
+    // 預設值
+    let defaultData = { 
+        level: 1, 
+        exp: 0, 
+        coins: 50, 
+        currentSkin: levelConfig[0].img, 
+        unlockedSkins: [levelConfig[0].img], 
+        lastSeason: "", 
+        coupons: [] // 預設就有票券夾
+    };
+
+    let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
+    
+    // ★★★ 關鍵修正：如果讀出來的資料沒有 coupons，幫他補上 ★★★
+    if (!Array.isArray(data.coupons)) {
+        data.coupons = [];
     }
+
+    return checkSeasonReset(data);
+}
     let userState = loadUserData();
 
     // === 6. UI 更新核心 ===
