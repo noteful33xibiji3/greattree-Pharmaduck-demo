@@ -487,15 +487,22 @@
             showButtons = false; 
         }
         else if (chatStep === 1) {
-           if (age < 12 || text.includes("孩") || text.includes("童")) {
+            // 修正 1：嘗試從輸入文字中抓取數字當作年齡 (若沒數字則預設為成人 25歲，避免報錯)
+            let ageNum = text.match(/\d+/); 
+            let age = ageNum ? parseInt(ageNum[0]) : 25; 
+
+            // 修正 2：括號結構整理清楚
+            if (age < 12 || text.includes("孩") || text.includes("童")) {
                 addMsg("⚠️ <b>兒童警示：小朋友不建議吞錠劑！</b><br>建議改用藥水，並由門市藥師評估。", 'duck');
                 
-                // (加碼互動) 可以順便推銷一下兒童藥水
                 setTimeout(() => {
                     addMsg(`<div class="card-insert"><img src="images/p_kids_syrup.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Kids+Syrup'"><div style="padding:10px;"><b>安佳熱 退燒糖漿</b><div class="action-btn btn-online">🛒 查看詳情</div></div></div>`, 'duck');
                 }, 800);
-               else {addMsg("了解。建議使用乙醯胺酚成分藥品，請注意不要飲酒。", 'duck');
+            } else { 
+                // 這裡原本語法錯誤，現在移到 if 的花括號外面了
+                addMsg("了解。建議使用乙醯胺酚成分藥品，請注意不要飲酒。", 'duck');
             }
+            
             chatStep = 0; 
             addPoints(50, 5); 
         }
@@ -552,6 +559,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
