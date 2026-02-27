@@ -322,12 +322,11 @@
 </footer>
 
 <script>
+    // === 1. 登入狀態與按鈕動態顯示 ===
     const authArea = document.getElementById('navAuthArea');
     if (localStorage.getItem('currentLoggedInUser')) {
-        // 如果已登入 -> 顯示登出按鈕
         authArea.innerHTML += `<a href="javascript:void(0);" onclick="doLogout()" class="nav-btn" style="color: #d0021b; font-weight: bold;">🚪 登出</a>`;
     } else {
-        // 如果未登入 -> 顯示登入按鈕
         authArea.innerHTML += `<a href="login.html" class="nav-btn" style="color: var(--gt-orange); font-weight: bold;">🔑 登入/註冊</a>`;
     }
 
@@ -335,8 +334,6 @@
     function doLogout() {
         if(confirm("確定要登出嗎？鴨鴨會想你喔！")) {
             let currentUser = localStorage.getItem('currentLoggedInUser');
-            
-            // 登出前，幫這個帳號「存檔」
             if (currentUser) {
                 let usersDB = JSON.parse(localStorage.getItem('greatTreeUsersDB')) || {};
                 if (usersDB[currentUser]) {
@@ -347,18 +344,16 @@
                     }
                 }
             }
-            
-            // 清除登入狀態
             localStorage.removeItem('currentLoggedInUser');
-            
-            // 重新整理目前的購物首頁 (讓登出按鈕變回登入按鈕)
             window.location.reload();
         }
     }
+
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (首頁同步版)
+    // 🦆 Pharma.Duck 核心系統 (首頁同步版)
     // ==============================================
 
+    // === 3. 商品清單渲染 ===
     const products = [
         { id: 1, name: "普拿疼 止痛錠", price: 150, type: "drug", target: "大人", form: "錠劑", image: "images/p_panadol.jpg" },
         { id: 2, name: "安佳熱 退燒糖漿", price: 120, type: "drug", target: "小孩", form: "藥水", image: "images/p_kids_syrup.jpg" },
@@ -370,12 +365,8 @@
         { id: 8, name: "力度伸 C+鈣 發泡錠", price: 280, type: "food", target: "老人/全齡", form: "發泡錠", image: "images/p_effervescent.jpg" },
         { id: 9, name: "大樹 葡萄糖胺飲", price: 680, type: "food", target: "老人", form: "液體", image: "images/p_gluco.jpg" },
         { id: 10, name: "善存 銀寶維他命", price: 880, type: "food", target: "老人", form: "錠劑", image: "images/p_senior_vit.jpg" },
-        { id: 11, name: "頭痛鴨蒸汽眼罩 (5入)",  price: 160, 
-            type: "food",        // 用綠色標籤 (代表保健/非藥品)//
-            target: "學生/上班族", form: "外用", image: "images/duck_eyemask.png" },
-        { id: 12, name: "每日C活力組",  price: 399, 
-            type: "food",        // 用綠色標籤 (代表保健/非藥品)//
-            target: "大人", form: "錠劑", image: "images/duck_vitaminC.png" },
+        { id: 11, name: "頭痛鴨蒸汽眼罩 (5入)",  price: 160, type: "food", target: "學生/上班族", form: "外用", image: "images/duck_eyemask.png" },
+        { id: 12, name: "每日C活力組",  price: 399, type: "food", target: "大人", form: "錠劑", image: "images/duck_vitaminC.png" }
     ];
 
     const grid = document.getElementById('productGrid');
@@ -393,60 +384,56 @@
             </div>`;
     });
 
-    // === 2. 會員等級設定 ===
+    // === 4. 等級與商城設定 (提供給鴨鴨聊天計算用) ===
     const defaultLevels = [
-        { lv: 1, name: "破殼見習生", minExp: 0 },
-        { lv: 2, name: "好奇探險鴨", minExp: 500 },
-        { lv: 3, name: "健康小幫手", minExp: 3000 },
-        { lv: 4, name: "初階披袍鴨", minExp: 10000 },
-        { lv: 5, name: "調劑熟手鴨", minExp: 25000 },
-        { lv: 6, name: "衛教領航員", minExp: 50000 },
-        { lv: 7, name: "資深藥師鴨", minExp: 100000 },
-        { lv: 8, name: "大樹店長鴨", minExp: 250000 },
-        { lv: 9, name: "榮譽長老鴨", minExp: 500000 },
-        { lv: 10, name: "醫藥守護神", minExp: 1000000 }
+        { lv: 1, name: "破殼見習生", minExp: 0 }, { lv: 2, name: "好奇探險鴨", minExp: 500 },
+        { lv: 3, name: "健康小幫手", minExp: 3000 }, { lv: 4, name: "初階披袍鴨", minExp: 10000 },
+        { lv: 5, name: "調劑熟手鴨", minExp: 25000 }, { lv: 6, name: "衛教領航員", minExp: 50000 },
+        { lv: 7, name: "資深藥師鴨", minExp: 100000 }, { lv: 8, name: "大樹店長鴨", minExp: 250000 },
+        { lv: 9, name: "榮譽長老鴨", minExp: 500000 }, { lv: 10, name: "醫藥守護神", minExp: 1000000 }
+    ];
+    let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
+
+    // ★ 修正：補上鴨鴨聊天時需要的商品資料 ★
+    const shopItemsConfig = [
+        { id: 'coupon_50', name: '$100 門市折價券', price: 500 },
+        { id: 'vit_c', name: '大樹鴨鴨補給站 - 每日C 活力組', price: 1500 },
+        { id: 'eye_mask', minLevel: 3, name: '頭痛鴨蒸汽眼罩 (5片/盒)', price: 750 },
+        { id: 'toy_duck', name: '大樹限定公仔', price: 3000 }
     ];
 
-    let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
-// === 2.5 時裝商城資料 (為了資料統一，補上這段) ===
-    const skinShop = [
-        { name: "一鴨tree吃 初心版", img: "images/duck_origin.png", type: "buy", unlockVal: 0, cost: 0 },
-        { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
-        { name: "夏季泳圈鴨", img: "images/duck_summer.png", type: "buy", unlockVal: 0, cost: 300 },
-        { name: "博士鴨傳說", img: "images/duck_docter.png", type: "buy", unlockVal: 0, cost: 800 },
-        { name: "偶像鴨歌手", img: "images/duck_singer.png", type: "buy", unlockVal: 0, cost: 800 }
-    ];
-    // === 3. 同步會員外觀與數據 ===
+    // === 5. 同步會員外觀與數據 ===
     function syncDuckLook() {
         let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: "images/my_duck.png" };
         let userState = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
         
-        // ★★★ 關鍵：重新計算等級 (確保後台改 EXP，這裡也會跟著變) ★★★
         let sortedConfig = [...levelConfig].sort((a, b) => b.minExp - a.minExp);
         let currentConfig = sortedConfig.find(l => userState.exp >= l.minExp) || levelConfig[0];
-        userState.level = currentConfig.lv; // 更新等級
+        userState.level = currentConfig.lv; 
 
-        // 更新 UI
-        document.getElementById('navCoin').innerText = userState.coins.toLocaleString();
-        document.getElementById('lvText').innerText = `Lv.${userState.level}`;
+        // ★ 修正：加入防呆機制，如果畫面上沒有這個東西就不更新，防止當機 ★
+        const coinEl = document.getElementById('navCoin');
+        if(coinEl) coinEl.innerText = userState.coins.toLocaleString();
+
+        const lvEl = document.getElementById('lvText');
+        if(lvEl) lvEl.innerText = `Lv.${userState.level}`;
         
-        // 找下一級
         let nextConfig = levelConfig.find(l => l.lv === userState.level + 1) || { minExp: "MAX" };
-        
-        // 進度條
         let progressPercent = 0;
+        
+        const expTextEl = document.getElementById('expText');
         if (nextConfig.minExp === "MAX") {
             progressPercent = 100;
-            document.getElementById('expText').innerText = `${userState.exp.toLocaleString()}/MAX`;
+            if(expTextEl) expTextEl.innerText = `${userState.exp.toLocaleString()}/MAX`;
         } else {
-            let expInLevel = userState.exp - currentConfig.minExp;
             let expNeededForNext = nextConfig.minExp - currentConfig.minExp;
-            progressPercent = Math.min(100, (expInLevel / expNeededForNext) * 100);
-            document.getElementById('expText').innerText = `${userState.exp.toLocaleString()}/${nextConfig.minExp.toLocaleString()}`;
+            progressPercent = Math.min(100, ((userState.exp - currentConfig.minExp) / expNeededForNext) * 100);
+            if(expTextEl) expTextEl.innerText = `${userState.exp.toLocaleString()}/${nextConfig.minExp.toLocaleString()}`;
         }
-        document.getElementById('expBar').style.width = `${progressPercent}%`;
+        
+        const expBarEl = document.getElementById('expBar');
+        if(expBarEl) expBarEl.style.width = `${progressPercent}%`;
 
-        // 圖片 (直接用存檔的，因為 admin 已經強制寫入 currentSkin 了)
         const newSkin = userState.currentSkin || "images/my_duck.png";
         document.querySelectorAll('#mainDuckImg, #chatDuckImg').forEach(img => {
             img.src = newSkin;
@@ -455,23 +442,21 @@
     }
     
     syncDuckLook();
-    window.addEventListener('storage', syncDuckLook); // 監聽後台變化
+    window.addEventListener('storage', syncDuckLook);
 
-    // === 4. 表情控制 ===
-    function setDuckEmotion(imgUrl) {
-        document.querySelectorAll('#mainDuckImg, #chatDuckImg').forEach(img => {
-            img.src = imgUrl;
-        });
-    }
-
-    // === 5. 聊天邏輯 ===
+    // === 6. 聊天邏輯與介面操作 ===
     let chatStep = 0; 
+
+    function setDuckEmotion(imgUrl) {
+        document.querySelectorAll('#mainDuckImg, #chatDuckImg').forEach(img => { img.src = imgUrl; });
+    }
 
     function toggleChat() {
         const win = document.getElementById('chatWindow');
         win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
         if(win.style.display === 'flex') document.getElementById('userInput').focus();
     }
+    
     function handleKeyPress(e) { if(e.key === 'Enter') sendMessage(); }
 
     function userAction(action) {
@@ -504,11 +489,9 @@
         let userState = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, exp: 0, coins: 50 };
         userState.exp += exp;
         userState.coins += coins;
-        
         localStorage.setItem('duckUser', JSON.stringify(userState));
-        syncDuckLook(); // 存完馬上更新 UI
+        syncDuckLook(); 
         
-        // 彈窗
         const modal = document.getElementById('levelUpModal');
         document.getElementById('newLvName').innerText = `獲得 ${exp} EXP / ${coins} Coins`;
         modal.style.display = 'block';
@@ -525,43 +508,29 @@
             showButtons = false; 
         }
         else if (chatStep === 1) {
-            // 修正 1：嘗試從輸入文字中抓取數字當作年齡 (若沒數字則預設為成人 25歲，避免報錯)
             let ageNum = text.match(/\d+/); 
             let age = ageNum ? parseInt(ageNum[0]) : 25; 
 
-            // 修正 2：括號結構整理清楚
             if (age < 12 || text.includes("孩") || text.includes("童")) {
                 addMsg("⚠️ <b>兒童警示：小朋友不建議吞錠劑！</b><br>建議改用藥水，並由門市藥師評估。", 'duck');
-                
                 setTimeout(() => {
                     addMsg(`<div class="card-insert"><img src="images/p_kids_syrup.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Kids+Syrup'"><div style="padding:10px;"><b>安佳熱 退燒糖漿</b><div class="action-btn btn-online">🛒 查看詳情</div></div></div>`, 'duck');
                 }, 800);
             } else { 
-                // 這裡原本語法錯誤，現在移到 if 的花括號外面了
                 addMsg("了解。建議使用乙醯胺酚成分藥品，請注意不要飲酒。", 'duck');
             }
-            
             chatStep = 0; 
             addPoints(50, 5); 
         }
-           // ▼▼▼ 新增：點數與大樹幣查詢機制 (強化版) ▼▼▼
         else if (chatStep === 0 && (text.includes("點數") || text.includes("幣") || text.includes("兌換") || text.includes("換"))) {
-            
-            // 1. 強制讀取「最新」的玩家進度，避免抓到舊資料
             let freshUser = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, coins: 0 };
             let currentCoins = freshUser.coins;
             let currentLevel = freshUser.level;
 
-            // 2. 篩選：買得起的商品
-            let affordable = shopItemsConfig.filter(item => 
-                currentCoins >= item.price && (!item.minLevel || currentLevel >= item.minLevel)
-            );
-            
-            // 3. 篩選：買不起的商品，抓最便宜的當目標
+            let affordable = shopItemsConfig.filter(item => currentCoins >= item.price && (!item.minLevel || currentLevel >= item.minLevel));
             let nextGoals = shopItemsConfig.filter(item => currentCoins < item.price).sort((a, b) => a.price - b.price);
             let nextGoal = nextGoals.length > 0 ? nextGoals[0] : null;
 
-            // 4. 組裝完整回答 (一次講完，不分段)
             let reply = "🪙 <b>大樹幣 (Coins)</b> 可以兌換實體折價券、保健品與限量公仔！<br><br>";
             reply += `🦆 幫你查了一下，你目前擁有 <b style="color:#F39800;">${currentCoins} 幣</b> (Lv.${currentLevel})。<br>`;
             
@@ -572,23 +541,17 @@
                 reply += `💦 目前點數還差一點點才能換商品，記得每天點擊「每日簽到」賺點數喔！<br>`;
             }
 
-            // 5. 激勵目標
             if (nextGoal) {
                 let diff = nextGoal.price - currentCoins;
                 let levelNote = (nextGoal.minLevel && currentLevel < nextGoal.minLevel) ? ` (需達到 Lv.${nextGoal.minLevel})` : "";
                 reply += `<br>🔥 <b>鴨鴨推推目標：</b><br>只要再收集 <b style="color:red;">${diff} 幣</b>，就可以把【${nextGoal.name}】帶回家啦！${levelNote}`;
             }
+            reply += `<br><button style="margin-top:15px; background:var(--gt-green); color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; cursor:pointer; width:100%;" onclick="window.location.href='member.html'">🛒 立即前往養成中心兌換</button>`;
 
-            // 6. 加上前往福利社的按鈕
-            reply += `<br><button style="margin-top:15px; background:var(--gt-green); color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; cursor:pointer; width:100%;" onclick="toggleChat(); document.getElementById('normalShopGrid').scrollIntoView({behavior:'smooth', block:'center'});">🛒 立即去逛福利社</button>`;
-
-            // 直接發送，不延遲
             addMsg(reply, 'duck');
-            
             chatStep = 0;
-            showButtons = true; // 讓系統最後依然能跳出「線上選購也能累積點數...」的提示
+            showButtons = true; 
         }
-        // ▲▲▲ 新增結束 ▲▲▲
         else if (chatStep === 0 && (text.includes("C") || text.includes("維他命c"))) {
             addMsg("想找維他命C嗎？請問是<b>給誰吃的</b>？<br>(例如：小孩、老人、大人)", 'duck');
             chatStep = 3; 
