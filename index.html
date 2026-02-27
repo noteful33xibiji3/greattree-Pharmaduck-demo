@@ -214,12 +214,16 @@
 
 <header>
     <div class="nav-container">
-        <div class="logo">
-            <img src="images/logo.png" alt="Logo" onerror="this.parentNode.innerText='🌳 大樹一鴨tree吃購物網'">
-        </div>
-        <div class="nav-group">
-            <a href="index.html" class="nav-btn active">🏠 <span>購物首頁</span></a>
-            <a href="member.html" class="nav-btn">🦆 <span>養成中心</span> <span class="coin-box">$<span id="navCoin">0</span></span></a>
+        <a href="index.html" class="logo-link">
+            <img src="images/logo.png" alt="大樹藥局" style="height:40px;">
+        </a>
+
+        <div style="display: flex; gap: 10px;">
+            <a href="index.html" class="nav-btn active">🏠 購物首頁</a>
+            
+            <a href="member.html" class="nav-btn">🦆 鴨鴨養成中心</a>
+            
+            <a href="login.html" id="loginNavBtn" class="nav-btn" style="background: var(--gt-orange); color: white;">🔑 會員登入</a>
         </div>
     </div>
 </header>
@@ -604,6 +608,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
