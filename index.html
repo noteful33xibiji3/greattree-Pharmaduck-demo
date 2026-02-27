@@ -322,6 +322,39 @@
 </footer>
 
 <script>
+    const authArea = document.getElementById('navAuthArea');
+    if (localStorage.getItem('currentLoggedInUser')) {
+        // 如果已登入 -> 顯示登出按鈕
+        authArea.innerHTML += `<a href="javascript:void(0);" onclick="doLogout()" class="nav-btn" style="color: #d0021b; font-weight: bold;">🚪 登出</a>`;
+    } else {
+        // 如果未登入 -> 顯示登入按鈕
+        authArea.innerHTML += `<a href="login.html" class="nav-btn" style="color: var(--gt-orange); font-weight: bold;">🔑 登入/註冊</a>`;
+    }
+
+    // === 2. 登出與自動存檔功能 ===
+    function doLogout() {
+        if(confirm("確定要登出嗎？鴨鴨會想你喔！")) {
+            let currentUser = localStorage.getItem('currentLoggedInUser');
+            
+            // 登出前，幫這個帳號「存檔」
+            if (currentUser) {
+                let usersDB = JSON.parse(localStorage.getItem('greatTreeUsersDB')) || {};
+                if (usersDB[currentUser]) {
+                    let currentDuckData = localStorage.getItem('duckUser');
+                    if (currentDuckData) {
+                        usersDB[currentUser].data = JSON.parse(currentDuckData);
+                        localStorage.setItem('greatTreeUsersDB', JSON.stringify(usersDB));
+                    }
+                }
+            }
+            
+            // 清除登入狀態
+            localStorage.removeItem('currentLoggedInUser');
+            
+            // 重新整理目前的購物首頁 (讓登出按鈕變回登入按鈕)
+            window.location.reload();
+        }
+    }
     // ==============================================
     // 🦆 Pharma.Duck RPG 核心系統 (首頁同步版)
     // ==============================================
@@ -609,6 +642,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
