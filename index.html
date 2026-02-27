@@ -506,55 +506,49 @@
             chatStep = 0; 
             addPoints(50, 5); 
         }
-            // ▼▼▼ 新增：點數與大樹幣查詢機制 ▼▼▼
+           // ▼▼▼ 新增：點數與大樹幣查詢機制 (強化版) ▼▼▼
         else if (chatStep === 0 && (text.includes("點數") || text.includes("幣") || text.includes("兌換") || text.includes("換"))) {
             
-            // 1. 基本介紹
-            addMsg("🪙 <b>大樹幣 (Coins)</b> 可以用來在下方的「大樹福利社」兌換實體折價券、保健品或限量公仔喔！", 'duck');
+            // 1. 強制讀取「最新」的玩家進度，避免抓到舊資料
+            let freshUser = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, coins: 0 };
+            let currentCoins = freshUser.coins;
+            let currentLevel = freshUser.level;
 
-            setTimeout(() => {
-                let currentCoins = userState.coins;
-                let currentLevel = userState.level;
+            // 2. 篩選：買得起的商品
+            let affordable = shopItemsConfig.filter(item => 
+                currentCoins >= item.price && (!item.minLevel || currentLevel >= item.minLevel)
+            );
+            
+            // 3. 篩選：買不起的商品，抓最便宜的當目標
+            let nextGoals = shopItemsConfig.filter(item => currentCoins < item.price).sort((a, b) => a.price - b.price);
+            let nextGoal = nextGoals.length > 0 ? nextGoals[0] : null;
 
-                // 2. 篩選：找出現有金幣「買得起」，且「等級達到」的商品
-                let affordable = shopItemsConfig.filter(item => 
-                    currentCoins >= item.price && (!item.minLevel || currentLevel >= item.minLevel)
-                );
-                
-                // 3. 篩選：找出現有金幣「還買不起」的商品，並照價格低到高排序，取最便宜的那一個當作目標
-                let nextGoals = shopItemsConfig.filter(item => currentCoins < item.price).sort((a, b) => a.price - b.price);
-                let nextGoal = nextGoals.length > 0 ? nextGoals[0] : null;
+            // 4. 組裝完整回答 (一次講完，不分段)
+            let reply = "🪙 <b>大樹幣 (Coins)</b> 可以兌換實體折價券、保健品與限量公仔！<br><br>";
+            reply += `🦆 幫你查了一下，你目前擁有 <b style="color:#F39800;">${currentCoins} 幣</b> (Lv.${currentLevel})。<br>`;
+            
+            if (affordable.length > 0) {
+                let itemNames = affordable.map(i => `「${i.name}」`).join("、");
+                reply += `✨ 你現在的點數已經可以直接兌換：<b>${itemNames}</b> 囉！<br>`;
+            } else {
+                reply += `💦 目前點數還差一點點才能換商品，記得每天點擊「每日簽到」賺點數喔！<br>`;
+            }
 
-                // 4. 組裝鴨鴨的回答
-                let reply = `🦆 幫你查了一下，你目前擁有 <b style="color:#F39800;">${currentCoins} 幣</b> (Lv.${currentLevel})。<br><br>`;
-                
-                if (affordable.length > 0) {
-                    let itemNames = affordable.map(i => `「${i.name}」`).join("、");
-                    reply += `✨ 太棒了！你現在的點數已經可以直接兌換：<b>${itemNames}</b> 囉！<br>`;
-                } else {
-                    reply += `💦 目前點數還差一點點才能換商品，記得每天去上面點擊「每日簽到」賺點數喔！<br>`;
-                }
+            // 5. 激勵目標
+            if (nextGoal) {
+                let diff = nextGoal.price - currentCoins;
+                let levelNote = (nextGoal.minLevel && currentLevel < nextGoal.minLevel) ? ` (需達到 Lv.${nextGoal.minLevel})` : "";
+                reply += `<br>🔥 <b>鴨鴨推推目標：</b><br>只要再收集 <b style="color:red;">${diff} 幣</b>，就可以把【${nextGoal.name}】帶回家啦！${levelNote}`;
+            }
 
-                // 5. 激勵目標：計算還差幾點
-                if (nextGoal) {
-                    let diff = nextGoal.price - currentCoins;
-                    // 如果有等級限制，順便提醒一下
-                    let levelNote = (nextGoal.minLevel && currentLevel < nextGoal.minLevel) ? ` (需達到 Lv.${nextGoal.minLevel})` : "";
-                    
-                    reply += `<br>🔥 <b>鴨鴨推推目標：</b><br>只要再收集 <b style="color:red;">${diff} 幣</b>，就可以把超讚的【${nextGoal.name}】帶回家啦！${levelNote}`;
-                }
+            // 6. 加上前往福利社的按鈕
+            reply += `<br><button style="margin-top:15px; background:var(--gt-green); color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; cursor:pointer; width:100%;" onclick="toggleChat(); document.getElementById('normalShopGrid').scrollIntoView({behavior:'smooth', block:'center'});">🛒 立即去逛福利社</button>`;
 
-                // 6. 加入「一鍵前往福利社」的快捷按鈕
-                reply += `<button style="margin-top:15px; background:var(--gt-green); color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; cursor:pointer; width:100%;" 
-                            onclick="toggleChat(); document.getElementById('normalShopGrid').scrollIntoView({behavior:'smooth', block:'center'});">
-                            🛒 立即去逛福利社
-                          </button>`;
-
-                addMsg(reply, 'duck');
-            }, 800);
+            // 直接發送，不延遲
+            addMsg(reply, 'duck');
             
             chatStep = 0;
-            showButtons = false; // 這裡設為 false，因為我們上面已經給了去福利社的專屬按鈕了
+            showButtons = true; // 讓系統最後依然能跳出「線上選購也能累積點數...」的提示
         }
         // ▲▲▲ 新增結束 ▲▲▲
         else if (chatStep === 0 && (text.includes("C") || text.includes("維他命c"))) {
@@ -610,6 +604,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
