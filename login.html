@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員登入 - 大樹一鴨tree吃</title>
+    <style>
+        /* === 大樹藥局標準配色 === */
+        :root {
+            --gt-green: #009944; 
+            --gt-orange: #F39800; 
+            --bg-gray: #f4f6f8;
+        }
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            padding: 30px 25px;
+            box-sizing: border-box;
+        }
+        .logo-area {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .logo-area img {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        .app-title {
+            color: var(--gt-green);
+            font-size: 24px;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        
+        /* === 頁籤切換 (登入/註冊) === */
+        .tab-container {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: #888;
+            transition: 0.3s;
+        }
+        .tab.active {
+            color: var(--gt-green);
+            border-bottom: 3px solid var(--gt-green);
+        }
+
+        /* === 表單區域 === */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: 0.3s;
+            background-color: #f9f9f9;
+        }
+        .form-group input:focus {
+            background-color: #fff;
+            border-color: var(--gt-green);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 153, 68, 0.1);
+        }
+
+        /* === 按鈕 === */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-login { background-color: var(--gt-green); }
+        .btn-login:hover { background-color: #008038; }
+        
+        .btn-register { background-color: var(--gt-orange); }
+        .btn-register:hover { background-color: #e08b00; }
+
+        /* 動畫切換效果 */
+        .form-box { display: none; }
+        .form-box.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .hint-text { text-align: center; font-size: 13px; color: #888; margin-top: 20px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo-area">
+        <img src="images/logo.png" alt="大樹藥局 Logo" onerror="this.src='https://placehold.co/200x60/009944/ffffff?text=Great+Tree+Logo'">
+        <h1 class="app-title">大樹一鴨tree吃</h1>
+        <p style="color:#666; font-size:13px; margin-top:5px;">會員中心暨線上商城</p>
+    </div>
+
+    <div class="tab-container">
+        <div class="tab active" onclick="switchTab('login')">會員登入</div>
+        <div class="tab" onclick="switchTab('register')">註冊新帳號</div>
+    </div>
+
+    <div id="loginForm" class="form-box active">
+        <div class="form-group">
+            <label>Gmail 信箱 (帳號)</label>
+            <input type="email" id="loginEmail" placeholder="請輸入 Gmail 信箱">
+        </div>
+        <div class="form-group">
+            <label>會員密碼</label>
+            <input type="password" id="loginPwd" placeholder="請輸入密碼">
+        </div>
+        <button class="btn btn-login" onclick="doLogin()">登入</button>
+        <div class="hint-text">
+            🌟 <b>評審測試帳號</b><br>
+            帳號：test@gmail.com<br>密碼：1234
+        </div>
+    </div>
+
+    <div id="registerForm" class="form-box">
+        <div class="form-group">
+            <label>Gmail 信箱 (作為登入帳號)</label>
+            <input type="email" id="regEmail" placeholder="請輸入您的 Gmail 信箱">
+        </div>
+        <div class="form-group">
+            <label>設定密碼</label>
+            <input type="password" id="regPwd" placeholder="請設定 4 碼以上密碼">
+        </div>
+        <button class="btn btn-register" onclick="doRegister()">立即註冊</button>
+        <div class="hint-text" style="color: var(--gt-orange);">
+            🦆 <b>註冊大禮包</b><br>註冊成功即享 50 枚大樹幣與新手鴨鴨！
+        </div>
+    </div>
+</div>
+
+<script>
+    // === 虛擬資料庫初始化 ===
+    let usersDB = JSON.parse(localStorage.getItem('greatTreeUsersDB')) || {};
+
+    // ★ 修改：把預設測試帳號改成 Gmail 格式 ★
+    if (!usersDB['test@gmail.com']) {
+        usersDB['test@gmail.com'] = { password: '1234', data: null };
+        localStorage.setItem('greatTreeUsersDB', JSON.stringify(usersDB));
+    }
+
+    // === 介面切換功能 ===
+    function switchTab(type) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.form-box').forEach(f => f.classList.remove('active'));
+        
+        if (type === 'login') {
+            document.querySelectorAll('.tab')[0].classList.add('active');
+            document.getElementById('loginForm').classList.add('active');
+        } else {
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            document.getElementById('registerForm').classList.add('active');
+        }
+    }
+
+    // === 註冊功能 ===
+    function doRegister() {
+        // ★ 修改：抓取 email 欄位的值 ★
+        const email = document.getElementById('regEmail').value.trim().toLowerCase();
+        const pwd = document.getElementById('regPwd').value.trim();
+
+        // ★ 修改：防呆檢查改成 Email 格式 (必須包含 @ 和 .) ★
+        if (!email.includes('@') || !email.includes('.')) {
+            return alert("❌ 請輸入正確的 Email 信箱格式！");
+        }
+        if (pwd.length < 4) return alert("❌ 密碼請至少輸入 4 碼！");
+        if (usersDB[email]) return alert("⚠️ 此信箱已經註冊過囉！請直接登入。");
+
+        // 建立新帳號並存入虛擬資料庫
+        usersDB[email] = { password: pwd, data: null };
+        localStorage.setItem('greatTreeUsersDB', JSON.stringify(usersDB));
+        
+        alert("🎉 註冊成功！系統將為您自動登入。");
+        
+        // 設定當前登入者
+        localStorage.setItem('currentLoggedInUser', email);
+        localStorage.removeItem('duckUser'); 
+        
+        // 跳轉到養成中心
+        window.location.href = 'member.html';
+    }
+
+    // === 登入功能 ===
+    function doLogin() {
+        // ★ 修改：抓取 email 欄位的值 ★
+        const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+        const pwd = document.getElementById('loginPwd').value.trim();
+
+        // 檢查帳號密碼
+        if (!usersDB[email]) {
+            return alert("❌ 找不到此帳號，請先切換到右邊「註冊新帳號」！");
+        }
+        if (usersDB[email].password !== pwd) {
+            return alert("❌ 密碼錯誤，請再試一次！");
+        }
+
+        // 登入成功，記錄當前使用者
+        localStorage.setItem('currentLoggedInUser', email);
+        
+        // 讀取該使用者的專屬進度
+        if (usersDB[email].data) {
+            localStorage.setItem('duckUser', JSON.stringify(usersDB[email].data));
+        } else {
+            localStorage.removeItem('duckUser');
+        }
+
+        // 跳轉到養成中心
+        window.location.href = 'member.html';
+    }
+</script>
+
+</body>
+</html>
