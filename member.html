@@ -75,160 +75,72 @@
         .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .item-card { 
             border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center; 
-            position: relative; transition: 0.2s; background: #fff;
+            position: relative; transition: 0.2s; background: #fff; display: flex; flex-direction: column; justify-content: space-between;
         }
         .item-card:hover { border-color: var(--gt-orange); transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
-        .item-img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 5px; }
-        .item-price { color: #b7791f; font-weight: bold; font-size: 14px; margin: 5px 0; }
+        .item-img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 5px auto; }
+        .item-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
+        .item-price-block { margin: 5px 0; }
+        .price-coins { color: #b7791f; font-weight: bold; font-size: 15px; }
+        .price-addon { font-size: 12px; color: #666; margin-top: 2px; }
+        .item-stock { font-size: 11px; color: #999; margin-bottom: 5px; }
         .item-tag { position: absolute; top: 5px; right: 5px; background: #d0021b; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+        .btn-redeem { background: var(--gt-orange); color: white; border: none; padding: 8px; width: 100%; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .btn-redeem:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* 倒數計時區 */
+        .countdown-zone { background: linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%); border: 2px solid #ff9a9e;}
+        .timer-box { font-size: 18px; font-weight: bold; color: #d0021b; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+        
+        /* 票券夾 */
+        .coupon-list { display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
+        .coupon-ticket { background: #fff; border: 1px dashed var(--gt-green); border-left: 5px solid var(--gt-green); padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .coupon-detail b { display: block; font-size: 14px; color: #333; }
+        .coupon-detail span { font-size: 12px; color: #666; }
+        .coupon-btn { background: white; border: 1px solid var(--gt-green); color: var(--gt-green); padding: 4px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
 
         /* 升級特效 */
-        .levelup-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 9999; }
-        .modal-content {
-            background: white; width: 300px; padding: 30px; border-radius: 20px; text-align: center;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;
-        }
+        .levelup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-content { background: white; width: 300px; padding: 30px; border-radius: 20px; text-align: center; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
         @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .btn-close { margin-top: 20px; background: var(--gt-orange); color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        /* === 新增：頁尾樣式 (Footer) === */
-    footer {
-        text-align: center;         /* 文字置中 */
-        padding: 40px 20px;         /* 上下留白 */
-        margin-top: 50px;           /* 跟上面內容分開 */
-        border-top: 1px solid #ddd; /* 加一條淡淡的分隔線 */
-        color: #666;                /* 字體灰色 */
-        background-color: #fff;     /* 背景白色，比較乾淨 */
-    }
-    .footer-team {
-        color: var(--gt-orange);    /* 團隊名稱用大樹橘色 */
-        font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-    .footer-info {
-        margin-bottom: 8px;
-        font-size: 14px;
-    }
-    .footer-copyright {
-        font-size: 12px;
-        color: #999;
-        line-height: 1.5;
-    }
-
-        /* === 規則說明彈窗樣式 === */
-    .rules-modal {
-        display: none; /* 預設隱藏 */
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6); z-index: 2000;
-        justify-content: center; align-items: center;
-        backdrop-filter: blur(5px); /* 背景模糊特效 */
-    }
-    .rules-content {
-        background: white; width: 90%; max-width: 800px; max-height: 85vh;
-        border-radius: 20px; padding: 25px; position: relative;
-        overflow-y: auto; /* 內容太長可捲動 */
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    /* 表格美化 */
-    .rules-table {width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;}
-    .rules-table th { background: var(--gt-green); color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
-    .rules-table td { padding: 10px; border-bottom: 1px solid #eee; color: #444;}
-    .rules-table tr:nth-child(even) { background-color: #f9f9f9; }
-    
-    /* 分隔標題 */
-    .section-head { border-left: 5px solid var(--gt-orange); padding-left: 10px; margin: 20px 0 10px 0; color: #333; font-size: 18px; font-weight: bold; }
-
-    /* ★ 當前等級特效：金光閃閃 ★ */
-    .current-level-row { background-color: #fffbea !important; border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: bold; color: #000; }
-    .current-tag { background: var(--gt-orange); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
-
-    /* 關閉按鈕 */
-    .close-rules {
-        position: absolute; top: 15px; right: 20px; font-size: 24px;
-        cursor: pointer; color: #999; transition: 0.2s;
-    }
-    .close-rules:hover { color: #333; transform: scale(1.1); }
-
-    /* 點擊卡片的互動感 */
-    .clickable-card { cursor: pointer; transition: transform 0.2s; }
-    .clickable-card:active { transform: scale(0.98); }
-    .hint-icon { position: absolute; top: 15px; right: 15px;  background: rgba(255,255,255,0.2); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 14px; color: white; border: 1px solid rgba(255,255,255,0.5); }
-        /* === 新增：福利社與票券夾樣式 (請加入這段) === */
-    .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-    .item-card {  border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center;  position: relative; transition: 0.2s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; }
-    .item-card:hover { border-color: var(--gt-orange); transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
-    .item-img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 5px auto; }
-    .item-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
-    .item-price-block { margin: 5px 0; }
-    .price-coins { color: #b7791f; font-weight: bold; font-size: 15px; }
-    .price-addon { font-size: 12px; color: #666; margin-top: 2px; }
-    .item-stock { font-size: 11px; color: #999; margin-bottom: 5px; }
-    .item-tag { position: absolute; top: 5px; right: 5px; background: var(--red); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
-    
-    .btn-redeem { background: var(--gt-orange); color: white; border: none; padding: 8px; width: 100%; border-radius: 20px; font-weight: bold; cursor: pointer; }
-    .btn-redeem:disabled { background: #ccc; cursor: not-allowed; }
-
-    /* 倒數計時區 */
-    .countdown-zone {
-        background: linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%);
-        border: 2px solid #ff9a9e;}
-    .timer-box { font-size: 18px; font-weight: bold; color: var(--red); display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
-    
-    /* 票券夾 */
-    .coupon-list { display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
-    .coupon-ticket {
-        background: #fff; border: 1px dashed var(--gt-green); border-left: 5px solid var(--gt-green);
-        padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
-    }
-    .coupon-detail b { display: block; font-size: 14px; color: #333; }
-    .coupon-detail span { font-size: 12px; color: #666; }
-    .coupon-btn { background: white; border: 1px solid var(--gt-green); color: var(--gt-green); padding: 4px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
-
-        /* =========================================
-       📱 手機版適配樣式 (Media Query)
-       ========================================= */
-    @media (max-width: 768px) {
         
-        /* 1. 導航列調整：Logo 和按鈕變垂直排列 */
-        .nav-container {flex-direction: column; gap: 15px; padding: 10px; }
+        /* 規則說明彈窗樣式 */
+        .rules-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .rules-content { background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; padding: 25px; position: relative; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .rules-table {width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;}
+        .rules-table th { background: var(--gt-green); color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
+        .rules-table td { padding: 10px; border-bottom: 1px solid #eee; color: #444;}
+        .rules-table tr:nth-child(even) { background-color: #f9f9f9; }
+        .section-head { border-left: 5px solid var(--gt-orange); padding-left: 10px; margin: 20px 0 10px 0; color: #333; font-size: 18px; font-weight: bold; }
+        .current-level-row { background-color: #fffbea !important; border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: bold; color: #000; }
+        .close-rules { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999; transition: 0.2s; }
+        .close-rules:hover { color: #333; transform: scale(1.1); }
+        .clickable-card { cursor: pointer; transition: transform 0.2s; }
+        .clickable-card:active { transform: scale(0.98); }
+        .hint-icon { position: absolute; top: 15px; right: 15px;  background: rgba(255,255,255,0.2); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 14px; color: white; border: 1px solid rgba(255,255,255,0.5); }
         
-        /* 2. 儀表板 (綠色卡片) 調整 */
-        .season-card {  flex-direction: column; /* 改為垂直堆疊 */ text-align: center;     /* 內容置中 */ padding: 20px;   }
-        
-        /* 修正倒數計時的位置，不要讓它擋住鴨子 */
-        .season-badge {  position: relative; /* 取消絕對定位 */  top: auto;  right: auto;  margin-bottom: 15px; display: inline-block; /* 讓它置中 */ }
+        footer { text-align: center; padding: 40px 20px; margin-top: 50px; border-top: 1px solid #ddd; color: #666; background-color: #fff; }
 
-        .avatar-area {  margin: 0 auto 20px auto; /* 上下留白 */  }
-
-        .stats-area { width: 100%; /* 寬度佔滿 */  min-width: auto; /* 取消最小寬度限制 */ }
-
-        .level-title {  font-size: 22px; /* 字體稍微縮小 */  }
-
-        /* 3. 調整區塊間距 */
-        .content-grid { grid-template-columns: 1fr; /* 強制變單欄 */   gap: 15px; margin-top: 20px; }
-
-        .panel {  padding: 15px; /* 內距縮小，爭取空間 */ }
-
-        /* 4. 福利社商品卡片 */
-        .shop-grid {   gap: 10px; /* 間距縮小 */  }
-        .item-card { padding: 10px 5px; /* 卡片內距縮小 */ }
-        .item-title { font-size: 13px; /* 商品標題縮小 */ }
-        .price-coins { font-size: 13px; /* 價格縮小 */   }
-
-        /* 5. 規則彈窗優化 */
-        .rules-content {  width: 95%; padding: 15px;   }
-        .rules-table th, .rules-table td {   padding: 8px 4px; /* 表格擠一點沒關係 */ font-size: 12px;  /* 字體縮小以免爆版 */ }
-        
-        /* 6. 票券夾調整 */
-        .coupon-ticket {   flex-direction: column; /* 直向排列 */   align-items: flex-start;    gap: 10px; }
-        .coupon-ticket img {   width: 100%; /* 圖片滿版 */   height: 80px;    object-fit: cover;   margin-right: 0;   margin-bottom: 5px; }
-        .coupon-btn { width: 100%; /* 按鈕變大比較好按 */   padding: 8px;   margin-top: 5px; }
-    }
+        @media (max-width: 768px) {
+            .nav-container {flex-direction: column; gap: 15px; padding: 10px; }
+            .season-card { flex-direction: column; text-align: center; padding: 20px; }
+            .season-badge { position: relative; top: auto; right: auto; margin-bottom: 15px; display: inline-block; }
+            .avatar-area { margin: 0 auto 20px auto; }
+            .stats-area { width: 100%; min-width: auto; }
+            .level-title { font-size: 22px; }
+            .content-grid { grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
+            .panel { padding: 15px; }
+            .shop-grid { gap: 10px; }
+            .item-card { padding: 10px 5px; }
+            .item-title, .price-coins { font-size: 13px; }
+            .rules-content { width: 95%; padding: 15px; }
+            .rules-table th, .rules-table td { padding: 8px 4px; font-size: 12px; }
+            .coupon-ticket { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .coupon-ticket img { width: 100%; height: 80px; object-fit: cover; margin-right: 0; margin-bottom: 5px; }
+            .coupon-btn { width: 100%; padding: 8px; margin-top: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -244,15 +156,15 @@
         </a>
         
         <div style="display: flex; gap: 10px;" id="navAuthArea">
-            <a href="index.html" class="nav-btn active">🏠 購物首頁</a>
-            <a href="member.html" class="nav-btn">🦆 養成中心</a>
+            <a href="index.html" class="nav-btn">🏠 購物首頁</a>
+            <a href="member.html" class="nav-btn active">🦆 養成中心</a>
         </div>
     </div>
 </header>
 
 <div class="dashboard">
     <div class="season-card clickable-card" onclick="openRules()">
-    <div class="hint-icon">?</div>
+        <div class="hint-icon">?</div>
         <div class="season-badge">
             ⏳ 賽季倒數：<span id="daysLeft" style="color:#FFD700">計算中...</span> 天 
             <span style="font-size:12px; margin-left:8px; color:#fff; opacity:0.8;">
@@ -266,15 +178,18 @@
         </div>
 
         <div class="stats-area">
-            <div style="font-size: 14px; opacity: 0.8; font-weight: bold;">目前會員等級</div>
-            <h1 class="level-title" id="lvTitle">Lv.1 破殼見習生</h1>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px;">
+                <h1 class="level-title" id="duckNameDisplay" style="margin:0;">大樹鴨鴨</h1>
+                <button onclick="renameDuck(); event.stopPropagation();" style="background:none; border:none; cursor:pointer; font-size:18px; padding:0; filter:drop-shadow(0 2px 2px rgba(0,0,0,0.2));">✏️</button>
+            </div>
+            <div style="font-size: 15px; opacity: 0.9; font-weight: bold;" id="lvTitle">Lv.1 破殼見習生</div>
             <div style="font-size: 13px; opacity: 0.9; margin-top: 5px;">
                 本季累積 EXP：<span id="expText">0</span> / <span id="maxExpText">500</span>
             </div>
 
             <div class="progress-container"><div class="progress-fill" id="expBar"></div></div>
             
-            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+            <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <span style="font-size: 14px;">大樹幣 (Coins)：</span>
                 <span style="font-size: 24px; font-weight: bold; color: var(--gold);" id="coinDisplay">0</span>
                 <span style="font-size: 12px; opacity: 0.7;">(永不歸零)</span>
@@ -284,8 +199,7 @@
 
     <div class="panel">
         <h2>👕 鴨鴨時裝店 <span class="panel-subtitle">可用 Coins 購買或等級解鎖</span></h2>
-        <div class="wardrobe-grid" id="wardrobeList">
-            </div>
+        <div class="wardrobe-grid" id="wardrobeList"></div>
     </div>
 
    <div class="panel">
@@ -294,7 +208,6 @@
             <div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>
         </div>
     </div>
-
 
     <div class="content-grid">
         <div class="panel">
@@ -324,6 +237,8 @@
             <div class="shop-grid" id="normalShopGrid"></div>
         </div>
     </div>
+</div>
+
 <div class="levelup-modal" id="modal">
     <div class="modal-content">
         <div style="font-size: 50px;">🎉</div>
@@ -332,7 +247,8 @@
         <p style="color:#666; font-size:14px;">解鎖新權益與經驗加成！</p>
         <button class="btn-close" onclick="closeModal()">太棒了</button>
     </div>
-</div></div>
+</div>
+
 <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid #eee; background: #fff; margin-top: 50px;">
     <div style="font-size: 18px; font-weight: bold; color: #F39800; margin-bottom: 5px;">
         團隊：一鴨tree吃 🦆
@@ -346,44 +262,58 @@
         Copyright © 2026 Pharma.Duck. All rights reserved.
     </div>
 </footer>
-    <div class="rules-modal" id="rulesModal" onclick="if(event.target === this) closeRules()">
+
+<div class="rules-modal" id="rulesModal" onclick="if(event.target === this) closeRules()">
     <div class="rules-content">
         <span class="close-rules" onclick="closeRules()">×</span>
         <h2 style="color:var(--gt-green); text-align:center; margin-top:0;">📖 會員權益與升級手冊</h2>
-
         <div class="section-head">✨ 經驗值與大樹幣獲取規則</div>
         <table class="rules-table">
             <thead>
                 <tr><th width="20%">動作</th><th width="15%">EXP</th><th width="15%">Coins</th><th>備註說明</th></tr>
             </thead>
-            <tbody id="rulesBody">
-                </tbody>
+            <tbody id="rulesBody"></tbody>
         </table>
-
         <div class="section-head">🏆 等級特權一覽表</div>
         <p style="font-size:12px; color:#666; margin-bottom:10px;">(底色標示為您目前的等級)</p>
         <table class="rules-table">
             <thead>
                 <tr><th width="15%">等級</th><th width="20%">稱號</th><th width="15%">門檻</th><th>特權與裝備</th></tr>
             </thead>
-            <tbody id="levelBody">
-                </tbody>
+            <tbody id="levelBody"></tbody>
         </table>
     </div>
 </div>
+
 <script>
     // ==============================================
-    // 🦆 Pharma.Duck RPG 核心系統 (最終整合修復版)
+    // 🦆 Pharma.Duck RPG 核心系統 (無 Bug 旗艦版)
     // ==============================================
-// === 0. 動態按鈕顯示 (判斷是訪客還是會員) ===
+
+    // === 0. 動態按鈕顯示 (判斷是訪客還是會員) ===
     const authArea = document.getElementById('navAuthArea');
     if (localStorage.getItem('currentLoggedInUser')) {
-        // 如果有登入紀錄 -> 幫你在右上角塞入「登出」按鈕
         authArea.innerHTML += `<a href="javascript:void(0);" onclick="doLogout()" class="nav-btn" style="color: #d0021b; font-weight: bold;">🚪 登出</a>`;
     } else {
-        // 如果沒有登入紀錄 (訪客) -> 幫你在右上角塞入「登入/註冊」按鈕
         authArea.innerHTML += `<a href="login.html" class="nav-btn" style="color: var(--gt-orange); font-weight: bold;">🔑 登入/註冊</a>`;
     }
+
+    // 登出功能
+    function doLogout() {
+        if(confirm("確定要登出嗎？鴨鴨會想你喔！")) {
+            let currentUser = localStorage.getItem('currentLoggedInUser');
+            if (currentUser) {
+                let usersDB = JSON.parse(localStorage.getItem('greatTreeUsersDB')) || {};
+                if (usersDB[currentUser]) {
+                    usersDB[currentUser].data = JSON.parse(localStorage.getItem('duckUser'));
+                    localStorage.setItem('greatTreeUsersDB', JSON.stringify(usersDB));
+                }
+            }
+            localStorage.removeItem('currentLoggedInUser');
+            window.location.reload();
+        }
+    }
+
     // === 1. 等級設定 ===
     const defaultLevels = [
         { lv: 1, name: "破殼見習生", minExp: 0, img: "images/duck_lv1.png" },
@@ -399,7 +329,7 @@
     ];
     let levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
 
-    // === 2. 時裝商城 (初心版排第一) ===
+    // === 2. 時裝商城 ===
     const skinShop = [
         { name: "一鴨tree吃 初心版", img: "images/duck_origin.png", type: "buy", unlockVal: 0, cost: 0 },
         { name: "聖誕鴨套裝", img: "images/duck_xmas.png", type: "buy", unlockVal: 0, cost: 200 },
@@ -412,28 +342,13 @@
     const shopItemsConfig = [
        { id: 'coupon_50', type: 'normal',  tag: '熱門',  name: '$100 門市折價券',  img: 'https://placehold.co/400x250/F39800/ffffff?text=$100',  price: 500,  stock: 10 },
         { id: 'vit_c', type: 'normal', tag: '推薦', name: '大樹鴨鴨補給站 - 每日C 活力組', img: 'images/duck_vitaminC.png', price: 1500, stock: 30, note: '市價$399 (省$399)<br>加價購: 20幣 + $299' },
-        { id: 'eye_mask', 
-            type: 'normal', 
-            tag: 'Lv.3專屬',  /* 這裡設定您想要的標籤 */
-            minLevel: 3,
-            name: '頭痛鴨蒸汽眼罩 (5片/盒)', 
-            /* 建議直接沿用您之前設定的頭痛鴨圖片，非常搭！ */
-            img: 'images/duck_eyemask.png', 
-            
-            price: 750,  /* 採納您的建議，設定 750 枚增加吸引力 */
-            stock: 50, 
-            
-            /* 這裡放您設計的超棒標語 */
-            note: '市價$160 | 讀書讀到頭痛？<br>讓鴨鴨幫你熱敷一下！' 
-        },
+        { id: 'eye_mask', type: 'normal', tag: 'Lv.3專屬', minLevel: 3, name: '頭痛鴨蒸汽眼罩 (5片/盒)', img: 'images/duck_eyemask.png', price: 750, stock: 50, note: '市價$160 | 讀書讀到頭痛？<br>讓鴨鴨幫你熱敷一下！' },
         { id: 'toy_duck', type: 'limit', tag: '限量', name: '大樹限定公仔', img: 'images/duck_lv10.png', price: 3000, stock: 5 }
     ];
-
-    // 初始化庫存
     let shopStock = JSON.parse(localStorage.getItem('duckShopStock')) || {};
     shopItemsConfig.forEach(item => { if (shopStock[item.id] === undefined) shopStock[item.id] = item.stock; });
 
-    // === 4. 規則與權益資料 (Data) ===
+    // === 4. 規則與權益資料 ===
     const earningRules = [
         { action: "新會員註冊", exp: "+1,000", coin: "+50", note: "首日直升 Lv.2，獲贈基礎飾品" },
         { action: "每日登入", exp: "+50", coin: "+2", note: "連續登入 7 天，加贈 20 幣" },
@@ -442,7 +357,6 @@
         { action: "看地圖/問診", exp: "+50", coin: "+5", note: "提升與門市互動深度" },
         { action: "新會員優惠", exp: "+5,000", coin: "+100", note: "首筆消費滿 500 元額外加贈" }
     ];
-
     const levelDetails = [
         { lv: 1, name: "破殼見習生", exp: "0", perk: "新手大禮包 (蛋殼帽、小綠葉)" },
         { lv: 2, name: "好奇探險鴨", exp: "500", perk: "開啟時裝商店 (黃色側背包)" },
@@ -469,47 +383,32 @@
         return userData;
     }
 
-   function loadUserData() {
-    // 預設值
-    let defaultData = { 
-        level: 1, 
-        exp: 0, 
-        coins: 50, 
-        currentSkin: levelConfig[0].img, 
-        unlockedSkins: [levelConfig[0].img], 
-        lastSeason: "", 
-        coupons: [] // 預設就有票券夾
-    };
-    let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "", coupons: [], duckName: "大樹鴨鴨" };
-    let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
-    
-    // ★★★ 關鍵修正：如果讀出來的資料沒有 coupons，幫他補上 ★★★
-    if (!Array.isArray(data.coupons)) {
-        data.coupons = [];
+    function loadUserData() {
+        let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "", coupons: [], duckName: "大樹鴨鴨" };
+        let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
+        if (!Array.isArray(data.coupons)) data.coupons = [];
+        if (!data.duckName) data.duckName = "大樹鴨鴨"; 
+        return checkSeasonReset(data);
     }
-
-    return checkSeasonReset(data);
-}
-    // === 新增：改名功能 ===
- function renameDuck() {
-     let newName = prompt("請為你的鴨鴨取個可愛的名字吧！", userState.duckName);
-     if (newName && newName.trim() !== "") {
-         userState.duckName = newName.trim();
-         updateUI();
-         alert(`🎉 命名成功！以後牠就叫「${userState.duckName}」囉！`);
-     }
- }
     let userState = loadUserData();
+
+    // 命名功能
+    function renameDuck() {
+        let newName = prompt("請為你的鴨鴨取個可愛的名字吧！", userState.duckName);
+        if (newName && newName.trim() !== "") {
+            userState.duckName = newName.trim();
+            updateUI();
+            alert(`🎉 命名成功！以後牠就叫「${userState.duckName}」囉！`);
+        }
+    }
 
     // === 6. UI 更新核心 ===
     function updateUI() {
         let sortedConfig = [...levelConfig].sort((a, b) => b.minExp - a.minExp);
         let currentConfig = sortedConfig.find(l => userState.exp >= l.minExp) || levelConfig[0];
-        
         const oldLevel = userState.level;
         userState.level = currentConfig.lv;
 
-        // 回溯解鎖等級服裝
         levelConfig.forEach(cfg => {
             if (userState.level >= cfg.lv && !userState.unlockedSkins.includes(cfg.img)) {
                 userState.unlockedSkins.push(cfg.img);
@@ -519,11 +418,9 @@
         if (oldLevel < currentConfig.lv) {
             showLevelUp(currentConfig.name, currentConfig.lv);
             userState.currentSkin = currentConfig.img;
-        } else if (levelConfig.some(l => l.img === userState.currentSkin) && userState.currentSkin !== currentConfig.img) {
-            // 如果後台降級，強制換回對應等級
-            userState.currentSkin = currentConfig.img;
         }
-        document.getElementById('duckNameDisplay').innerText = userState.duckName; // ★ 更新鴨鴨名稱
+
+        document.getElementById('duckNameDisplay').innerText = userState.duckName;
         document.getElementById('lvTitle').innerText = `Lv.${userState.level} ${currentConfig.name}`;
         document.getElementById('lvBadge').innerText = `Lv.${userState.level}`;
         document.getElementById('coinDisplay').innerText = userState.coins.toLocaleString();
@@ -569,8 +466,8 @@
         });
     }
 
-function redeemShopItem(itemId) {
-    if (!localStorage.getItem('currentLoggedInUser')) {
+    function redeemShopItem(itemId) {
+        if (!localStorage.getItem('currentLoggedInUser')) {
             if(confirm("🔒 兌換實體獎品需要登入大樹會員喔！\n要現在前往登入/註冊嗎？")) {
                 window.location.href = 'login.html';
             }
@@ -579,56 +476,45 @@ function redeemShopItem(itemId) {
         const item = shopItemsConfig.find(i => i.id === itemId);
         if (!item) return;
 
-        // 1. 檢查等級 (這裡之前少了括號)
         if (item.minLevel && userState.level < item.minLevel) {
             alert(`🔒 等級不足！\n\n此商品需要達到「Lv.${item.minLevel}」才能兌換。\n(您目前是 Lv.${userState.level})`);
             return; 
-        } // <--- 之前就是少了這個！
+        }
 
-        // 2. 檢查庫存與錢
         if (shopStock[itemId] <= 0 || userState.coins < item.price) {
             return alert("無法兌換：幣不足或已售完");
         }
 
-        // 3. 執行兌換
         if (confirm(`確定兌換「${item.name}」？`)) {
-            if (!Array.isArray(userState.coupons)) {
-                userState.coupons = []; 
-            }
+            if (!Array.isArray(userState.coupons)) userState.coupons = []; 
             userState.coins -= item.price; 
             shopStock[itemId]--;
             localStorage.setItem('duckShopStock', JSON.stringify(shopStock));
 
-            // 設定效期
             const now = new Date(); 
             now.setDate(now.getDate() + 120); 
+            userState.coupons.push({ id: Date.now(), name: item.name, expiry: now.toLocaleDateString(), used: false });
 
-            // 存入票券夾 (這行最重要)
-            userState.coupons.push({ 
-                id: Date.now(), 
-                name: item.name, 
-                expiry: now.toLocaleDateString(), 
-                used: false 
-            });
-
-            updateUI(); // 這裡會呼叫 renderCoupons() 把畫面畫出來
+            updateUI(); 
             alert("兌換成功！已存入票券夾。");
         }
     }
 
-   function renderCoupons() {
-    const list = document.getElementById('couponList');
-    list.innerHTML = userState.coupons.length ? userState.coupons.map(c => `
-        <div class="coupon-ticket">
-            <img src="https://placehold.co/80x50/F39800/ffffff?text=${encodeURIComponent(c.name.split(' ')[0])}" 
-                 style="border-radius:4px; margin-right:10px;">
-            <div class="coupon-detail">
-                <b>${c.name}</b>
-                <span>效期：${c.expiry}</span>
-            </div>
-            <button class="coupon-btn" onclick="useCoupon(${c.id})">使用</button>
-        </div>`).join('') : '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
-}
+    function renderCoupons() {
+        const list = document.getElementById('couponList');
+        if (!list) return;
+        const safeCoupons = Array.isArray(userState.coupons) ? userState.coupons : [];
+        list.innerHTML = safeCoupons.length ? safeCoupons.map(c => `
+            <div class="coupon-ticket">
+                <img src="https://placehold.co/80x50/F39800/ffffff?text=${encodeURIComponent(c.name.split(' ')[0])}" 
+                     style="border-radius:4px; margin-right:10px;">
+                <div class="coupon-detail">
+                    <b>${c.name}</b>
+                    <span>效期：${c.expiry}</span>
+                </div>
+                <button class="coupon-btn" onclick="useCoupon(${c.id})">使用</button>
+            </div>`).join('') : '<div style="text-align:center; color:#999; padding:20px;">尚無有效票券</div>';
+    }
 
     function useCoupon(id) {
         if(confirm("確定核銷？")) { userState.coupons = userState.coupons.filter(c => c.id !== id); updateUI(); }
@@ -666,8 +552,6 @@ function redeemShopItem(itemId) {
     }
 
     function buySkin(skin) {
-        function buySkin(skin) {
-        // ★ 新增：未登入攔截 ★
         if (!localStorage.getItem('currentLoggedInUser')) {
             if(confirm("🔒 購買專屬時裝需要登入大樹會員喔！\n要現在前往登入/註冊嗎？")) {
                 window.location.href = 'login.html';
@@ -692,7 +576,6 @@ function redeemShopItem(itemId) {
         document.getElementById('rulesModal').style.display = 'flex';
         document.getElementById('rulesBody').innerHTML = earningRules.map(r => `<tr><td><b>${r.action}</b></td><td style="color:var(--gt-green); font-weight:bold;">${r.exp}</td><td style="color:#b7791f; font-weight:bold;">${r.coin}</td><td style="font-size:12px;">${r.note}</td></tr>`).join('');
         document.getElementById('levelBody').innerHTML = levelDetails.map(l => `<tr class="${l.lv === userState.level ? 'current-level-row' : ''}"><td>Lv.${l.lv}</td><td>${l.name} ${l.lv === userState.level ? '⭐' : ''}</td><td>${l.exp}</td><td>${l.perk}</td></tr>`).join('');
-        // 自動捲動
         setTimeout(() => {
             const current = document.querySelector('.current-level-row');
             if(current) current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -708,7 +591,6 @@ function redeemShopItem(itemId) {
         document.getElementById('seasonEndDate').innerText = end.toLocaleDateString();
     }
 
-    // 倒數計時
     setInterval(() => {
         const diff = (new Date().setHours(24,0,0,0) - new Date());
         const t = new Date(diff);
