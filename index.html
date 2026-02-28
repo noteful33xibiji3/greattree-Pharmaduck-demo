@@ -499,7 +499,7 @@
 
         // 1. 頭痛檢傷分類 (取消了換圖片的功能)
         if (chatStep === 0 && (text.includes("頭痛") || text.includes("痛"))) {
-            addMsg("收到。為了安全，請告訴我：<br>1. <b>使用者的年齡</b><br>2. <b>體重</b>", 'duck');
+            addMsg("收到。為了安全，請告訴我：<br>1. <b>使用者的年齡或族群</b><br>2. <b>體重</b>", 'duck');
             chatStep = 1; 
             showButtons = false; 
         }
@@ -669,6 +669,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
