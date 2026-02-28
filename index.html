@@ -494,11 +494,11 @@
         setTimeout(() => modal.style.display = 'none', 2500);
     }
 
-    function duckResponse(text) {
+   function duckResponse(text) {
         let showButtons = true; 
 
+        // 1. 頭痛檢傷分類 (取消了換圖片的功能)
         if (chatStep === 0 && (text.includes("頭痛") || text.includes("痛"))) {
-            setDuckEmotion('images/duck_headache.png'); 
             addMsg("收到。為了安全，請告訴我：<br>1. <b>使用者的年齡</b><br>2. <b>體重</b>", 'duck');
             chatStep = 1; 
             showButtons = false; 
@@ -507,17 +507,30 @@
             let ageNum = text.match(/\d+/); 
             let age = ageNum ? parseInt(ageNum[0]) : 25; 
 
-            if (age < 12 || text.includes("孩") || text.includes("童")) {
-                addMsg("⚠️ <b>兒童警示：小朋友不建議吞錠劑！</b><br>建議改用藥水，並由門市藥師評估。", 'duck');
+            if (text.includes("孩") || text.includes("童") || age < 12) {
+                addMsg("⚠️ <b>兒童警示：小朋友肝腎發育未完全，不建議吞成人的止痛錠！</b><br>建議改用兒童專用藥水，依體重給藥最安全。", 'duck');
                 setTimeout(() => {
-                    addMsg(`<div class="card-insert"><img src="images/p_kids_syrup.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Kids+Syrup'"><div style="padding:10px;"><b>安佳熱 退燒糖漿</b><div class="action-btn btn-online">🛒 查看詳情</div></div></div>`, 'duck');
+                    addMsg(`<div class="card-insert"><img src="images/p_kids_syrup.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Kids+Syrup'"><div style="padding:10px;"><b>安佳熱 退燒止痛糖漿</b><div class="action-btn btn-store" onclick="alert('【法規提醒】\\n依台灣法規，指示藥品不得於網路上販售。\\n請至大樹藥局實體門市，由專業藥師為您評估給藥！')">📍 門市諮詢藥師</div></div></div>`, 'duck');
                 }, 800);
-            } else { 
-                addMsg("了解。建議使用乙醯胺酚成分藥品，請注意不要飲酒。", 'duck');
+            } 
+            else if (text.includes("學生") || text.includes("上班") || text.includes("壓力") || text.includes("眼")) {
+                addMsg("辛苦了！長時間看書或盯螢幕，很容易引起<b>張力性頭痛</b>。🦆<br>除了吃止痛藥，鴨鴨強烈建議用熱敷放鬆眼周與肩頸肌肉喔！", 'duck');
+                setTimeout(() => {
+                    addMsg(`<div class="card-insert"><img src="images/duck_eyemask.png" onerror="this.src='https://placehold.co/300x150/fff/333?text=Eye+Mask'"><div style="padding:10px;"><b>頭痛鴨蒸汽眼罩 (5入)</b><div class="action-btn btn-online" onclick="window.location.href='index.html'">🛒 點此去線上購買 ($160)</div></div></div>`, 'duck');
+                }, 800);
             }
-            chatStep = 0; 
-            addPoints(50, 5); 
+            else { 
+                addMsg("了解。大人的頭痛，最常使用的是含<b>乙醯胺酚 (Acetaminophen)</b> 成分的止痛藥，空腹吃也不傷胃。<br>⚠️ <span style="color:#d0021b;">注意：服藥期間絕對不可以喝酒，以免傷害肝臟！</span>", 'duck');
+                setTimeout(() => {
+                    addMsg(`<div class="card-insert"><img src="images/p_panadol.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Panadol'"><div style="padding:10px;"><b>普拿疼 止痛錠</b><div class="action-btn btn-store" onclick="alert('【法規提醒】\\n依台灣法規，指示藥品不得於網路上販售。\\n請至大樹藥局實體門市，由專業藥師為您評估給藥！')">📍 門市諮詢藥師</div></div></div>`, 'duck');
+                }, 800);
+            }
+            
+            // ★ 刪除了 chatStep = 0; 讓系統停留在「頭痛對象選擇」階段
+            addPoints(100, 10); 
         }
+
+        // 2. 點數機制查詢
         else if (chatStep === 0 && (text.includes("點數") || text.includes("幣") || text.includes("兌換") || text.includes("換"))) {
             let freshUser = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, coins: 0 };
             let currentCoins = freshUser.coins;
@@ -548,29 +561,52 @@
             chatStep = 0;
             showButtons = true; 
         }
-        else if (chatStep === 0 && (text.includes("C") || text.includes("維他命c"))) {
-            addMsg("想找維他命C嗎？請問是<b>給誰吃的</b>？<br>(例如：小孩、老人、大人)", 'duck');
+
+        // 3. 維他命 C 衛教與分眾版
+        else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.includes("維他命"))) {
+            let vitCHtml = `
+            <div style="background:#fff; border-radius:12px; overflow:hidden; border:2px solid #ddd; text-align:left; font-family:sans-serif; margin-top:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <div style="background:#f59e0b; color:#fff; padding:10px; font-weight:bold; font-size:15px; text-align:center;">
+                    🍊 維他命C：劑型與吃法大解密
+                </div>
+                <div style="padding:12px; font-size:13px; color:#444; line-height:1.6;">
+                    <div style="color:var(--gt-green); font-weight:bold; font-size:14px; margin-bottom:5px;">👥 各年齡適合什麼劑型？</div>
+                    • 👶 <b>兒童</b>：<span style="color:#d0021b;">軟糖、咀嚼錠</span> (接受度高)<br>
+                    • 🧑 <b>成人</b>：<span style="color:#d0021b;">膜衣錠、緩釋錠</span> (高單位長效)<br>
+                    • 🧓 <b>長輩</b>：<span style="color:#d0021b;">發泡錠、粉劑</span> (免吞嚥好吸收)
+                </div>
+            </div>`;
+
+            addMsg(vitCHtml, 'duck');
+            
+            setTimeout(() => {
+                addMsg("看完鴨鴨的筆記了嗎？🦆<br>請問這次是要幫<b>「小孩」</b>、<b>「大人」</b>還是<b>「長輩」</b>找維他命 C 呢？", 'duck');
+            }, 1500);
+            
             chatStep = 3; 
             showButtons = false;
         }
         else if (chatStep === 3) { 
             if (text.includes("孩") || text.includes("童")) {
-                addMsg("針對小朋友，鴨鴨推薦<b>軟糖</b>或<b>咀嚼錠</b>，比較好吃且安全！", 'duck');
+                addMsg("針對小朋友，鴨鴨推薦<b>無糖軟糖</b>或<b>咀嚼錠</b>，好吃又不怕蛀牙！", 'duck');
                 setTimeout(() => {
-                    addMsg(`<div class="card-insert"><img src="images/meme_vit_c.jpg" onerror="this.src='https://placehold.co/300x200/e0f7fa/006064?text=Vit+C+Forms'"></div>`, 'duck');
-                    setTimeout(() => {
-                        addMsg("推薦商品：", 'duck');
-                        addMsg(`<div class="card-insert"><img src="images/p_kids_c.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Kids+C'"><div style="padding:10px;"><b>小兒利撒爾 C軟糖</b><div class="action-btn btn-online">🛒 線上購買</div></div></div>`, 'duck');
-                    }, 1000);
-                }, 500);
-            } else {
-                addMsg("大人的話，推薦<b>高單位膜衣錠</b>，一天一顆就夠囉！", 'duck');
+                    addMsg(`<div class="card-insert"><img src="images/p_kids_c.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Kids+C'"><div style="padding:10px;"><b>小兒利撒爾 C軟糖</b><div class="action-btn btn-online" onclick="window.location.href='index.html'">🛒 點此去購買 ($399)</div></div></div>`, 'duck');
+                }, 800);
+            } 
+            else if (text.includes("老") || text.includes("長輩") || text.includes("吞咽") || text.includes("阿公") || text.includes("阿嬤")) {
+                addMsg("長輩吞嚥比較不方便，鴨鴨推薦<b>發泡錠</b>，用喝的吸收快又安全喔！", 'duck');
+                setTimeout(() => {
+                    addMsg(`<div class="card-insert"><img src="images/p_effervescent.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Effervescent+C'"><div style="padding:10px;"><b>力度伸 C+鈣 發泡錠</b><div class="action-btn btn-online" onclick="window.location.href='index.html'">🛒 點此去購買 ($280)</div></div></div>`, 'duck');
+                }, 800);
+            } 
+            else {
+                addMsg("大人的話，推薦<b>高單位膜衣錠</b>，一天一顆作為日常防護就夠囉！", 'duck');
                  setTimeout(() => {
-                    addMsg(`<div class="card-insert"><img src="images/p_vit_c.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Adult+C'"><div style="padding:10px;"><b>萊萃美 C-500</b><div class="action-btn btn-online">🛒 線上購買</div></div></div>`, 'duck');
+                    addMsg(`<div class="card-insert"><img src="images/p_vit_c.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=Adult+C'"><div style="padding:10px;"><b>萊萃美 C-500</b><div class="action-btn btn-online" onclick="window.location.href='index.html'">🛒 點此去購買 ($550)</div></div></div>`, 'duck');
                  }, 800);
             }
-            chatStep = 0;
-            addPoints(50, 5); 
+            // ★ 刪除了 chatStep = 0; 讓系統停留在「維他命C對象選擇」階段
+            addPoints(100, 10); 
         }
         else if (text.includes("B群") || text.includes("b群")) {
             addMsg("呱！很多人以為吃 B 群就像喝能量藥水，這是錯的喔！來看看鴨鴨的衛教梗圖：", 'duck');
@@ -633,6 +669,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
