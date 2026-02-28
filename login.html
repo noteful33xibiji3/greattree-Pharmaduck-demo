@@ -18,13 +18,20 @@
             background-color: var(--bg-gray);
             margin: 0;
             display: flex;
-            flex-direction: column; /* ★ 垂直排列 */
-            min-height: 100vh;      /* 讓網頁至少有螢幕這麼高 */
+            flex-direction: column; /* 垂直排列 */
+            min-height: 100vh;      /* 至少有螢幕這麼高 */
         }
 
-        /* 2. 新增一個主要內容區，負責把 Footer 往下推 */
+        /* === 導覽列樣式 (新增) === */
+        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .nav-btn { text-decoration: none; color: #555; font-weight: bold; padding: 8px 15px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .nav-btn:hover { background: #e6f4ea; color: var(--gt-green); }
+        .nav-btn.active { background: var(--gt-green); color: white; }
+
+        /* 2. 主要內容區，負責把 Footer 往下推 */
         .main-wrapper {
-            flex: 1; /* ★ 佔滿所有剩餘空間，自然把 Footer 擠到最底下 */
+            flex: 1; /* 佔滿所有剩餘空間 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -105,12 +112,12 @@
            4. 手機版深度適配 (Media Query)
         ========================================= */
         @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 15px; padding: 10px; }
             .main-wrapper { padding: 15px; }
             .login-container { padding: 25px 20px; border-radius: 12px; }
             .app-title { font-size: 22px; }
             .logo-area img { height: 50px; }
             
-            /* 手機版縮小頁尾文字，避免佔用太多畫面 */
             footer { padding: 20px 15px; }
             .footer-team { font-size: 16px !important; margin-bottom: 5px !important; }
             .footer-info { font-size: 13px !important; margin-bottom: 8px !important; }
@@ -119,6 +126,23 @@
     </style>
 </head>
 <body>
+
+<header>
+    <div class="nav-container">
+        <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
+            <img src="images/logo.png" alt="Logo" style="height:40px;" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none; font-family: 'Microsoft JhengHei', sans-serif; font-weight: 900; font-size: 20px; color: #009944;">
+                🌳 大樹一鴨tree吃購物網
+            </span>
+        </a>
+        
+        <div style="display: flex; gap: 10px;">
+            <a href="index.html" class="nav-btn">🏠 購物首頁</a>
+            <a href="member.html" class="nav-btn">🦆 養成中心</a>
+        </div>
+    </div>
+</header>
 
 <div class="main-wrapper">
     <div class="login-container">
@@ -164,7 +188,9 @@
             </div>
         </div>
     </div>
-</div> <footer>
+</div>
+
+<footer>
     <div class="footer-team" style="font-size: 18px; font-weight: bold; color: #F39800; margin-bottom: 10px;">
         團隊：一鴨tree吃 🦆
     </div>
