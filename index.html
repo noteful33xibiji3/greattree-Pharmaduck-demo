@@ -572,13 +572,45 @@
             chatStep = 0;
             addPoints(50, 5); 
         }
-        else if (text.includes("B群")) {
-            addMsg("很多人搞混 B群 跟 綜合維他命！看這張圖：", 'duck');
+        else if (text.includes("B群") || text.includes("b群")) {
+            addMsg("呱！很多人以為吃 B 群就像喝能量藥水，這是錯的喔！來看看鴨鴨的衛教梗圖：", 'duck');
+            
+            // 這裡是用純 HTML/CSS 刻出來的梗圖卡片
+            let memeHtml = `
+            <div style="background:#fff; border-radius:12px; overflow:hidden; border:2px solid #ddd; text-align:center; font-family:sans-serif; margin-top:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <div style="background:var(--gt-orange); color:#fff; padding:10px; font-weight:bold; font-size:15px;">
+                    💡 鴨鴨衛教小教室：B群迷思
+                </div>
+                <div style="padding:15px;">
+                    <div style="color:#d0021b; font-weight:bold; margin-bottom:5px; font-size:14px;">❌ 你以為的 B 群：</div>
+                    <div style="font-size:13px; color:#555; margin-bottom:10px;">自帶能量，吃了馬上體力滿點？</div>
+                    <div style="font-size:35px; margin-bottom:10px;">🦆💊 ➡️ ⚡💥</div>
+                    
+                    <hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;">
+                    
+                    <div style="color:var(--gt-green); font-weight:bold; margin-bottom:5px; font-size:14px;">⭕ 真實的 B 群：</div>
+                    <div style="font-size:13px; color:#555; margin-bottom:10px;">它只是「火星塞」或「鑰匙」！<br><b>沒吃東西(沒汽油)，吃再多也發不動啦！</b></div>
+                    <div style="font-size:30px; display:flex; justify-content:center; align-items:center; gap:5px;">
+                        🔑 <span style="font-size:16px;">+</span> 🍙 <span style="font-size:16px;">=</span> 🏃‍♂️💨
+                    </div>
+                </div>
+                <div style="background:#fffbe6; padding:10px; font-size:13px; color:#b7791f; font-weight:bold;">
+                    ✨ 鴨鴨推推：吃完飯再吃 B 群效果最好喔！
+                </div>
+            </div>`;
+
             setTimeout(() => {
-                addMsg(`<div class="card-insert"><img src="images/meme_b_vit.jpg" onerror="this.src='https://placehold.co/300x200/eee/555?text=Meme:+B+vs+Multi'"></div>`, 'duck');
-                addPoints(200, 10); 
-            }, 500);
+                addMsg(memeHtml, 'duck');
+                
+                // 順便推銷一下自家的 B 群商品
+                setTimeout(() => {
+                    addMsg(`<div class="card-insert"><img src="images/p_b_complex.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=B-Complex'"><div style="padding:10px;"><b>大樹 B群+鐵</b><div class="action-btn btn-online">🛒 線上購買 ($600)</div></div></div>`, 'duck');
+                    addPoints(200, 10); 
+                }, 1000);
+            }, 800);
+            
             chatStep = 0;
+            showButtons = false; // 隱藏預設按鈕，因為我們自己控制了流程
         }
         else {
             addMsg("鴨鴨正在學習中... 請輸入「頭痛」、「B群」或「維他命C」試試！", 'duck');
@@ -601,6 +633,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
