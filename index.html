@@ -10,17 +10,13 @@
         body { font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif; background-color: var(--bg-gray); margin: 0; padding-bottom: 80px;  }
         button { cursor: pointer; font-family: inherit; }
 
-        /* Header */
-        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .logo img { height: 40px; } 
         
-        /* 導航按鈕 */
-        .nav-group { display: flex; gap: 10px; align-items: center; }
-        .nav-btn { text-decoration: none; color: #555; font-weight: bold; padding: 6px 12px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; gap: 5px; font-size: 14px; }
+      /* === 導航列統一風格 (依照 member.html 標準) === */
+        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); position: sticky; top: 0; z-index: 1000; }
+        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .nav-btn { text-decoration: none; color: #555; font-weight: bold; padding: 8px 15px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; gap: 5px; font-size: 16px; }
         .nav-btn:hover { background: #e6f4ea; color: var(--gt-green); }
         .nav-btn.active { background: var(--gt-green); color: white; }
-        .coin-box { background: #fffbe6; border: 1px solid var(--gold); color: #b7791f; padding: 4px 10px; border-radius: 15px; font-size: 13px; font-weight: bold; }
 
         /* 商品區 */
         .main-content { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
@@ -139,7 +135,7 @@
         .nav-container { 
             flex-direction: column; 
             padding: 10px; 
-            gap: 12px;
+            gap: 15px;
         }
         .logo span {
             font-size: 16px !important; /* 手機版標題稍微縮小防止斷行 */
@@ -605,6 +601,7 @@
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
