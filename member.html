@@ -281,9 +281,12 @@
             <tbody id="levelBody"></tbody>
         </table>
     </div>
-    <div class="rules-modal" id="productModal" onclick="if(event.target === this) closeProductDetail()">
+   <div class="rules-modal" id="productModal" onclick="if(event.target === this) closeProductDetail()">
     <div class="rules-content" style="max-width: 450px; text-align: left;">
         <span class="close-rules" onclick="closeProductDetail()">×</span>
+        
+        <img id="prodModalImg" src="" style="width:100%; height:200px; object-fit:contain; margin-bottom:15px; border-radius:10px; background:#f9f9f9; padding:10px; box-sizing:border-box;">
+        
         <h2 id="prodModalTitle" style="color:var(--gt-green); margin-top:0; border:none; padding:0;">標題</h2>
         <div style="background:#fffbe6; padding:10px; border-radius:8px; margin-bottom:15px;">
             <p id="prodModalDesc" style="color:#b7791f; font-size:13px; font-weight:bold; margin:0; line-height:1.5;"></p>
@@ -354,7 +357,7 @@
     const shopItemsConfig = [
         { 
             id: 'gift_luxury', type: 'limit', tag: '尊爵旗艦', name: '尊爵生理平衡大禮盒', 
-            img: 'https://placehold.co/200x200/FFD700/333?text=Flagship+Box', price: 18800, stock: 3, 
+            img: 'images/duck_ultra.png', price: 18800, stock: 3, 
             note: '市值 $3,800<br>📍 長輩健康投資首選',
             hasDetail: true, // 標記有詳細內容
             detailTitle: '🏆 尊爵生理平衡大禮盒',
@@ -371,7 +374,7 @@
        { id: 'coupon_50', type: 'normal',  tag: '熱門',  name: '$100 門市折價券',  img: 'https://placehold.co/400x250/F39800/ffffff?text=$100',  price: 500,  stock: 10 },
         { 
             id: 'gift_budget', type: 'normal', tag: '高CP值', name: '小資活力防禦組合', 
-            img: 'https://placehold.co/200x200/a5d6a7/333?text=Budget+Box', price: 5800, stock: 20, 
+            img: 'images/duck_normol.png', price: 5800, stock: 20, 
             note: '市值 $1,280<br>📍 學生/上班族提神必備',
             hasDetail: true, // 標記有詳細內容
             detailTitle: '💡 小資活力防禦組合',
@@ -484,6 +487,7 @@
     }
 
     // === 7. 福利社與票券功能 ===
+    // === 渲染商城與綁定點擊事件 ===
     function renderShop() {
         const normalGrid = document.getElementById('normalShopGrid');
         const limitGrid = document.getElementById('limitShopGrid');
@@ -493,25 +497,53 @@
         shopItemsConfig.forEach(item => {
             const stock = shopStock[item.id];
             const isSoldOut = stock <= 0;
+            
+            // ★ 判斷如果商品有內容物，就顯示「查看內容物」的按鈕
             const detailBtnHtml = item.hasDetail 
                 ? `<div style="color:var(--gt-green); font-size:13px; font-weight:bold; margin-top:5px; cursor:pointer; text-decoration:underline;" onclick="openProductDetail('${item.id}')">🎁 點擊查看內容物</div>` 
                 : '';
+
             const cardHtml = `
                 <div class="item-card" style="${isSoldOut ? 'opacity:0.6; filter:grayscale(1);' : ''}">
                     <div class="item-tag" style="background:${isSoldOut ? '#666' : (item.type==='limit'?'#d0021b':'var(--gt-orange)')}">${isSoldOut ? '售完' : item.tag}</div>
-                    <img src="${item.img}" class="item-img" onerror="this.src='https://placehold.co/100x100/eee/999?text=Item'">
+                    
+                    <img src="${item.img}" class="item-img" onerror="this.src='https://placehold.co/100x100/eee/999?text=Item'" ${item.hasDetail ? `onclick="openProductDetail('${item.id}')" style="cursor:pointer;"` : ''}>
+                    
                     <div class="item-title">${item.name}</div>
                     <div class="item-price-block">
                         <div class="price-coins">${item.price.toLocaleString()} Coins</div>
                         ${item.note ? `<div class="price-addon">${item.note}</div>` : ''}
-                        <div class="item-stock">剩餘: ${stock} 組</div>
+                        
+                        ${detailBtnHtml}
+                        
+                        <div class="item-stock" style="margin-top:5px;">剩餘: ${stock} 組</div>
                     </div>
-                    <button class="btn-redeem" ${isSoldOut ? 'disabled' : ''} onclick="redeemShopItem('${item.id}')">${isSoldOut ? '已售完' : '立即兌換'}</button>
+                    <button class="btn-redeem" style="background: var(--gt-orange); color: white; border: none; padding: 8px; width: 100%; border-radius: 20px; cursor: pointer; margin-top: 10px;" ${isSoldOut ? 'disabled' : ''} onclick="redeemShopItem('${item.id}')">${isSoldOut ? '已售完' : '立即兌換'}</button>
                 </div>`;
             if(item.type === 'limit') limitGrid.innerHTML += cardHtml; else normalGrid.innerHTML += cardHtml;
         });
     }
 
+    // === 打開與關閉彈窗的控制功能 ===
+    function openProductDetail(itemId) {
+        const item = shopItemsConfig.find(i => i.id === itemId);
+        if (!item || !item.hasDetail) return; // 如果商品沒有詳細資料，就不會有反應
+
+        // 把資料塞進彈窗
+        document.getElementById('prodModalImg').src = item.img;
+        document.getElementById('prodModalTitle').innerHTML = item.detailTitle;
+        document.getElementById('prodModalDesc').innerText = item.detailDesc;
+        
+        const listHtml = item.detailList.map(li => `<li style="margin-bottom:8px; border-bottom:1px dashed #eee; padding-bottom:8px;">${li}</li>`).join('');
+        document.getElementById('prodModalList').innerHTML = listHtml;
+
+        // 顯示彈窗
+        document.getElementById('productModal').style.display = 'flex';
+    }
+
+    function closeProductDetail() {
+        document.getElementById('productModal').style.display = 'none';
+    }
     function redeemShopItem(itemId) {
         if (!localStorage.getItem('currentLoggedInUser')) {
             if(confirm("🔒 兌換實體獎品需要登入大樹會員喔！\n要現在前往登入/註冊嗎？")) {
@@ -629,23 +661,6 @@
     }
 
     function closeRules() { document.getElementById('rulesModal').style.display = 'none'; }
-    // ★ 新增：開啟/關閉商品詳情彈窗的函式 ★
-    function openProductDetail(itemId) {
-        const item = shopItemsConfig.find(i => i.id === itemId);
-        if (!item || !item.hasDetail) return;
-
-        document.getElementById('prodModalTitle').innerHTML = item.detailTitle;
-        document.getElementById('prodModalDesc').innerText = item.detailDesc;
-        
-        const listHtml = item.detailList.map(li => `<li style="margin-bottom:8px; border-bottom:1px dashed #eee; padding-bottom:8px;">${li}</li>`).join('');
-        document.getElementById('prodModalList').innerHTML = listHtml;
-
-        document.getElementById('productModal').style.display = 'flex';
-    }
-
-    function closeProductDetail() {
-        document.getElementById('productModal').style.display = 'none';
-    }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
     
     function updateSeasonDays() {
