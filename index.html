@@ -522,7 +522,7 @@
     function duckResponse(text) {
         let showButtons = true; 
 
-        if (chatStep === 0 && (text.includes("頭痛") || text.includes("痛"))) {
+        if (chatStep === 0 && (text.includes("頭痛") || text.includes("痛")|| text === "1")) {
             setDuckEmotion('images/duck_headache.png'); 
             addMsg("收到。為了安全，請告訴我：<br>1. <b>使用者的年齡或族群</b><br>2. <b>體重</b>", 'duck');
             chatStep = 1; 
@@ -797,6 +797,7 @@ setTimeout(() => {
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
