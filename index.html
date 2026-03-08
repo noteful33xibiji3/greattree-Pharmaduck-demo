@@ -790,12 +790,14 @@ setTimeout(() => {
                 showEndingTip(); // ★ 呼叫大樹幣悄悄話
             }, 1500); 
         }
+     }
     function addMsg(content, sender) {
         const body = document.getElementById('chatBody');
         body.innerHTML += `<div class="msg msg-${sender}"><div class="bubble">${content}</div></div>`;
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
