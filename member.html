@@ -246,7 +246,7 @@
         <button class="btn-close" onclick="closeModal()">太棒了</button>
     </div>
 </div>
-
+    
 <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid #eee; background: #fff; margin-top: 50px;">
     <div style="font-size: 18px; font-weight: bold; color: #F39800; margin-bottom: 5px;">
         團隊：一鴨tree吃 🦆
@@ -281,6 +281,20 @@
             <tbody id="levelBody"></tbody>
         </table>
     </div>
+    <div class="rules-modal" id="productModal" onclick="if(event.target === this) closeProductDetail()">
+    <div class="rules-content" style="max-width: 450px; text-align: left;">
+        <span class="close-rules" onclick="closeProductDetail()">×</span>
+        <h2 id="prodModalTitle" style="color:var(--gt-green); margin-top:0; border:none; padding:0;">標題</h2>
+        <div style="background:#fffbe6; padding:10px; border-radius:8px; margin-bottom:15px;">
+            <p id="prodModalDesc" style="color:#b7791f; font-size:13px; font-weight:bold; margin:0; line-height:1.5;"></p>
+        </div>
+        <div class="section-head" style="font-size:16px; margin:0 0 10px 0;">🎁 禮盒內容物</div>
+        <ul id="prodModalList" style="line-height:2; color:#333; padding-left:20px; font-size:14px; font-weight:bold;">
+        </ul>
+        <button class="btn-action" style="width:100%; margin-top:20px; font-size:16px;" onclick="closeProductDetail()">確認，返回福利社</button>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -338,7 +352,38 @@
 
     // === 3. 福利社商品設定 ===
     const shopItemsConfig = [
+        { 
+            id: 'gift_luxury', type: 'limit', tag: '尊爵旗艦', name: '尊爵生理平衡大禮盒', 
+            img: 'https://placehold.co/200x200/FFD700/333?text=Flagship+Box', price: 18800, stock: 3, 
+            note: '市值 $3,800<br>📍 長輩健康投資首選',
+            hasDetail: true, // 標記有詳細內容
+            detailTitle: '🏆 尊爵生理平衡大禮盒',
+            detailDesc: '鎖定高壓專業人士與長輩健康投資，強調高效吸收、頂級原料與全方位修復。',
+            detailList: [
+                '🐟 高純度 rTG 魚油 (60 粒) <span style="color:#666;font-size:12px;font-weight:normal;">- 針對心血管與眼睛乾澀</span>',
+                '💊 全方位綜合維他命 (120 錠) <span style="color:#666;font-size:12px;font-weight:normal;">- 含葉黃素、番茄紅素</span>',
+                '🦠 專利 15 益生菌 (30 包) <span style="color:#666;font-size:12px;font-weight:normal;">- 維持腸道健康與免疫</span>',
+                '🍵 台灣頂級高山茶葉罐 <span style="color:#666;font-size:12px;font-weight:normal;">- 大禹嶺/杉林溪茶葉</span>',
+                '🧴 醫美級 B5 修復護手霜 <span style="color:#666;font-size:12px;font-weight:normal;">- 保護頻繁洗手受損皮膚</span>',
+                '📖 專業藥師級衛教手冊 + 服用時序鬧鈴設定卡'
+            ]
+        },
        { id: 'coupon_50', type: 'normal',  tag: '熱門',  name: '$100 門市折價券',  img: 'https://placehold.co/400x250/F39800/ffffff?text=$100',  price: 500,  stock: 10 },
+        { 
+            id: 'gift_budget', type: 'normal', tag: '高CP值', name: '小資活力防禦組合', 
+            img: 'https://placehold.co/200x200/a5d6a7/333?text=Budget+Box', price: 5800, stock: 20, 
+            note: '市值 $1,280<br>📍 學生/上班族提神必備',
+            hasDetail: true, // 標記有詳細內容
+            detailTitle: '💡 小資活力防禦組合',
+            detailDesc: '高 CP 值、精準補給。適合學生、初入職場的上班族或日常互贈，強調基礎防禦與體力維持。',
+            detailList: [
+                '⚡ 高劑量 B 群 + 鋅/鐵 (60 錠) <span style="color:#666;font-size:12px;font-weight:normal;">- 提供即時體感</span>',
+                '🍊 維生素 C 發泡錠 (30 份) <span style="color:#666;font-size:12px;font-weight:normal;">- 加強免疫，好喝補水</span>',
+                '🌿 漢方元氣舒壓茶包 (10 入) <span style="color:#666;font-size:12px;font-weight:normal;">- 黃耆/枸杞/甘草，溫補暖心</span>',
+                '😌 蒸氣發熱眼罩 (5 片) <span style="color:#666;font-size:12px;font-weight:normal;">- 緩解使用 3C 的疲勞</span>',
+                '📖 簡易彩色衛教摺頁 <span style="color:#666;font-size:12px;font-weight:normal;">- (重點教學：怎麼吃最提神)</span>'
+            ]
+        },
         { id: 'vit_c', type: 'normal', tag: '推薦', name: '大樹鴨鴨補給站 - 每日C 活力組', img: 'images/duck_vitaminC.png', price: 1500, stock: 30, note: '市價$399 (省$399)<br>加價購: 20幣 + $299' },
         { id: 'eye_mask', type: 'normal', tag: 'Lv.3專屬', minLevel: 3, name: '頭痛鴨蒸汽眼罩 (5片/盒)', img: 'images/duck_eyemask.png', price: 750, stock: 50, note: '市價$160 | 讀書讀到頭痛？<br>讓鴨鴨幫你熱敷一下！' },
         { id: 'toy_duck', type: 'limit', tag: '限量', name: '大樹限定公仔', img: 'images/duck_lv10.png', price: 3000, stock: 5 }
@@ -448,6 +493,9 @@
         shopItemsConfig.forEach(item => {
             const stock = shopStock[item.id];
             const isSoldOut = stock <= 0;
+            const detailBtnHtml = item.hasDetail 
+                ? `<div style="color:var(--gt-green); font-size:13px; font-weight:bold; margin-top:5px; cursor:pointer; text-decoration:underline;" onclick="openProductDetail('${item.id}')">🎁 點擊查看內容物</div>` 
+                : '';
             const cardHtml = `
                 <div class="item-card" style="${isSoldOut ? 'opacity:0.6; filter:grayscale(1);' : ''}">
                     <div class="item-tag" style="background:${isSoldOut ? '#666' : (item.type==='limit'?'#d0021b':'var(--gt-orange)')}">${isSoldOut ? '售完' : item.tag}</div>
@@ -581,6 +629,23 @@
     }
 
     function closeRules() { document.getElementById('rulesModal').style.display = 'none'; }
+    // ★ 新增：開啟/關閉商品詳情彈窗的函式 ★
+    function openProductDetail(itemId) {
+        const item = shopItemsConfig.find(i => i.id === itemId);
+        if (!item || !item.hasDetail) return;
+
+        document.getElementById('prodModalTitle').innerHTML = item.detailTitle;
+        document.getElementById('prodModalDesc').innerText = item.detailDesc;
+        
+        const listHtml = item.detailList.map(li => `<li style="margin-bottom:8px; border-bottom:1px dashed #eee; padding-bottom:8px;">${li}</li>`).join('');
+        document.getElementById('prodModalList').innerHTML = listHtml;
+
+        document.getElementById('productModal').style.display = 'flex';
+    }
+
+    function closeProductDetail() {
+        document.getElementById('productModal').style.display = 'none';
+    }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
     
     function updateSeasonDays() {
