@@ -495,7 +495,30 @@
         modal.style.display = 'block';
         setTimeout(() => modal.style.display = 'none', 2500);
     }
+// ★★★ 核心新增：統一處理結尾的「大樹幣悄悄話」功能 ★★★
+    function showEndingTip() {
+        let freshUser = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, coins: 0 };
+        let currentCoins = freshUser.coins;
+        let currentLevel = freshUser.level;
 
+        let affordable = shopItemsConfig.filter(item => currentCoins >= item.price && (!item.minLevel || currentLevel >= item.minLevel));
+        let tipMsg = `💡 鴨鴨悄悄話：你目前累積了 <b style="color:var(--gt-orange);">${currentCoins}</b> 枚大樹幣！<br>`;
+        
+        if (affordable.length > 0) {
+            let itemNames = affordable.map(i => `「${i.name}」`).join("、");
+            tipMsg += `👉 你的點數已經可以去福利社兌換 <b>${itemNames}</b> 囉！`;
+        } else {
+            tipMsg += `👉 繼續完成衛教問答或每日任務，累積點數換實體好禮喔！`;
+        }
+
+        tipMsg += `<hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">`;
+        tipMsg += `<span style="color:#555; font-size:12px;">💡 線上選購也能累積點數，實體門市都可兌換喔！</span>`;
+
+        addMsg(tipMsg, 'duck');
+        document.getElementById('choiceBtns').style.display = 'block';
+        const body = document.getElementById('chatBody');
+        body.scrollTop = body.scrollHeight;
+    }
     function duckResponse(text) {
         let showButtons = true; 
 
@@ -621,14 +644,20 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
                     ✨ 鴨鴨推推：吃完飯再吃 B 群效果最好喔！
                 </div>
             </div>`;
-
-            setTimeout(() => {
+setTimeout(() => {
                 addMsg(memeHtml, 'duck');
                 
                 // 順便推銷一下自家的 B 群商品
                 setTimeout(() => {
                     addMsg(`<div class="card-insert"><img src="images/p_b_complex.jpg" onerror="this.src='https://placehold.co/300x150/fff/333?text=B-Complex'"><div style="padding:10px;"><b>大樹 B群+鐵</b><div class="action-btn btn-online">🛒 線上購買 ($600)</div></div></div>`, 'duck');
                     addPoints(200, 10); 
+                    
+                    // ★★★ 你寫的那段加在這裡！★★★
+                    setTimeout(() => {
+                        addMsg("💡 點擊【重置對話】可以重新選擇想問的症狀喔！", 'duck');
+                        showEndingTip(); // ★ 呼叫大樹幣悄悄話
+                    }, 1000);
+
                 }, 1000);
             }, 800);
             
@@ -734,19 +763,18 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
                 </div>`;
             }
 
-            showButtons = false;
+           showButtons = false;
             setTimeout(() => {
                 addMsg(compareHtml, 'duck');
                 addPoints(150, 10); 
                 setTimeout(() => {
-                    addMsg("💡 點擊【繼續詢問】後，可直接輸入 <b>A</b> 或 <b>B</b> 看另一張表，或點【詢問新的】重新選擇喔！", 'duck');
-                    document.getElementById('choiceBtns').style.display = 'block';
-                    const body = document.getElementById('chatBody');
-                    body.scrollTop = body.scrollHeight;
+                    // ★ 提示文字保留 A 或 B，並把「詢問新的」改成「重置對話」
+                    addMsg("💡 點擊【繼續詢問】後，可直接輸入 <b>A</b> 或 <b>B</b> 看另一張表，或點【重置對話】重新選擇喔！", 'duck');
+                    
+                    showEndingTip(); // ★ 呼叫大樹幣悄悄話 (它裡面已經包含顯示按鈕的指令了)
+                    
                 }, 1500);
             }, 800);
-            // 這裡不重置 chatStep，讓使用者按繼續詢問後，可以直接輸入 A 或 B
-        }
         // ▲▲▲ 比較功能結束 ▲▲▲
         else {
             addMsg("鴨鴨正在學習中... 聽不懂這個詞，呱！🥺請輸入代碼「1~4」或者「頭痛」、「B群」、「維他命C」、「比較」試試！", 'duck');
@@ -755,45 +783,19 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
         }
 
         // 結尾收尾與按鈕顯示
+        // 結尾收尾
         if(showButtons) {
             setTimeout(() => {
-                // 1. 抓取使用者最新的大樹幣與等級資料
-                let freshUser = JSON.parse(localStorage.getItem('duckUser')) || { level: 1, coins: 0 };
-                let currentCoins = freshUser.coins;
-                let currentLevel = freshUser.level;
-
-                // 2. 篩選出目前點數「買得起」且「等級達標」的福利社商品
-                let affordable = shopItemsConfig.filter(item => currentCoins >= item.price && (!item.minLevel || currentLevel >= item.minLevel));
-                
-                // 3. 動態組合提示文字
-                let tipMsg = `💡 鴨鴨悄悄話：你目前累積了 <b style="color:var(--gt-orange);">${currentCoins}</b> 枚大樹幣！<br>`;
-                
-                if (affordable.length > 0) {
-                    let itemNames = affordable.map(i => `「${i.name}」`).join("、");
-                    tipMsg += `👉 你的點數已經可以去福利社兌換 <b>${itemNames}</b> 囉！`;
-                } else {
-                    tipMsg += `👉 繼續完成衛教問答或每日任務，累積點數換實體好禮喔！`;
-                }
-
-                // ★ 4. 這裡幫你把原本的句子加回來了！(加上虛線分隔更好看) ★
-                tipMsg += `<hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">`;
-                tipMsg += `<span style="color:#555; font-size:12px;">💡 線上選購也能累積點數，實體門市都可兌換喔！</span>`;
-
-                // 5. 印出提示並顯示按鈕
-                addMsg(tipMsg, 'duck');
-                document.getElementById('choiceBtns').style.display = 'block';
-                const body = document.getElementById('chatBody');
-                body.scrollTop = body.scrollHeight;
+                showEndingTip(); // ★ 呼叫大樹幣悄悄話
             }, 1500); 
         }
-    }
-
     function addMsg(content, sender) {
         const body = document.getElementById('chatBody');
         body.innerHTML += `<div class="msg msg-${sender}"><div class="bubble">${content}</div></div>`;
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
