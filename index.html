@@ -280,6 +280,7 @@
                 1. <b>頭痛</b> (體驗檢傷分類)<br>
                 2. <b>B群</b> (體驗衛教梗圖)<br>
                 3. <b>維他命C</b> (體驗劑型比較與分眾)
+                4. <b>比較商品</b> (體驗智慧對照表)
             </div>
         </div>
     </div>
@@ -633,6 +634,101 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
             chatStep = 0;
             showButtons = false; // 隱藏預設按鈕，因為我們自己控制了流程
         }
+            else if (chatStep === 0 && (text.includes("比較") || text.includes("差在哪") || text.includes("不一樣") || text.includes("綜合") || text === "4")) {
+            addMsg("呱！你想看哪種熱門商品的比較表呢？👇<br><br><b>A.</b> B群 🆚 合利他命 (解痠痛)<br><b>B.</b> B群 🆚 綜合維他命 (補營養)<br><br>👉 請輸入 <b>A</b> 或 <b>B</b>：", 'duck');
+            chatStep = 4; 
+            showButtons = false;
+        }
+        else if (chatStep === 4) {
+            let compareHtml = "";
+
+            if (text.toUpperCase().includes("B") || text.includes("綜合")) {
+                // 【選項 B】 B群 vs 綜合維他命
+                compareHtml = `
+                <div style="background:#fff; border-radius:12px; overflow:hidden; border:2px solid #ddd; font-family:sans-serif; margin-top:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <div style="background:var(--gt-green); color:#fff; padding:8px; font-weight:bold; font-size:14px; text-align:center;">
+                        🆚 B群 vs 綜合維他命 差在哪？
+                    </div>
+                    <div style="display:flex; padding:10px; gap:10px; text-align:center;">
+                        <div style="flex:1; border-right:1px dashed #eee; padding-right:10px;">
+                            <img src="images/p_b_complex.jpg" onerror="this.src='https://placehold.co/100x100/fff/333?text=B-Complex'" style="width:60px; height:60px; object-fit:contain; margin-bottom:5px;">
+                            <div style="font-size:12px; font-weight:bold; color:#333; height:32px;">大樹 B群+鐵</div>
+                            <div style="color:#d0021b; font-weight:bold; font-size:14px; margin:5px 0;">$600</div>
+                            <div style="font-size:11px; color:#666; text-align:left; line-height:1.5;">
+                                ⚡ <b>主攻：</b>能量轉換<br>
+                                🧑 <b>適合：</b>熬夜、需提神<br>
+                                ❌ <b>注意：</b>本身無熱量
+                            </div>
+                        </div>
+                        <div style="flex:1; padding-left:5px;">
+                            <img src="images/p_senior_vit.jpg" onerror="this.src='https://placehold.co/100x100/fff/333?text=Multi-Vit'" style="width:60px; height:60px; object-fit:contain; margin-bottom:5px;">
+                            <div style="font-size:12px; font-weight:bold; color:#333; height:32px;">善存 銀寶維他命</div>
+                            <div style="color:#d0021b; font-weight:bold; font-size:14px; margin:5px 0;">$880</div>
+                            <div style="font-size:11px; color:#666; text-align:left; line-height:1.5;">
+                                🛡️ <b>主攻：</b>填補營養缺口<br>
+                                🧓 <b>適合：</b>外食族、長輩<br>
+                                ✅ <b>注意：</b>含脂溶性需飯後吃
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background:#f9f9f9; padding:10px; text-align:left; font-size:12px; border-top:1px solid #eee; line-height:1.5;">
+                        💡 <b>鴨鴨藥師筆記：</b><br>
+                        B群像「火星塞」，幫你把食物轉成能量；綜合維他命像「機油」，保養全身零件。<br>
+                        👉 <span style="color:var(--gt-green); font-weight:bold;">常熬夜選左邊，三餐外食選右邊！</span>
+                    </div>
+                </div>`;
+            } 
+            else {
+                // 【選項 A (預設)】 B群 vs 合利他命
+                compareHtml = `
+                <div style="background:#fff; border-radius:12px; overflow:hidden; border:2px solid #ddd; font-family:sans-serif; margin-top:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <div style="background:var(--gt-green); color:#fff; padding:8px; font-weight:bold; font-size:14px; text-align:center;">
+                        🆚 提神保養 vs 醫療痠痛
+                    </div>
+                    <div style="display:flex; padding:10px; gap:10px; text-align:center;">
+                        <div style="flex:1; border-right:1px dashed #eee; padding-right:10px;">
+                            <img src="images/p_b_complex.jpg" onerror="this.src='https://placehold.co/100x100/fff/333?text=B-Complex'" style="width:60px; height:60px; object-fit:contain; margin-bottom:5px;">
+                            <div style="font-size:12px; font-weight:bold; color:#333; height:32px;">大樹 B群+鐵</div>
+                            <div style="color:#d0021b; font-weight:bold; font-size:14px; margin:5px 0;">$600</div>
+                            <div style="font-size:11px; color:#666; text-align:left; line-height:1.5;">
+                                🏷️ <b>等級：</b><span style="color:var(--gt-green);">一般食品</span><br>
+                                ✅ <b>特色：</b>提神、好氣色<br>
+                                🧑 <b>適合：</b>上班族日常
+                            </div>
+                        </div>
+                        <div style="flex:1; padding-left:5px;">
+                            <img src="images/p_explus.jpg" onerror="this.src='https://placehold.co/100x100/fff/333?text=EX-Plus'" style="width:60px; height:60px; object-fit:contain; margin-bottom:5px;">
+                            <div style="font-size:12px; font-weight:bold; color:#333; height:32px;">合利他命 Ex Plus</div>
+                            <div style="color:#d0021b; font-weight:bold; font-size:14px; margin:5px 0;">$1,800</div>
+                            <div style="font-size:11px; color:#666; text-align:left; line-height:1.5;">
+                                🏷️ <b>等級：</b><span style="color:#d0021b;">指示藥品</span><br>
+                                ✅ <b>特色：</b>神經修復<br>
+                                🧓 <b>適合：</b>眼肩頸痠痛
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background:#f9f9f9; padding:10px; text-align:left; font-size:12px; border-top:1px solid #eee; line-height:1.5;">
+                        💡 <b>鴨鴨藥師筆記：</b><br>
+                        合利他命<b style="color:#d0021b;">不是綜合維他命</b>喔！它是「高單位B群衍生物」，專門對付痠痛與神經疲勞。<br>
+                        👉 <span style="color:var(--gt-green); font-weight:bold;">想提神選左邊，想解痠痛選右邊！</span>
+                    </div>
+                </div>`;
+            }
+
+            showButtons = false;
+            setTimeout(() => {
+                addMsg(compareHtml, 'duck');
+                addPoints(150, 10); 
+                setTimeout(() => {
+                    addMsg("💡 點擊【繼續詢問】可以輸入另一個代碼看別的比較表，或點【詢問新的】問其他問題喔！", 'duck');
+                    document.getElementById('choiceBtns').style.display = 'block';
+                    const body = document.getElementById('chatBody');
+                    body.scrollTop = body.scrollHeight;
+                }, 1500);
+            }, 800);
+            // 這裡不重置 chatStep，讓使用者按繼續詢問後，可以直接輸入 A 或 B
+        }
+        // ▲▲▲ 比較功能結束 ▲▲▲
         else {
             addMsg("鴨鴨正在學習中... 請輸入「頭痛」、「B群」或「維他命C」試試！", 'duck');
             chatStep = 0;
@@ -654,6 +750,7 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
