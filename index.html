@@ -279,7 +279,7 @@
                 <b>【請輸入想詢問的內容】</b><br>
                 1. <b>頭痛</b> (體驗檢傷分類)<br>
                 2. <b>B群</b> (體驗衛教梗圖)<br>
-                3. <b>維他命C</b> (體驗劑型比較與分眾)
+                3. <b>維他命C</b> (體驗劑型比較與分眾)<br>
                 4. <b>比較商品</b> (體驗智慧對照表)
             </div>
         </div>
@@ -358,7 +358,7 @@
         { id: 4, name: "若元錠 Wakamoto", price: 600, type: "drug", target: "全齡", form: "錠劑", image: "images/p_waka.jpg" },
         { id: 5, name: "大樹 B群+鐵", price: 600, type: "food", target: "大人", form: "錠劑", image: "images/p_b_complex.jpg" },
         { id: 6, name: "萊萃美 C-500", price: 550, type: "food", target: "大人", form: "膜衣錠", image: "images/p_vit_c.jpg" },
-        { id: 7, name: "小兒利撒爾 C軟糖", price: 399, type: "food", target: "小孩", form: "軟糖", image: "images/p_kids_c.jpg" },
+        { id: 7, name: "小兒利撒爾 超能維礦 咀嚼錠 90粒/瓶(接骨木莓萃取)", price: 709, type: "food", target: "小孩", form: "錠劑", image: "images/p_kids_c.jpg" },
         { id: 8, name: "力度伸 C+鈣 發泡錠", price: 280, type: "food", target: "老人/全齡", form: "發泡錠", image: "images/p_effervescent.jpg" },
         { id: 9, name: "大樹 葡萄糖胺飲", price: 680, type: "food", target: "老人", form: "液體", image: "images/p_gluco.jpg" },
         { id: 10, name: "善存 銀寶維他命", price: 880, type: "food", target: "老人", form: "錠劑", image: "images/p_senior_vit.jpg" },
@@ -643,41 +643,59 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
             let compareHtml = "";
 
             if (text.toUpperCase().includes("B") || text.includes("綜合")) {
-                // 【選項 B】 B群 vs 綜合維他命
+                // 【選項 B】 B群 vs 綜合維他命 (專業衛教表格版)
                 compareHtml = `
                 <div style="background:#fff; border-radius:12px; overflow:hidden; border:2px solid #ddd; font-family:sans-serif; margin-top:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                    <div style="background:var(--gt-green); color:#fff; padding:8px; font-weight:bold; font-size:14px; text-align:center;">
-                        🆚 B群 vs 綜合維他命 差在哪？
+                    <div style="background:var(--gt-green); color:#fff; padding:10px; font-weight:bold; font-size:15px; text-align:center;">
+                        💊 銀寶善存 vs. B群：民眾衛教對照表
                     </div>
-                    <div style="display:flex; padding:10px; gap:10px; text-align:center;">
-                        <div style="flex:1; border-right:1px dashed #eee; padding-right:10px;">
-                            <img src="images/p_b_complex.jpg" onerror="this.src='https://placehold.co/100x100/fff/333?text=B-Complex'" style="width:60px; height:60px; object-fit:contain; margin-bottom:5px;">
-                            <div style="font-size:12px; font-weight:bold; color:#333; height:32px;">大樹 B群+鐵</div>
-                            <div style="color:#d0021b; font-weight:bold; font-size:14px; margin:5px 0;">$600</div>
-                            <div style="font-size:11px; color:#666; text-align:left; line-height:1.5;">
-                                ⚡ <b>主攻：</b>能量轉換<br>
-                                🧑 <b>適合：</b>熬夜、需提神<br>
-                                ❌ <b>注意：</b>本身無熱量
-                            </div>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left; line-height:1.5;">
+                            <tr style="background:#e6f4ea; color:var(--gt-green);">
+                                <th style="padding:8px; border:1px solid #ddd; white-space:nowrap; text-align:center;">比較項目</th>
+                                <th style="padding:8px; border:1px solid #ddd; text-align:center;">銀寶善存<br><span style="font-size:10px;">(綜合維他命)</span></th>
+                                <th style="padding:8px; border:1px solid #ddd; text-align:center;">維生素 B 群<br><span style="font-size:10px;">(能量維他命)</span></th>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; background:#fafafa; white-space:nowrap; text-align:center;">主要成分</td>
+                                <td style="padding:8px; border:1px solid #ddd;"><b>「大雜燴」營養補充</b><br><span style="font-size:11px; color:#666;">包含 A、C、D、E、K、葉黃素及礦物質。</span></td>
+                                <td style="padding:8px; border:1px solid #ddd;"><b>「純 B」能量組合</b><br><span style="font-size:11px; color:#666;">專注於 8 種 B 群成分。</span></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; background:#fafafa; white-space:nowrap; text-align:center;">劑量特點</td>
+                                <td style="padding:8px; border:1px solid #ddd;">均衡適量：補足三餐吃不夠的營養。</td>
+                                <td style="padding:8px; border:1px solid #ddd;">高劑量強化：比日常需求量高，主打速效。</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; background:#fafafa; white-space:nowrap; text-align:center;">主要功能</td>
+                                <td style="padding:8px; border:1px solid #ddd;">打底保養：維持體力、保護眼睛與骨骼。</td>
+                                <td style="padding:8px; border:1px solid #ddd;">提神修復：把食物變能量、修復疲勞神經。</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; background:#fafafa; white-space:nowrap; text-align:center;">適用時機</td>
+                                <td style="padding:8px; border:1px solid #ddd;">飯後服用：內含脂溶性維生素，配油吸收好。</td>
+                                <td style="padding:8px; border:1px solid #ddd;">早或午餐後：白天吃提神，晚上怕睡不著。</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; background:#fafafa; white-space:nowrap; text-align:center;">適合族群</td>
+                                <td style="padding:8px; border:1px solid #ddd;">50歲以上、外食族、想一次補全營養的人。</td>
+                                <td style="padding:8px; border:1px solid #ddd;">熬夜族、壓力大上班族、常覺得累的人。</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; background:#fafafa; white-space:nowrap; text-align:center;">專業建議</td>
+                                <td style="padding:8px; border:1px solid #ddd; color:#d0021b;"><b>不建議與 B 群同時吃</b><br><span style="font-size:11px;">若有服用抗凝血藥(中風或心臟病藥物)，請先詢問藥師或醫生。</span></td>
+                                <td style="padding:8px; border:1px solid #ddd; color:var(--gt-green);"><b>多喝水</b><br><span style="font-size:11px;">多餘 B 群會隨尿排出 (尿變黃正常)。</span></td>
+                            </tr>
+                        </table>
                         </div>
-                        <div style="flex:1; padding-left:5px;">
-                            <img src="images/p_senior_vit.jpg" onerror="this.src='https://placehold.co/100x100/fff/333?text=Multi-Vit'" style="width:60px; height:60px; object-fit:contain; margin-bottom:5px;">
-                            <div style="font-size:12px; font-weight:bold; color:#333; height:32px;">善存 銀寶維他命</div>
-                            <div style="color:#d0021b; font-weight:bold; font-size:14px; margin:5px 0;">$880</div>
-                            <div style="font-size:11px; color:#666; text-align:left; line-height:1.5;">
-                                🛡️ <b>主攻：</b>填補營養缺口<br>
-                                🧓 <b>適合：</b>外食族、長輩<br>
-                                ✅ <b>注意：</b>含脂溶性需飯後吃
-                            </div>
-                        </div>
-                    </div>
                     <div style="background:#f9f9f9; padding:10px; text-align:left; font-size:12px; border-top:1px solid #eee; line-height:1.5;">
                         💡 <b>鴨鴨藥師筆記：</b><br>
                         B群像「火星塞」，幫你把食物轉成能量；綜合維他命像「機油」，保養全身零件。<br>
-                        👉 <span style="color:var(--gt-green); font-weight:bold;">常熬夜選左邊，三餐外食選右邊！</span>
+                        👉 <span style="color:var(--gt-green); font-weight:bold;">三餐外食選左邊，常熬夜選右邊！</span>
                     </div>
+
                 </div>`;
-            } 
+            }
             else {
                 // 【選項 A (預設)】 B群 vs 合利他命
                 compareHtml = `
@@ -750,6 +768,7 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
