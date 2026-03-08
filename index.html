@@ -463,7 +463,8 @@
         } else if (action === 'new') {
             chatStep = 0;
             syncDuckLook(); 
-            addMsg(addMsg("好的，還有什麼其他問題想問鴨鴨嗎？🦆<br><br><b>【請輸入代碼或文字】</b><br>1. <b>頭痛</b> (體驗檢傷分類)<br>2. <b>B群</b> (體驗衛教梗圖)<br>3. <b>維他命C</b> (體驗劑型比較與分眾)<br>4. <b>比較商品</b> (體驗智慧對照表)", 'duck');
+            // ★ 修復：把字串全部接在同一行，就不會報錯了
+            addMsg("好的，還有什麼其他問題想問鴨鴨嗎？🦆<br><br><b>【請輸入代碼或文字】</b><br>1. <b>頭痛</b> (體驗檢傷分類)<br>2. <b>B群</b> (體驗衛教梗圖)<br>3. <b>維他命C</b> (體驗劑型比較與分眾)<br>4. <b>比較商品</b> (體驗智慧對照表)", 'duck');
         } else {
             toggleChat();
             syncDuckLook(); 
@@ -793,6 +794,7 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
