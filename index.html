@@ -643,7 +643,7 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
             let compareHtml = "";
 
             if (text.toUpperCase().includes("B") || text.includes("綜合")) {
-                // 【選項 B】 B群 vs 綜合維他命 (專業衛教表格版)
+                // 【選項 B】 綜合維他命 vs B群 (專業衛教表格版)
                 compareHtml = `
                 <div style="background:#fff; border-radius:12px; overflow:hidden; border:2px solid #ddd; font-family:sans-serif; margin-top:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                     <div style="background:var(--gt-green); color:#fff; padding:10px; font-weight:bold; font-size:15px; text-align:center;">
@@ -768,6 +768,7 @@ else if (chatStep === 0 && (text.includes("C") || text.includes("c") || text.inc
         body.scrollTop = body.scrollHeight;
     }
 </script>
+
 
 
 
