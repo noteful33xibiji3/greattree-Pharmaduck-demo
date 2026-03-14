@@ -218,6 +218,7 @@
             </span>
         </a>
         
+        <a href="javascript:void(0);" class="nav-btn" onclick="toggleCart()">🛒 購物車 <span id="cartCount" style="color:#d0021b; margin-left:5px;">(0)</span></a>
         <div style="display: flex; gap: 10px;" id="navAuthArea">
             <a href="index.html" class="nav-btn active">🏠 購物首頁</a>
             <a href="member.html" class="nav-btn">🦆 養成中心</a>
@@ -317,7 +318,24 @@
         Copyright © 2026 Pharma.Duck. All rights reserved.
     </div>
 </footer>
+    
+<div id="cartModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px);" onclick="if(event.target === this) toggleCart()">
+    <div style="background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 25px; position: relative; max-height: 80vh; overflow-y: auto;">
+        <span style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999;" onclick="toggleCart()">×</span>
+        
+        <h2 style="color:var(--gt-green); margin-top:0; border-bottom:2px solid #eee; padding-bottom:10px;">🛒 模擬購物車</h2>
+        
+        <div style="background:#fff5f5; border-left:4px solid #fc8181; padding:10px; font-size:12px; color:#c53030; margin-bottom:15px; line-height:1.5;">
+            ⚠️ <b>系統警語：</b><br>此功能僅為競賽專案模擬展示。<b>不會要求輸入任何信用卡或付款資訊</b>，請安心體驗選購流程！
+        </div>
 
+        <div id="cartItemsList" style="margin-bottom:15px;"></div>
+
+        <div id="cartSummary" style="border-top:2px dashed var(--gt-green); padding-top:15px; text-align:right; font-size:15px;"></div>
+
+        <button style="width:100%; background:var(--gt-orange); color:white; border:none; padding:12px; border-radius:20px; font-weight:bold; margin-top:15px; font-size:16px; cursor:pointer;" onclick="checkoutMock()">✅ 模擬結帳 (不需付款)</button>
+    </div>
+</div>
 <script>
     // === 1. 登入狀態與按鈕動態顯示 ===
     const authArea = document.getElementById('navAuthArea');
@@ -378,6 +396,8 @@
                 <img class="p-img" src="${p.image}" onerror="this.src='${fallback}'">
                 <div class="p-name">${p.name}</div>
                 <div class="p-price">$${p.price}</div>
+                
+                <button style="width:100%; background:var(--gt-green); color:white; border:none; padding:8px; border-radius:5px; margin-top:10px; font-weight:bold; cursor:pointer;" onclick="addToCart(${p.id})">🛒 加入購物車</button>
             </div>`;
     });
 
@@ -494,6 +514,117 @@
         document.getElementById('newLvName').innerText = `獲得 ${exp} EXP / ${coins} Coins`;
         modal.style.display = 'block';
         setTimeout(() => modal.style.display = 'none', 2500);
+    }
+    // === ★ 新增：模擬購物車系統邏輯 ★ ===
+    let cart = JSON.parse(localStorage.getItem('duckCart')) || [];
+
+    // 更新右上角購物車數量
+    function updateCartCount() {
+        let total = cart.reduce((sum, item) => sum + item.qty, 0);
+        let countEl = document.getElementById('cartCount');
+        if(countEl) countEl.innerText = `(${total})`;
+    }
+    updateCartCount();
+
+    // 加入購物車
+    function addToCart(productId) {
+        let prod = products.find(p => p.id === productId);
+        if(!prod) return;
+        
+        let existing = cart.find(c => c.id === productId);
+        if(existing) {
+            existing.qty += 1; // 如果已經有了就數量+1
+        } else {
+            cart.push({ ...prod, qty: 1 }); // 沒有的話就新增一筆
+        }
+        localStorage.setItem('duckCart', JSON.stringify(cart));
+        updateCartCount();
+        alert(`🦆 呱！已將「${prod.name}」加入購物車！`);
+    }
+
+    // 打開或關閉購物車
+    function toggleCart() {
+        let modal = document.getElementById('cartModal');
+        if(modal.style.display === 'flex') {
+            modal.style.display = 'none';
+        } else {
+            renderCart(); // 打開時重新計算畫面
+            modal.style.display = 'flex';
+        }
+    }
+
+    // 刪除購物車商品
+    function removeCartItem(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('duckCart', JSON.stringify(cart));
+        renderCart();
+        updateCartCount();
+    }
+
+    // 渲染購物車內容與試算折扣
+    function renderCart() {
+        let list = document.getElementById('cartItemsList');
+        let summary = document.getElementById('cartSummary');
+        
+        if(cart.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#999; margin:20px 0;">購物車空空的，快去逛逛吧呱！🦆</p>';
+            summary.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        let subtotal = 0;
+        cart.forEach((item, idx) => {
+            let lineTotal = item.price * item.qty;
+            subtotal += lineTotal;
+            html += `
+            <div style="display:flex; align-items:center; border-bottom:1px solid #eee; padding:10px 0;">
+                <img src="${item.image}" style="width:40px; height:40px; object-fit:contain; margin-right:10px;" onerror="this.src='https://placehold.co/40x40/eee/999?text=Item'">
+                <div style="flex:1;">
+                    <div style="font-size:14px; font-weight:bold; color:#333;">${item.name}</div>
+                    <div style="font-size:12px; color:#666;">$${item.price} x ${item.qty}</div>
+                </div>
+                <div style="font-weight:bold; color:#d0021b;">$${lineTotal}</div>
+                <button style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding:0 5px;" onclick="removeCartItem(${idx})">🗑️</button>
+            </div>`;
+        });
+        list.innerHTML = html;
+
+        // ★ 模擬大樹藥局折扣：滿 1000 折 100
+        let discount = subtotal >= 1000 ? 100 : 0;
+        let finalTotal = subtotal - discount;
+
+        let summaryHtml = `<div style="color:#555;">商品總計：$${subtotal.toLocaleString()}</div>`;
+        if (discount > 0) {
+            summaryHtml += `<div style="color:var(--gt-green); font-size:14px; margin-top:5px;">🎉 滿千折百優惠：-$${discount}</div>`;
+        } else {
+            summaryHtml += `<div style="color:#888; font-size:12px; margin-top:5px;">(再消費 $${1000 - subtotal} 即可折抵 $100)</div>`;
+        }
+        summaryHtml += `<div style="font-size:22px; font-weight:bold; color:#d0021b; margin-top:10px;">應付總額：$${finalTotal.toLocaleString()}</div>`;
+        
+        summary.innerHTML = summaryHtml;
+    }
+
+    // 模擬結帳流程
+    function checkoutMock() {
+        if(cart.length === 0) return alert("購物車是空的喔！");
+        
+        // 算出最後金額
+        let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        let finalTotal = subtotal >= 1000 ? subtotal - 100 : subtotal;
+        
+        // ★ O2O 遊戲化：結帳可以獲得鴨鴨養成點數！(每花 10元 = 1 EXP, 50元 = 1 Coin)
+        let getExp = Math.floor(finalTotal / 10);
+        let getCoins = Math.floor(finalTotal / 50);
+
+        alert(`✅ 模擬結帳成功！(未扣款)\n\n總共「虛擬消費」了 $${finalTotal.toLocaleString()}。\n🎁 恭喜獲得 ${getExp} EXP 與 ${getCoins} Coins！快去看看鴨鴨升級了沒！`);
+        
+        // 清空購物車並給獎勵
+        cart = [];
+        localStorage.setItem('duckCart', JSON.stringify(cart));
+        updateCartCount();
+        toggleCart();
+        addPoints(getExp, getCoins); // 呼叫你原本的加分函式！
     }
 // ★★★ 核心新增：統一處理結尾的「大樹幣悄悄話」功能 ★★★
     function showEndingTip() {
