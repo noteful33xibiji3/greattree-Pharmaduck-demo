@@ -160,20 +160,24 @@
             .coupon-ticket { flex-direction: column; align-items: flex-start; gap: 10px; }
             .coupon-ticket img { width: 100%; height: 80px; object-fit: cover; margin-right: 0; margin-bottom: 5px; }
             .coupon-btn { width: 100%; padding: 8px; margin-top: 5px; };
-            /* 👇 加上這段來完美控制手機版的「購物首頁」與「養成中心」按鈕 👇 */
-            .nav-btn { 
-                font-size: 14px; /* 控制字體大小，覺得太大可以改成 13px */
-                white-space: nowrap; /* 🌟 這是神招：強制文字絕對不換行！ */
-                justify-content: center; /* 讓按鈕裡的文字置中對齊 */
-                padding: 6px 12px; /* 把按鈕的內邊距縮小一點，更適合手機 */
-            }
-            
-            /* 把按鈕區塊強制橫向並排置中 */
+          /* 1. 按鈕外框區：強制橫排，螢幕太小就整顆按鈕往下掉 */
             #navAuthArea {
+                display: flex !important;
                 flex-direction: row !important;
-                justify-content: center;
-                width: 100%;
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                width: 100% !important;
+                gap: 8px !important; /* 按鈕之間的間距稍微縮小一點 */
             }
+
+            /* 2. 按鈕本體：強制字體不准斷！ */
+            .nav-btn { 
+                white-space: nowrap !important; /* 🌟 終極殺招：絕對不准換行 */
+                font-size: 13px !important; /* 手機版字體稍微縮小一點點 */
+                padding: 6px 12px !important; /* 縮小內邊距讓它更容易塞進去 */
+                flex-shrink: 0 !important; /* 防止按鈕本身被過度擠壓變形 */
+            }
+        }
         }
         
     </style>
