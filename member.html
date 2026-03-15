@@ -194,6 +194,36 @@
                 <span style="font-size: 24px; font-weight: bold; color: var(--gold);" id="coinDisplay">0</span>
                 <span style="font-size: 12px; opacity: 0.7;">(永不歸零)</span>
             </div>
+            <div style="margin-top: 20px; background: rgba(0,0,0,0.15); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🦆 鴨鴨身心狀態</span>
+                    <span style="font-size: 11px; font-weight: normal; opacity: 0.8;">狀態良好會加速 EXP 獲取喔！</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <span style="font-size: 12px; width: 50px;">🍖 飽食</span>
+                    <div class="progress-container" style="flex: 1; margin: 0; height: 8px; background: rgba(255,255,255,0.2);">
+                        <div class="progress-fill" id="barHunger" style="background: #ff9800; width: 80%; box-shadow: none;"></div>
+                    </div>
+                    <button onclick="interactDuck('feed')" style="background: white; border: none; border-radius: 10px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: #ff9800; font-weight: bold; transition: 0.2s;">餵食</button>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <span style="font-size: 12px; width: 50px;">🎵 心情</span>
+                    <div class="progress-container" style="flex: 1; margin: 0; height: 8px; background: rgba(255,255,255,0.2);">
+                        <div class="progress-fill" id="barMood" style="background: #e91e63; width: 60%; box-shadow: none;"></div>
+                    </div>
+                    <button onclick="interactDuck('play')" style="background: white; border: none; border-radius: 10px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: #e91e63; font-weight: bold; transition: 0.2s;">摸摸</button>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 12px; width: 50px;">❤️ 健康</span>
+                    <div class="progress-container" style="flex: 1; margin: 0; height: 8px; background: rgba(255,255,255,0.2);">
+                        <div class="progress-fill" id="barHealth" style="background: #4caf50; width: 90%; box-shadow: none;"></div>
+                    </div>
+                    <button onclick="interactDuck('heal')" style="background: white; border: none; border-radius: 10px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: #4caf50; font-weight: bold; transition: 0.2s;">保健</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -430,7 +460,7 @@
     }
 
     function loadUserData() {
-        let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "", coupons: [], duckName: "大樹鴨鴨" };
+        let defaultData = { level: 1, exp: 0, coins: 50, currentSkin: levelConfig[0].img, unlockedSkins: [levelConfig[0].img], lastSeason: "", coupons: [], duckName: "大樹鴨鴨",hunger: 60, mood: 50, health: 80 };
         let data = JSON.parse(localStorage.getItem('duckUser')) || defaultData;
         if (!Array.isArray(data.coupons)) data.coupons = [];
         if (!data.duckName) data.duckName = "大樹鴨鴨"; 
@@ -484,6 +514,40 @@
         renderShop();
         renderCoupons();
         updateSeasonDays();
+
+        // 更新寵物狀態條
+        if(userState.hunger === undefined) { userState.hunger = 60; userState.mood = 50; userState.health = 80; }
+        document.getElementById('barHunger').style.width = `${userState.hunger}%`;
+        document.getElementById('barMood').style.width = `${userState.mood}%`;
+        document.getElementById('barHealth').style.width = `${userState.health}%`;
+    }
+// === ★ 新增：虛擬寵物互動邏輯 ★ ===
+    function interactDuck(action) {
+        // 防止數值沒有被定義
+        if(userState.hunger === undefined) { userState.hunger = 60; userState.mood = 50; userState.health = 80; }
+        
+        let cost = 10; // 每次互動消耗 10 個大樹幣
+        
+        if (userState.coins < cost) {
+            return alert("🪙 大樹幣不足！互動需要消耗 10 Coins 喔，快去解任務賺錢呱！");
+        }
+
+        if (action === 'feed') {
+            if (userState.hunger >= 100) return alert("鴨鴨已經吃得很飽了，再吃會變胖呱！");
+            userState.hunger = Math.min(100, userState.hunger + 20);
+            alert("🍖 餵食成功！鴨鴨飽食度 +20");
+        } else if (action === 'play') {
+            if (userState.mood >= 100) return alert("鴨鴨現在超級開心，不需要再摸摸啦！");
+            userState.mood = Math.min(100, userState.mood + 20);
+            alert("🎵 摸摸成功！鴨鴨心情 +20");
+        } else if (action === 'heal') {
+            if (userState.health >= 100) return alert("鴨鴨非常健康，不需要吃保健品！");
+            userState.health = Math.min(100, userState.health + 20);
+            alert("❤️ 保健成功！鴨鴨吃下維他命，健康度 +20");
+        }
+
+        userState.coins -= cost; // 扣除大樹幣
+        updateUI(); // 更新畫面
     }
 
     // === 7. 福利社與票券功能 ===
