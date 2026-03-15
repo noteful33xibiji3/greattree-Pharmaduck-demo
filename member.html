@@ -276,6 +276,102 @@
         <button class="btn-close" onclick="closeModal()">太棒了</button>
     </div>
 </div>
+    <div id="leftPetDuck" style="position: fixed; bottom: 30px; left: 30px; width: 150px; height: 150px; cursor: pointer; z-index: 2000; transition: 0.3s; transform: scaleX(-1);" onclick="openDuckRoom()">
+    <img src="images/my_duck.png" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));" id="leftDuckImg">
+</div>
+
+<div id="duckRoomModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+    <div style="background: linear-gradient(to bottom, #e0f2fe, #fff); width: 95%; max-width: 800px; height: 80vh; border-radius: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+        
+        <span style="position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #555; z-index: 10;" onclick="closeDuckRoom()">×</span>
+        
+        <div style="flex: 1; position: relative; border-bottom: 4px solid #8b5cf6; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 20px; background: url('https://placehold.co/800x400/f3e8ff/ffffff?text=Basic+Room+Background') center/cover;">
+            
+            <div style="position: absolute; top: 15px; left: 20px; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px; font-weight: bold; color: #8b5cf6; display: flex; align-items: center; gap: 10px;">
+                🏠 鴨鴨的小窩
+                <span style="background:#FFD700; color:#333; padding:2px 8px; border-radius:10px; font-size:12px;">擁有 <span id="roomCoins">0</span> 幣</span>
+            </div>
+
+            <div style="position: relative; cursor: pointer; transition: 0.2s;" onclick="petDuckInRoom()" id="roomDuckContainer">
+                <img src="images/my_duck.png" style="height: 250px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));" id="roomDuckImg">
+                <div id="heartEffect" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 30px; opacity: 0; transition: 0.5s; pointer-events: none;">❤️</div>
+            </div>
+            
+            <img src="https://placehold.co/150x100/ddd/999?text=Basic+Bed" style="position: absolute; bottom: 20px; right: 50px; height: 100px; z-index: 0; border-radius: 10px;">
+        </div>
+
+        <div style="height: 250px; background: white; padding: 15px; display: flex; flex-direction: column;">
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; flex-shrink: 0;" id="roomTabButtons">
+                <button class="room-tab active" style="background:#009944; color:white; border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer; white-space:nowrap;" onclick="switchRoomTab('food', this)">🍱 投餵美食</button>
+                <button class="room-tab" style="background:#f0f2f5; color:#555; border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer; white-space:nowrap;" onclick="switchRoomTab('toy', this)">🧸 心情玩具</button>
+                <button class="room-tab" style="background:#f0f2f5; color:#555; border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer; white-space:nowrap;" onclick="switchRoomTab('furniture', this)">🛏️ 佈置傢俱</button>
+                <button class="room-tab" style="background:#f0f2f5; color:#555; border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer; white-space:nowrap;" onclick="switchRoomTab('med', this)">💊 保健箱</button>
+            </div>
+            
+            <div id="roomContent-food" class="room-content-panel" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
+                <div style="border: 2px solid #eee; border-radius: 10px; padding: 10px; text-align: center; min-width: 120px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">🥬</div>
+                    <div style="font-weight: bold; font-size: 13px;">新鮮高麗菜</div>
+                    <div style="color: #F39800; font-size: 12px; margin: 5px 0;">5 Coins (飽食+10)</div>
+                    <button style="background:#F39800; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;" onclick="buyRoomItem('cabbage', 5, 'hunger', 10)">購買投餵</button>
+                </div>
+                <div style="border: 2px solid #eee; border-radius: 10px; padding: 10px; text-align: center; min-width: 120px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">🦐</div>
+                    <div style="font-weight: bold; font-size: 13px;">頂級鮮蝦</div>
+                    <div style="color: #F39800; font-size: 12px; margin: 5px 0;">20 Coins (飽食+30)</div>
+                    <button style="background:#F39800; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;" onclick="buyRoomItem('shrimp', 20, 'hunger', 30)">購買投餵</button>
+                </div>
+            </div>
+
+            <div id="roomContent-toy" class="room-content-panel" style="display: none; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
+                <div style="border: 2px solid #eee; border-radius: 10px; padding: 10px; text-align: center; min-width: 130px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">🎾</div>
+                    <div style="font-weight: bold; font-size: 13px;">發光羽毛球</div>
+                    <div style="color: #F39800; font-size: 12px; margin: 5px 0;">10 幣 (時效 1h)</div>
+                    <button style="background:#F39800; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;" onclick="buyRoomItem('toy1', 10, 'mood', 20)">購買給鴨</button>
+                </div>
+                <div style="border: 2px solid #eee; border-radius: 10px; padding: 10px; text-align: center; min-width: 130px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">🎮</div>
+                    <div style="font-weight: bold; font-size: 13px;">豪華遊戲機</div>
+                    <div style="color: #d0021b; font-size: 12px; margin: 5px 0;">500 幣 (永久解鎖)</div>
+                    <button style="background:#d0021b; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;" onclick="buyFurniture('game_console', 500)">永久購買</button>
+                </div>
+            </div>
+
+            <div id="roomContent-furniture" class="room-content-panel" style="display: none; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
+                <div style="border: 2px solid var(--gt-green); background:#e6f4ea; border-radius: 10px; padding: 10px; text-align: center; min-width: 130px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">🛏️</div>
+                    <div style="font-weight: bold; font-size: 13px;">基礎小床</div>
+                    <div style="color: var(--gt-green); font-size: 12px; margin: 5px 0;">(已裝備)</div>
+                    <button style="background:#ccc; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:not-allowed;">使用中</button>
+                </div>
+                <div style="border: 2px solid #eee; border-radius: 10px; padding: 10px; text-align: center; min-width: 130px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">🛋️</div>
+                    <div style="font-weight: bold; font-size: 13px;">大樹綠沙發</div>
+                    <div style="color: #F39800; font-size: 12px; margin: 5px 0;">300 Coins</div>
+                    <button style="background:#F39800; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;" onclick="buyFurniture('sofa', 300)">購買並佈置</button>
+                </div>
+            </div>
+
+            <div id="roomContent-med" class="room-content-panel" style="display: none; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
+                <div style="border: 2px dashed #009944; background:#e6f4ea; border-radius: 10px; padding: 10px; text-align: center; min-width: 140px;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">💊</div>
+                    <div style="font-weight: bold; font-size: 13px;">主人買的 B群</div>
+                    <div style="color: #009944; font-size: 12px; margin: 5px 0;">實體同步獎勵</div>
+                    <button style="background:#009944; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;" onclick="useO2OMed()">免費餵食</button>
+                </div>
+                 <div style="border: 2px dashed #ccc; border-radius: 10px; padding: 10px; text-align: center; min-width: 140px; filter: grayscale(1); opacity: 0.6;">
+                    <div style="font-size: 30px; margin-bottom: 5px;">👁️</div>
+                    <div style="font-weight: bold; font-size: 13px;">大樹葉黃素</div>
+                    <div style="color: #666; font-size: 12px; margin: 5px 0;">(未購買實體)</div>
+                    <button style="background:#999; color:white; border:none; padding:4px 12px; border-radius:15px; font-size:11px; cursor:pointer;">前往商城</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
     
 <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid #eee; background: #fff; margin-top: 50px;">
     <div style="font-size: 18px; font-weight: bold; color: #F39800; margin-bottom: 5px;">
@@ -522,34 +618,18 @@
         document.getElementById('barHealth').style.width = `${userState.health}%`;
     }
 // === ★ 新增：虛擬寵物互動邏輯 ★ ===
+   // === 修改：引導至左下角專屬房間 ===
     function interactDuck(action) {
-        // 防止數值沒有被定義
-        if(userState.hunger === undefined) { userState.hunger = 60; userState.mood = 50; userState.health = 80; }
+        let actionName = action === 'feed' ? '餵食' : (action === 'play' ? '摸摸' : '保健');
+        alert(`呱！你想對我進行【${actionName}】嗎？\n請點擊畫面「左下角」的鴨鴨，來我的專屬房間找我吧！🦆✨`);
         
-        let cost = 10; // 每次互動消耗 10 個大樹幣
-        
-        if (userState.coins < cost) {
-            return alert("🪙 大樹幣不足！互動需要消耗 10 Coins 喔，快去解任務賺錢呱！");
+        // 讓左下角的鴨鴨跳動一下引起注意
+        const leftDuck = document.getElementById('leftPetDuck');
+        if(leftDuck) {
+            leftDuck.style.transform = "scaleX(-1) scale(1.2)";
+            setTimeout(() => leftDuck.style.transform = "scaleX(-1) scale(1)", 500);
         }
-
-        if (action === 'feed') {
-            if (userState.hunger >= 100) return alert("鴨鴨已經吃得很飽了，再吃會變胖呱！");
-            userState.hunger = Math.min(100, userState.hunger + 20);
-            alert("🍖 餵食成功！鴨鴨飽食度 +20");
-        } else if (action === 'play') {
-            if (userState.mood >= 100) return alert("鴨鴨現在超級開心，不需要再摸摸啦！");
-            userState.mood = Math.min(100, userState.mood + 20);
-            alert("🎵 摸摸成功！鴨鴨心情 +20");
-        } else if (action === 'heal') {
-            if (userState.health >= 100) return alert("鴨鴨非常健康，不需要吃保健品！");
-            userState.health = Math.min(100, userState.health + 20);
-            alert("❤️ 保健成功！鴨鴨吃下維他命，健康度 +20");
-        }
-
-        userState.coins -= cost; // 扣除大樹幣
-        updateUI(); // 更新畫面
     }
-
     // === 7. 福利社與票券功能 ===
     // === 渲染商城與綁定點擊事件 ===
     function renderShop() {
@@ -686,7 +766,125 @@
             container.appendChild(card);
         });
     }
+// === 鴨鴨專屬房間邏輯 ===
 
+    function openDuckRoom() {
+        // 同步大樹幣數量
+        let user = JSON.parse(localStorage.getItem('duckUser')) || { coins: 0 };
+        document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
+        
+        // 確保房間裡的鴨鴨外觀跟養成中心一樣
+        document.getElementById('roomDuckImg').src = user.currentSkin || "images/my_duck.png";
+        
+        document.getElementById('duckRoomModal').style.display = 'flex';
+    }
+
+    function closeDuckRoom() {
+        document.getElementById('duckRoomModal').style.display = 'none';
+        updateUI(); // 關閉時刷新外面的進度條
+    }
+
+    // ★ 摸摸加分邏輯 ★
+    function petDuckInRoom() {
+        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        if(user.mood === undefined) user.mood = 50;
+
+        if(user.mood >= 100) {
+            return alert("鴨鴨現在超級開心，已經摸夠啦！呱！");
+        }
+
+        // 每次摸摸心情 +5
+        user.mood = Math.min(100, user.mood + 5);
+        localStorage.setItem('duckUser', JSON.stringify(user));
+
+        // 視覺特效：愛心飄動與鴨鴨跳躍
+        const duck = document.getElementById('roomDuckContainer');
+        const heart = document.getElementById('heartEffect');
+        
+        duck.style.transform = "translateY(-20px)";
+        heart.style.opacity = "1";
+        heart.style.transform = "translate(-50%, -40px)";
+
+        setTimeout(() => {
+            duck.style.transform = "translateY(0)";
+            heart.style.opacity = "0";
+            heart.style.transform = "translate(-50%, 0)";
+        }, 500);
+    }
+
+    // 房間內購買物品邏輯
+    function buyRoomItem(itemId, cost, statType, increaseAmount) {
+        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        
+        if (user.coins < cost) {
+            return alert("🪙 大樹幣不足喔！去解任務賺點錢吧！");
+        }
+        
+        if (user[statType] >= 100) {
+            return alert("鴨鴨這個狀態已經滿囉，不需要再用啦！");
+        }
+
+        // 扣錢與加數值
+        user.coins -= cost;
+        user[statType] = Math.min(100, user[statType] + increaseAmount);
+        localStorage.setItem('duckUser', JSON.stringify(user));
+        
+        // 更新畫面
+        document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
+        alert(`✅ 購買並使用成功！消耗了 ${cost} 幣。鴨鴨很開心！`);
+    }
+
+    // === 鴨鴨房間：選單切換與新功能邏輯 ===
+
+    // 1. 切換下方 Tab 選單
+    function switchRoomTab(tabId, btnElement) {
+        // 把所有按鈕變成灰色 (未選取狀態)
+        const buttons = document.querySelectorAll('#roomTabButtons .room-tab');
+        buttons.forEach(btn => {
+            btn.style.background = '#f0f2f5';
+            btn.style.color = '#555';
+            btn.classList.remove('active');
+        });
+
+        // 把被點擊的按鈕變成綠色 (選取狀態)
+        btnElement.style.background = '#009944';
+        btnElement.style.color = 'white';
+        btnElement.classList.add('active');
+
+        // 隱藏所有內容區塊，只顯示對應的那個
+        const panels = document.querySelectorAll('.room-content-panel');
+        panels.forEach(panel => {
+            panel.style.display = 'none';
+        });
+        document.getElementById('roomContent-' + tabId).style.display = 'flex';
+    }
+
+    // 2. 購買「買斷制」傢俱或永久玩具 (Demo 效果)
+    function buyFurniture(itemId, cost) {
+        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        if (user.coins < cost) {
+            return alert("🪙 大樹幣不足喔！快去解任務賺錢吧！");
+        }
+        
+        user.coins -= cost;
+        localStorage.setItem('duckUser', JSON.stringify(user));
+        document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
+        
+        alert("🎉 購買成功！鴨鴨的房間變得更豪華了！\n(此為競賽 Demo，實際 2.5D 圖層佈置功能將於後續版本實裝)");
+    }
+
+    // 3. O2O 保健箱：實體連動虛擬 (Demo 效果)
+    function useO2OMed() {
+        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        if (user.health >= 100) {
+            return alert("鴨鴨現在非常健康，不需要吃藥喔！");
+        }
+        
+        user.health = Math.min(100, user.health + 50); // 保健品補血補很多
+        localStorage.setItem('duckUser', JSON.stringify(user));
+        
+        alert('🦆 謝謝主人！因為您在實體門市購買了 B 群，鴨鴨也獲得了一份專屬保健品！\n❤️ 健康度大幅提升！');
+    }
     // === 9. 輔助功能 ===
     function doTask(btn, exp, coins) {
         btn.disabled = true; userState.exp += exp; userState.coins += coins; 
