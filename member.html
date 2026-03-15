@@ -14,9 +14,11 @@
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: var(--bg-gray); margin: 0; padding-bottom: 50px; }
         
         /* 導航列 */
-        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); position: sticky; top: 0; z-index: 100; }
-        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .nav-btn { text-decoration: none; color: #555; font-weight: bold; padding: 8px 15px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
+       /* 導航列 (完美對齊版) */
+        header { background: white; padding: 15px 0; border-bottom: 4px solid var(--gt-green); position: sticky; top: 0; z-index: 100; text-align: center; }
+        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 0 20px; }
+        .nav-buttons-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .nav-btn { text-decoration: none; color: #555; font-weight: bold; padding: 8px 15px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; gap: 5px; white-space: nowrap; /* 強制文字不換行 */ }
         .nav-btn:hover { background: #e6f4ea; color: var(--gt-green); }
         .nav-btn.active { background: var(--gt-green); color: white; }
 
@@ -151,15 +153,14 @@
 
 <header>
     <div class="nav-container">
-        <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
-            <img src="images/logo.png" alt="Logo" style="height:40px;" 
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <span style="display:none; font-family: 'Microsoft JhengHei', sans-serif; font-weight: 900; font-size: 20px; color: #009944;">
+        <a href="index.html" style="display:flex; justify-content:center; align-items:center; text-decoration:none;">
+            <img src="images/logo.png" alt="Logo" style="height:40px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none; font-family: 'Microsoft JhengHei', sans-serif; font-weight: 900; font-size: 22px; color: #009944;">
                 🌳 大樹一鴨tree吃購物網
             </span>
         </a>
         
-        <div style="display: flex; gap: 10px;" id="navAuthArea">
+        <div class="nav-buttons-row" id="navAuthArea">
             <a href="index.html" class="nav-btn">🏠 購物首頁</a>
             <a href="member.html" class="nav-btn active">🦆 養成中心</a>
         </div>
@@ -303,10 +304,10 @@
                 🏠 鴨鴨的小窩
                 <span style="background:#FFD700; color:#333; padding:2px 8px; border-radius:10px; font-size:12px;">擁有 <span id="roomCoins">0</span> 幣</span>
             </div>
-<div style="position: relative; cursor: pointer; transition: 0.2s;" onclick="petDuckInRoom()" id="roomDuckContainer">
-                <img src="images/my_duck.png" style="height: 250px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));" id="roomDuckImg">
-                <div id="heartEffect" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 30px; opacity: 0; transition: 0.5s; pointer-events: none;">❤️</div>
-            </div>
+<div style="position: relative; cursor: pointer; transition: 0.2s; width: 45%; max-width: 220px; z-index: 10; margin-bottom: 2%;" onclick="petDuckInRoom()" id="roomDuckContainer">
+    <img src="images/my_duck.png" style="width: 100%; height: auto; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));" id="roomDuckImg">
+    <div id="heartEffect" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 30px; opacity: 0; transition: 0.5s; pointer-events: none;">❤️</div>
+</div>
             
            <div id="furnitureLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;">
     <img src="images/furniture_bed.png" style="position: absolute; bottom: 20px; right: 50px; height: 100px;">
@@ -830,7 +831,8 @@
 
        const layer = document.getElementById('furnitureLayer');
     // 保留原本那張預設的床，加上玩家買的傢俱
-    let html = `<img src="images/furniture_bed.png" style="position: absolute; bottom: 20px; right: 50px; height: 100px;">`;
+    // ★ 將床放大 (width: 180px)，並往牆壁推 (bottom: 25%)，放在鴨鴨的後面 (z-index: 1)
+let html = `<img src="images/furniture_bed.png" style="position: absolute; bottom: 25%; right: 2%; width: 180px; max-width: 45%; height: auto; z-index: 1;">`;
         
         user.ownedFurniture.forEach(itemId => {
             if(furnitureDB[itemId]) {
