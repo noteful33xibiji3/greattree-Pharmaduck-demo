@@ -573,7 +573,17 @@
             alert(`🎉 命名成功！以後牠就叫「${userState.duckName}」囉！`);
         }
     }
-
+// ★ 新增：檢查並重置每日互動次數 ★
+    function checkDailyLimits(user) {
+        const today = new Date().toLocaleDateString(); // 例如 "2026/3/15"
+        if (user.lastDate !== today) {
+            user.lastDate = today;
+            user.dailyPlay = 0;   // 每天摸摸次數
+            user.dailyFeed = 0;   // 每天餵食次數
+            user.dailyHeal = 0;   // 每天保健次數
+        }
+        return user;
+    }
     // === 6. UI 更新核心 ===
     function updateUI() {
         let sortedConfig = [...levelConfig].sort((a, b) => b.minExp - a.minExp);
@@ -769,13 +779,12 @@
     }
 // === 鴨鴨專屬房間邏輯 ===
 
-    function openDuckRoom() {
-        // 同步大樹幣數量
+   function openDuckRoom() {
         let user = JSON.parse(localStorage.getItem('duckUser')) || { coins: 0 };
         document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
-        
-        // 確保房間裡的鴨鴨外觀跟養成中心一樣
         document.getElementById('roomDuckImg').src = user.currentSkin || "images/my_duck.png";
+        
+        renderRoomFurniture(); // <--- 加上這行！
         
         document.getElementById('duckRoomModal').style.display = 'flex';
     }
@@ -784,20 +793,41 @@
         document.getElementById('duckRoomModal').style.display = 'none';
         updateUI(); // 關閉時刷新外面的進度條
     }
+// 定義傢俱的外觀與擺放位置
+    const furnitureDB = {
+        'sofa': { src: 'https://placehold.co/180x120/a5d6a7/009944?text=Green+Sofa', style: 'position:absolute; bottom:15px; left:30px; height:120px;' },
+        'game_console': { src: 'https://placehold.co/100x150/fca5a5/d0021b?text=Console', style: 'position:absolute; bottom:30px; right:200px; height:150px;' }
+    };
 
+    // 把傢俱畫到房間裡
+    function renderRoomFurniture() {
+        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        if(!user.ownedFurniture) user.ownedFurniture = []; // 確保有這個陣列
+
+        const layer = document.getElementById('furnitureLayer');
+        // 保留原本那張預設的床，加上玩家買的傢俱
+        let html = `<img src="https://placehold.co/150x100/ddd/999?text=Basic+Bed" style="position: absolute; bottom: 20px; right: 50px; height: 100px; border-radius: 10px;">`;
+        
+        user.ownedFurniture.forEach(itemId => {
+            if(furnitureDB[itemId]) {
+                html += `<img src="${furnitureDB[itemId].src}" style="${furnitureDB[itemId].style}">`;
+            }
+        });
+        layer.innerHTML = html;
+    }
     // ★ 摸摸加分邏輯 ★
     function petDuckInRoom() {
-        let user = JSON.parse(localStorage.getItem('duckUser')) || {};
-        if(user.mood === undefined) user.mood = 50;
+        let user = JSON.parse(localStorage.getItem('duckUser')) || { mood: 50 };
+        user = checkDailyLimits(user); // 檢查是否跨日
 
-        if(user.mood >= 100) {
-            return alert("鴨鴨現在超級開心，已經摸夠啦！呱！");
-        }
+        if(user.mood >= 100) return alert("鴨鴨現在超級開心，已經摸夠啦！");
+        if(user.dailyPlay >= 10) return alert("✋ 鴨鴨想睡覺了，今天摸摸次數已達上限 (10/10)！明天再來吧呱！");
 
-        // 每次摸摸心情 +5
         user.mood = Math.min(100, user.mood + 5);
+        user.dailyPlay += 1; // 記錄次數
         localStorage.setItem('duckUser', JSON.stringify(user));
 
+    
         // 視覺特效：愛心飄動與鴨鴨跳躍
         const duck = document.getElementById('roomDuckContainer');
         const heart = document.getElementById('heartEffect');
@@ -814,25 +844,27 @@
     }
 
     // 房間內購買物品邏輯
-    function buyRoomItem(itemId, cost, statType, increaseAmount) {
+   function buyRoomItem(itemId, cost, statType, increaseAmount) {
         let user = JSON.parse(localStorage.getItem('duckUser')) || {};
-        
-        if (user.coins < cost) {
-            return alert("🪙 大樹幣不足喔！去解任務賺點錢吧！");
-        }
-        
-        if (user[statType] >= 100) {
-            return alert("鴨鴨這個狀態已經滿囉，不需要再用啦！");
-        }
+        user = checkDailyLimits(user);
 
-        // 扣錢與加數值
+        if (user.coins < cost) return alert("🪙 大樹幣不足喔！");
+        if (user[statType] >= 100) return alert("鴨鴨這個狀態已經滿囉！");
+
+        // 判斷上限
+        if(statType === 'hunger' && user.dailyFeed >= 5) return alert("✋ 鴨鴨吃太撐了！今天投餵已達上限 (5/5)！");
+        if(statType === 'health' && user.dailyHeal >= 3) return alert("✋ 保健品多食無益！今天保健已達上限 (3/3)！");
+
         user.coins -= cost;
         user[statType] = Math.min(100, user[statType] + increaseAmount);
-        localStorage.setItem('duckUser', JSON.stringify(user));
         
-        // 更新畫面
+        // 增加紀錄
+        if(statType === 'hunger') user.dailyFeed += 1;
+        if(statType === 'health') user.dailyHeal += 1;
+
+        localStorage.setItem('duckUser', JSON.stringify(user));
         document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
-        alert(`✅ 購買並使用成功！消耗了 ${cost} 幣。鴨鴨很開心！`);
+        alert(`✅ 消耗了 ${cost} 幣。鴨鴨很滿意！`);
     }
 
     // === 鴨鴨房間：選單切換與新功能邏輯 ===
@@ -861,18 +893,26 @@
     }
 
     // 2. 購買「買斷制」傢俱或永久玩具 (Demo 效果)
+   // 購買傢俱 (加入陣列並重繪)
     function buyFurniture(itemId, cost) {
         let user = JSON.parse(localStorage.getItem('duckUser')) || {};
-        if (user.coins < cost) {
-            return alert("🪙 大樹幣不足喔！快去解任務賺錢吧！");
+        if(!user.ownedFurniture) user.ownedFurniture = [];
+        
+        if (user.ownedFurniture.includes(itemId)) {
+            return alert("這個傢俱你已經買過，並且佈置在房間裡囉！");
         }
-        
+        if (user.coins < cost) return alert("🪙 大樹幣不足喔！");
+
         user.coins -= cost;
+        user.ownedFurniture.push(itemId); // 存入已擁有清單
         localStorage.setItem('duckUser', JSON.stringify(user));
-        document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
         
-        alert("🎉 購買成功！鴨鴨的房間變得更豪華了！\n(此為競賽 Demo，實際 2.5D 圖層佈置功能將於後續版本實裝)");
+        document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
+        renderRoomFurniture(); // 買完立刻畫到畫面上！
+        alert("🎉 購買成功！傢俱已經自動佈置在房間裡囉！");
     }
+
+    
 
     // 3. O2O 保健箱：實體連動虛擬 (Demo 效果)
     function useO2OMed() {
