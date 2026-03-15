@@ -276,8 +276,8 @@
         <button class="btn-close" onclick="closeModal()">太棒了</button>
     </div>
 </div>
-    <div id="leftPetDuck" style="position: fixed; bottom: 30px; left: 30px; width: 150px; height: 150px; cursor: pointer; z-index: 2000; transition: 0.3s; transform: scaleX(-1);" onclick="openDuckRoom()">
-    <img src="images/my_duck.png" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));" id="leftDuckImg">
+    <div id="leftPetDuck" style="position: fixed; bottom: 30px; left: 30px; width: 100px; height: 100px; cursor: pointer; z-index: 2000; transition: 0.3s; transform: scale(1);" onclick="openDuckRoom()">
+    <img src="images/icon_duck_home.png" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));" id="leftDuckImg" onerror="this.src='https://placehold.co/100x100/f3e8ff/8b5cf6?text=HOME'">
 </div>
 
 <div id="duckRoomModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
@@ -618,16 +618,17 @@
         document.getElementById('barHealth').style.width = `${userState.health}%`;
     }
 // === ★ 新增：虛擬寵物互動邏輯 ★ ===
-   // === 修改：引導至左下角專屬房間 ===
+  // === 修改：引導至左下角專屬房間 (文字修正) ===
     function interactDuck(action) {
         let actionName = action === 'feed' ? '餵食' : (action === 'play' ? '摸摸' : '保健');
-        alert(`呱！你想對我進行【${actionName}】嗎？\n請點擊畫面「左下角」的鴨鴨，來我的專屬房間找我吧！🦆✨`);
+        // ★ 這裡文字改為【專屬小窩】
+        alert(`呱！你想對我進行【${actionName}】嗎？\n請點擊畫面「左下角」的【專屬小窩】，進來房間找我吧！🏠✨`);
         
-        // 讓左下角的鴨鴨跳動一下引起注意
+        // 讓左下角的小窩跳動一下引起注意 (取消翻轉邏輯)
         const leftDuck = document.getElementById('leftPetDuck');
         if(leftDuck) {
-            leftDuck.style.transform = "scaleX(-1) scale(1.2)";
-            setTimeout(() => leftDuck.style.transform = "scaleX(-1) scale(1)", 500);
+            leftDuck.style.transform = "scale(1.2)"; // 放大
+            setTimeout(() => leftDuck.style.transform = "scale(1)", 300); // 縮回原樣
         }
     }
     // === 7. 福利社與票券功能 ===
