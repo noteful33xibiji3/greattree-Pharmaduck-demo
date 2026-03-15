@@ -204,8 +204,9 @@
                     <span style="font-size: 11px; font-weight: normal; opacity: 0.8;">狀態良好會加速 EXP 獲取喔！</span>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <span style="font-size: 12px; width: 50px;">🍖 飽食</span>
+     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <span style="font-size: 12px; width: 40px;">🍖 飽食</span>
+                    <span id="dashTxtHunger" style="font-size: 11px; font-weight: bold; color: #ff9800; width: 40px; text-align: right;">0/100</span>
                     <div class="progress-container" style="flex: 1; margin: 0; height: 8px; background: rgba(255,255,255,0.2);">
                         <div class="progress-fill" id="barHunger" style="background: #ff9800; width: 80%; box-shadow: none;"></div>
                     </div>
@@ -213,7 +214,8 @@
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <span style="font-size: 12px; width: 50px;">🎵 心情</span>
+                    <span style="font-size: 12px; width: 40px;">🎵 心情</span>
+                    <span id="dashTxtMood" style="font-size: 11px; font-weight: bold; color: #e91e63; width: 40px; text-align: right;">0/100</span>
                     <div class="progress-container" style="flex: 1; margin: 0; height: 8px; background: rgba(255,255,255,0.2);">
                         <div class="progress-fill" id="barMood" style="background: #e91e63; width: 60%; box-shadow: none;"></div>
                     </div>
@@ -221,13 +223,13 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 12px; width: 50px;">❤️ 健康</span>
+                    <span style="font-size: 12px; width: 40px;">❤️ 健康</span>
+                    <span id="dashTxtHealth" style="font-size: 11px; font-weight: bold; color: #4caf50; width: 40px; text-align: right;">0/100</span>
                     <div class="progress-container" style="flex: 1; margin: 0; height: 8px; background: rgba(255,255,255,0.2);">
                         <div class="progress-fill" id="barHealth" style="background: #4caf50; width: 90%; box-shadow: none;"></div>
                     </div>
                     <button onclick="interactDuck('heal')" style="background: white; border: none; border-radius: 10px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: #4caf50; font-weight: bold; transition: 0.2s;">保健</button>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -286,7 +288,13 @@
 
 <div id="duckRoomModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
     <div style="background: linear-gradient(to bottom, #e0f2fe, #fff); width: 95%; max-width: 800px; height: 80vh; border-radius: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+        <span style="position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #555; z-index: 10;" onclick="closeDuckRoom()">×</span>
         
+        <div style="position: absolute; top: 55px; right: 20px; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 15px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 20; border: 2px solid rgba(0,0,0,0.05);">
+            <div style="color: #ff9800; margin-bottom: 5px;">🍖 <span id="roomTxtHunger">0</span>/100</div>
+            <div style="color: #e91e63; margin-bottom: 5px;">🎵 <span id="roomTxtMood">0</span>/100</div>
+            <div style="color: #4caf50;">❤️ <span id="roomTxtHealth">0</span>/100</div>
+        </div>
         <span style="position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #555; z-index: 10;" onclick="closeDuckRoom()">×</span>
         
         <div style="flex: 1; position: relative; border-bottom: 4px solid #8b5cf6; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 20px; background: url('images/background_bg.png') center/cover;">
@@ -795,6 +803,7 @@
         document.getElementById('roomDuckImg').src = user.currentSkin || "images/my_duck.png";
         
         renderRoomFurniture(); 
+       syncRoomStats(user); // 加上這行，一進房間就讀取數字
         document.getElementById('duckRoomModal').style.display = 'flex';
     }
     function closeDuckRoom() {
@@ -834,6 +843,9 @@
         user.mood = Math.min(100, user.mood + 5);
         user.dailyPlay += 1; // 記錄次數
         localStorage.setItem('duckUser', JSON.stringify(user));
+    // ★ 加上這兩行，摸完馬上更新數字！
+    syncRoomStats(user);
+    updateUI();
 
     
         // 視覺特效：愛心飄動與鴨鴨跳躍
@@ -872,6 +884,8 @@
 
         localStorage.setItem('duckUser', JSON.stringify(user));
         document.getElementById('roomCoins').innerText = user.coins.toLocaleString();
+       syncRoomStats(user);
+    updateUI();
         alert(`✅ 消耗了 ${cost} 幣。鴨鴨很滿意！`);
     }
 
@@ -992,6 +1006,27 @@
         levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
         userState = loadUserData(); updateUI();
     });
+    // 更新寵物狀態條與文字 (放在 updateUI() 的最下方)
+        if(userState.hunger === undefined) { userState.hunger = 60; userState.mood = 50; userState.health = 80; }
+        
+        document.getElementById('barHunger').style.width = `${userState.hunger}%`;
+        document.getElementById('barMood').style.width = `${userState.mood}%`;
+        document.getElementById('barHealth').style.width = `${userState.health}%`;
+        
+        // ★ 新增：更新養成中心的數字 ★
+        if(document.getElementById('dashTxtHunger')) {
+            document.getElementById('dashTxtHunger').innerText = `${userState.hunger}/100`;
+            document.getElementById('dashTxtMood').innerText = `${userState.mood}/100`;
+            document.getElementById('dashTxtHealth').innerText = `${userState.health}/100`;
+        }
+    // ★ 新增：專門用來更新小窩內數字的工具 ★
+    function syncRoomStats(user) {
+        if(document.getElementById('roomTxtHunger')) {
+            document.getElementById('roomTxtHunger').innerText = user.hunger !== undefined ? user.hunger : 60;
+            document.getElementById('roomTxtMood').innerText = user.mood !== undefined ? user.mood : 50;
+            document.getElementById('roomTxtHealth').innerText = user.health !== undefined ? user.health : 80;
+        }
+    }
 </script>
 </body>
 </html>
