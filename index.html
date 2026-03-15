@@ -616,8 +616,13 @@
         // ★ O2O 遊戲化：結帳可以獲得鴨鴨養成點數！(每花 10元 = 1 EXP, 50元 = 1 Coin)
         let getExp = Math.floor(finalTotal / 10);
         let getCoins = Math.floor(finalTotal / 50);
+let duckData = JSON.parse(localStorage.getItem('duckUser')) || { health: 80 };
+    if(duckData.health === undefined) duckData.health = 80;
+    duckData.health = Math.min(100, duckData.health + 15);
+    localStorage.setItem('duckUser', JSON.stringify(duckData));
 
-        alert(`✅ 模擬結帳成功！(未扣款)\n\n總共「虛擬消費」了 $${finalTotal.toLocaleString()}。\n🎁 恭喜獲得 ${getExp} EXP 與 ${getCoins} Coins！快去看看鴨鴨升級了沒！`);
+    // (原本的) 提示文字加上健康度的說明
+    alert(`✅ 模擬結帳成功！(未扣款)\n\n🎁 獲得 ${getExp} EXP 與 ${getCoins} Coins！\n❤️ 鴨鴨因為你的購買，健康度也提升了！`);
         
         // 清空購物車並給獎勵
         cart = [];
