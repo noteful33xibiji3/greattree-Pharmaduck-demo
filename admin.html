@@ -162,6 +162,24 @@
                     <input type="range" id="simCoinSlider" min="0" max="100000" step="100" value="50" oninput="syncCoinInput(this.value)">
                     <input type="number" id="simCoinInput" class="range-val" value="50" onchange="syncCoinSlider(this.value)">
                 </div>
+                <div style="margin-top: 20px; padding: 15px; border: 2px dashed var(--gt-green); border-radius: 10px; background: #f9f9f9;">
+    <h3 style="margin-top: 0; color: var(--gt-green);">🦆 虛擬寵物狀態控制 (0~100)</h3>
+    
+    <div style="margin-bottom: 10px;">
+        <label style="display:inline-block; width:80px;">🍖 飽食度：</label>
+        <input type="number" id="adminHunger" min="0" max="100" style="padding: 5px; width: 100px;">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <label style="display:inline-block; width:80px;">🎵 心情值：</label>
+        <input type="number" id="adminMood" min="0" max="100" style="padding: 5px; width: 100px;">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <label style="display:inline-block; width:80px;">❤️ 健康度：</label>
+        <input type="number" id="adminHealth" min="0" max="100" style="padding: 5px; width: 100px;">
+    </div>
+</div>
             </div>
 
             <button class="btn btn-apply" onclick="applySimulation()">🚀 套用數值並刷新預覽</button>
@@ -228,11 +246,17 @@
         updateSimUI(user.exp, user.coins);
     }
 
-    function updateSimUI(exp, coins) {
+  function updateSimUI(exp, coins) {
         document.getElementById('simExpSlider').value = exp;
         document.getElementById('simExpInput').value = exp;
         document.getElementById('simCoinSlider').value = coins;
         document.getElementById('simCoinInput').value = coins;
+
+        // ★ 新增：讀取寵物的狀態並顯示在輸入框中 ★
+        const user = JSON.parse(localStorage.getItem('duckUser')) || {};
+        document.getElementById('adminHunger').value = user.hunger !== undefined ? user.hunger : 60;
+        document.getElementById('adminMood').value = user.mood !== undefined ? user.mood : 50;
+        document.getElementById('adminHealth').value = user.health !== undefined ? user.health : 80;
     }
 
     function renderTable() {
@@ -306,10 +330,15 @@
         // D. 合併清單 (買的 + 新等級應得的) = 新的合法清單
         user.unlockedSkins = [...new Set([...purchasedSkins, ...validLevelSkins])];
 
-        // 4. 更新狀態
+       // 4. 更新狀態
         user.exp = newExp;
         user.coins = newCoins;
         user.level = targetLevelObj.lv;
+
+        // ★ 新增：抓取輸入框的數字，限制在 0~100 之間，並存入 user 資料中 ★
+        user.hunger = Math.min(100, Math.max(0, parseInt(document.getElementById('adminHunger').value) || 0));
+        user.mood = Math.min(100, Math.max(0, parseInt(document.getElementById('adminMood').value) || 0));
+        user.health = Math.min(100, Math.max(0, parseInt(document.getElementById('adminHealth').value) || 0));
 
         // 5. 換裝檢查 (如果身上穿的被沒收了，強制換回 Lv.1)
         if (!user.unlockedSkins.includes(user.currentSkin)) {
