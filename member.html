@@ -639,7 +639,14 @@
         if(userState.hunger === undefined) { userState.hunger = 60; userState.mood = 50; userState.health = 80; }
         document.getElementById('barHunger').style.width = `${userState.hunger}%`;
         document.getElementById('barMood').style.width = `${userState.mood}%`;
-        document.getElementById('barHealth').style.width = `${userState.health}%`;
+        document.getElementById('barHealth').style.width = `${userState.health}%`;;
+        
+        // ★ 新增：更新養成中心的數字 ★
+        if(document.getElementById('dashTxtHunger')) {
+            document.getElementById('dashTxtHunger').innerText = `${userState.hunger}/100`;
+            document.getElementById('dashTxtMood').innerText = `${userState.mood}/100`;
+            document.getElementById('dashTxtHealth').innerText = `${userState.health}/100`;
+        }
     }
 // === ★ 新增：虛擬寵物互動邏輯 ★ ===
   // === 修改：引導至左下角專屬房間 (文字修正) ===
@@ -1006,19 +1013,7 @@
         levelConfig = JSON.parse(localStorage.getItem('customLevelConfig')) || defaultLevels;
         userState = loadUserData(); updateUI();
     });
-    // 更新寵物狀態條與文字 (放在 updateUI() 的最下方)
-        if(userState.hunger === undefined) { userState.hunger = 60; userState.mood = 50; userState.health = 80; }
-        
-        document.getElementById('barHunger').style.width = `${userState.hunger}%`;
-        document.getElementById('barMood').style.width = `${userState.mood}%`;
-        document.getElementById('barHealth').style.width = `${userState.health}%`;
-        
-        // ★ 新增：更新養成中心的數字 ★
-        if(document.getElementById('dashTxtHunger')) {
-            document.getElementById('dashTxtHunger').innerText = `${userState.hunger}/100`;
-            document.getElementById('dashTxtMood').innerText = `${userState.mood}/100`;
-            document.getElementById('dashTxtHealth').innerText = `${userState.health}/100`;
-        }
+    
     // ★ 新增：專門用來更新小窩內數字的工具 ★
     function syncRoomStats(user) {
         if(document.getElementById('roomTxtHunger')) {
